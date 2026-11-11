@@ -58,7 +58,7 @@
         .btn-group { display: flex; gap: 4px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 55px; padding: 8px 2px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
         
-        /* 코스별 파스텔톤 스타일 정의 */
+        /* 코스별 파스텔톤 컬러 스타일 정의 */
         .style-full { background: #faf5ff !important; color: #6b21a8 !important; border-color: #d8b4fe !important; }
         .style-half { background: #fffbeb !important; color: #b45309 !important; border-color: #fde68a !important; }
         .style-10k { background: #f0f9ff !important; color: #0369a1 !important; border-color: #bae6fd !important; }
@@ -101,14 +101,14 @@
 <div class="container">
     <div class="main-title-box">
         <div class="main-title">🏃‍♂️ 복사골마라톤클럽 대회 신청</div>
-        <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용)</div>
+        <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용 v13)</div>
         <div id="sync-status" class="sync-loading" style="display:none;">🔄 구글 시트 동기화 중...</div>
     </div>
     
     <div class="tab-group">
-        <button class="tab-btn active" id="tab-apply-btn" onclick="switchTab('apply')">📋 대회 신청</button>
-        <button class="tab-btn" id="tab-status-btn" onclick="switchTab('status')">🏆 접수 현황</button>
-        <button class="tab-btn" id="tab-members-btn" onclick="switchTab('members')">👥 전체 회원현황</button>
+        <button class="tab-btn active" id="tab-apply-btn">📋 대회 신청</button>
+        <button class="tab-btn" id="tab-status-btn">🏆 접수 현황</button>
+        <button class="tab-btn" id="tab-members-btn">👥 전체 회원현황</button>
     </div>
 
     <div id="race-selector-wrapper" class="race-select-box">
@@ -121,21 +121,21 @@
 
     <div id="tab-apply">
         <div class="search-box">
-            <input type="text" id="member-search-input" placeholder="🔍 본인 이름 검색..." oninput="renderMemberList()">
+            <input type="text" id="member-search-input" placeholder="🔍 본인 이름 검색...">
         </div>
         <div id="member-list-wrapper"></div>
     </div>
 
     <div id="tab-status" class="hidden">
         <div id="status-summary-box" style="margin-bottom: 14px;"></div>
-        <button class="excel-down-btn" onclick="downloadExcel()">📥 현재 대회 신청자 명부 엑셀(CSV) 다운로드</button>
+        <button class="excel-down-btn" id="excel-down-action-btn">📥 현재 대회 신청자 명부 엑셀(CSV) 다운로드</button>
         <div id="status-detail-list" style="margin-top: 12px;"></div>
     </div>
 
     <div id="tab-members" class="hidden">
         <div id="member-stats-summary"></div>
         <div class="search-box" style="margin-top: 12px;">
-            <input type="text" id="all-member-search-input" placeholder="🔍 전체 회원 검색 (이름, 사이즈, 연락처)..." oninput="renderAllMembersTab()">
+            <input type="text" id="all-member-search-input" placeholder="🔍 전체 회원 검색 (이름, 사이즈, 연락처)...">
         </div>
         <div id="all-member-list-wrapper" style="margin-top: 8px;"></div>
     </div>
@@ -157,13 +157,13 @@
                 <label><input type="checkbox" class="race-course-chk" value="10km" checked> 10km</label>
                 <label><input type="checkbox" class="race-course-chk" value="하프" checked> 하프</label>
                 <label><input type="checkbox" class="race-course-chk" value="풀코스" checked> 풀코스</label>
-                <label><input type="checkbox" class="race-course-chk" value="기타1" onchange="toggleCustomCourseInput(1)"> 기타1: <input type="text" id="custom-course-1-name" placeholder="명칭입력" style="width:60px; padding:2px; font-size:0.75rem;" disabled></label>
-                <label><input type="checkbox" class="race-course-chk" value="기타2" onchange="toggleCustomCourseInput(2)"> 기타2: <input type="text" id="custom-course-2-name" placeholder="명칭입력" style="width:60px; padding:2px; font-size:0.75rem;" disabled></label>
+                <label><input type="checkbox" class="race-course-chk" value="기타1" id="chk-custom-1"> 기타1: <input type="text" id="custom-course-1-name" placeholder="명칭입력" style="width:60px; padding:2px; font-size:0.75rem;" disabled></label>
+                <label><input type="checkbox" class="race-course-chk" value="기타2" id="chk-custom-2"> 기타2: <input type="text" id="custom-course-2-name" placeholder="명칭입력" style="width:60px; padding:2px; font-size:0.75rem;" disabled></label>
             </div>
 
             <div style="display:flex; gap:6px; margin-top:4px;">
-                <button onclick="saveRaceAction()" id="race-save-btn" style="flex:1; background:#2563eb; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">대회 추가하기</button>
-                <button onclick="resetRaceForm()" id="race-cancel-btn" style="background:#475569; color:white; border:none; padding:9px 12px; border-radius:7px; font-weight:800; cursor:pointer; display:none;">취소</button>
+                <button id="race-save-btn" style="flex:1; background:#2563eb; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">대회 추가하기</button>
+                <button id="race-cancel-btn" style="background:#475569; color:white; border:none; padding:9px 12px; border-radius:7px; font-weight:800; cursor:pointer; display:none;">취소</button>
             </div>
         </div>
 
@@ -187,37 +187,37 @@
                 <option value="105">105호</option>
                 <option value="110">110호</option>
             </select>
-            <button onclick="addNewMemberByAdmin()" style="background:#059669; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">회원 등록하기</button>
+            <button id="member-add-btn" style="background:#059669; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">회원 등록하기</button>
         </div>
 
         <h3 style="margin-top:16px;">👥 전체 회원 정보 관리 (수정/삭제)</h3>
         <div class="search-box" style="margin-bottom:8px;">
-            <input type="text" id="admin-member-search" placeholder="🔍 수정할 회원 검색..." oninput="renderAdminMemberList()" style="background:#334155; color:white; border:none;">
+            <input type="text" id="admin-member-search" placeholder="🔍 수정할 회원 검색..." style="background:#334155; color:white; border:none;">
         </div>
         <div id="admin-member-list" style="max-height:250px; overflow-y:auto;"></div>
 
         <h3 style="margin-top:16px;">🔑 관리자 비밀번호 변경</h3>
         <div style="display:flex; gap:6px;">
             <input type="password" id="new-admin-password" placeholder="새 비밀번호 입력" style="flex:1; padding:8px; border-radius:6px; border:none;">
-            <button onclick="changePassword()" style="background:#059669; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:800; cursor:pointer;">변경</button>
+            <button id="pwd-change-btn" style="background:#059669; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:800; cursor:pointer;">변경</button>
         </div>
 
-        <button onclick="toggleAdminMode()" style="width:100%; margin-top:16px; background:#475569; color:white; border:none; padding:10px; border-radius:7px; cursor:pointer; font-weight:800;">관리자 설정 닫기</button>
+        <button id="admin-close-btn" style="width:100%; margin-top:16px; background:#475569; color:white; border:none; padding:10px; border-radius:7px; cursor:pointer; font-weight:800;">관리자 설정 닫기</button>
     </div>
 
     <div class="footer-setting-box">
-        <button class="admin-gear-btn-small" onclick="toggleAdminMode()">⚙️ 관리자 설정</button>
+        <button class="admin-gear-btn-small" id="admin-open-btn">⚙️ 관리자 설정</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwoxKerOzlE4kZ3dTSgG637-NVXcVlrhZjTPohnPmSVPNeKOru_NsogLpKSHwfxnrY/exec;
+    const API_URL = "https://script.google.com/macros/s/AKfycbwoxKerOzlE4kZ3dTSgG637-NVXcVlrhZjTPohnPmSVPNeKOru_NsogLpKSHwfxnrY/exec";
 
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v12') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v12') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v13') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v13') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -320,22 +320,13 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v12', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v13', selectedRaceId);
                 renderRaceCards();
                 renderMemberList();
                 renderStatusTab();
             };
             container.appendChild(card);
         });
-    }
-
-    function toggleCustomCourseInput(num) {
-        const chk = document.querySelectorAll('.race-course-chk')[num === 1 ? 4 : 5];
-        const input = document.getElementById(`custom-course-${num}-name`);
-        if (input) {
-            input.disabled = !chk.checked;
-            if (chk.checked) input.focus();
-        }
     }
 
     function renderMemberList() {
@@ -436,7 +427,6 @@
         });
     }
 
-    // ⚡ 즉시 반영(낙관적 업데이트)으로 인터발 없이 빠르게 처리
     async function handleApply(memberName, course) {
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
         if (!currentRace) return;
@@ -451,10 +441,8 @@
             globalApplications[selectedRaceId][memberName] = course;
         }
 
-        // 화면 즉시 갱신 (인터발 없음)
         refreshUI();
 
-        // 백그라운드 서버 전송
         try {
             const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course)}`;
             fetch(url);
@@ -661,15 +649,22 @@
             row.innerHTML = `
                 <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">종목: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
                 <div style="display:flex; gap:4px;">
-                    <button onclick="editRace('${race.id}')" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
-                    <button onclick="removeRace('${race.id}')" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
+                    <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
+                    <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
                 </div>
             `;
             listDiv.appendChild(row);
         });
+
+        // 이벤트 연결
+        listDiv.querySelectorAll('.race-edit-btn').forEach(btn => {
+            btn.onclick = () => editRace(btn.getAttribute('data-id'));
+        });
+        listDiv.querySelectorAll('.race-del-btn').forEach(btn => {
+            btn.onclick = () => removeRace(btn.getAttribute('data-id'));
+        });
     }
 
-    // ✏️ 수정 버튼 클릭 시 현재 상태를 폼에 정확히 세팅
     function editRace(raceId) {
         const race = globalRaces.find(r => r.id === raceId);
         if (!race) return;
@@ -769,27 +764,48 @@
 
         const coursesStr = selectedCourses.join(',');
 
+        // ⚡ 즉시 로컬 반영 (낙관적 업데이트)
+        if (!raceId) {
+            const tempId = "race_" + Date.now();
+            globalRaces.push({ id: tempId, name: name, date: date, deadline: deadline || "마감일 미정", courses: coursesStr });
+            selectedRaceId = tempId;
+        } else {
+            const target = globalRaces.find(r => r.id === raceId);
+            if (target) {
+                target.name = name;
+                target.date = date;
+                target.deadline = deadline;
+                target.courses = coursesStr;
+            }
+        }
+
+        refreshUI();
+        resetRaceForm();
+        alert(raceId ? "대회 정보가 수정되었습니다." : `[${name}] 대회가 성공적으로 등록되었습니다.`);
+
         try {
             const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
-            await fetch(url);
-            await fetchServerData(true);
-            renderAdminRaceList();
-            resetRaceForm();
-            alert(raceId ? "대회 정보가 수정되었습니다." : `[${name}] 대회가 성공적으로 등록되었습니다.`);
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            alert("대회 저장 중 오류가 발생했습니다.");
+            console.error("서버 저장 오류:", e);
         }
     }
 
     async function removeRace(raceId) {
         if (!confirm("정말 이 대회를 삭제하시겠습니까? 신청된 기록도 함께 삭제됩니다.")) return;
+        
+        globalRaces = globalRaces.filter(r => r.id !== raceId);
+        if (globalRaces.length > 0) selectedRaceId = globalRaces[0].id;
+        else selectedRaceId = "";
+        
+        refreshUI();
+        alert("대회가 삭제되었습니다.");
+
         try {
             const url = `${API_URL}?action=deleteRace&raceId=${encodeURIComponent(raceId)}`;
-            await fetch(url);
-            await fetchServerData(true);
-            alert("대회가 삭제되었습니다.");
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            alert("대회 삭제 중 오류가 발생했습니다.");
+            console.error("서버 삭제 오류:", e);
         }
     }
 
@@ -806,19 +822,20 @@
             return;
         }
 
+        globalMembers.push({ name, phone: phone||"-", birth: birth||"-", gender, join: join||"-", size });
+        refreshUI();
+
+        document.getElementById('admin-add-name').value = '';
+        document.getElementById('admin-add-phone').value = '';
+        document.getElementById('admin-add-birth').value = '';
+        document.getElementById('admin-add-join').value = '';
+        alert(`[${name}] 회원이 추가되었습니다.`);
+
         try {
             const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(name)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone || "-")}&birth=${encodeURIComponent(birth || "-")}&gender=${encodeURIComponent(gender)}&join=${encodeURIComponent(join || "-")}&size=${encodeURIComponent(size)}`;
-            await fetch(url);
-            await fetchServerData(true);
-            renderAdminMemberList();
-            
-            document.getElementById('admin-add-name').value = '';
-            document.getElementById('admin-add-phone').value = '';
-            document.getElementById('admin-add-birth').value = '';
-            document.getElementById('admin-add-join').value = '';
-            alert(`[${name}] 회원이 추가되었습니다.`);
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            alert("회원 추가 중 오류가 발생했습니다.");
+            console.error("회원 추가 서버 오류:", e);
         }
     }
 
@@ -846,11 +863,18 @@
                     <span style="font-size:0.7rem; color:#94a3b8;">${m.phone} / 가입: ${m.join}</span>
                 </div>
                 <div style="display:flex; gap:4px;">
-                    <button onclick="editMember('${m.name}')" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
-                    <button onclick="removeMember('${m.name}')" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">삭제</button>
+                    <button class="member-edit-btn" data-name="${m.name}" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
+                    <button class="member-del-btn" data-name="${m.name}" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">삭제</button>
                 </div>
             `;
             listDiv.appendChild(row);
+        });
+
+        listDiv.querySelectorAll('.member-edit-btn').forEach(btn => {
+            btn.onclick = () => editMember(btn.getAttribute('data-name'));
+        });
+        listDiv.querySelectorAll('.member-del-btn').forEach(btn => {
+            btn.onclick = () => removeMember(btn.getAttribute('data-name'));
         });
     }
 
@@ -869,27 +893,35 @@
         const newSize = prompt("옷 사이즈 수정 (90, 95, 100, 105, 110 중 입력):", m.size);
         if (newSize === null) return;
 
+        m.name = newName.trim() || m.name;
+        m.birth = newBirth.trim() || m.birth;
+        m.phone = newPhone.trim() || m.phone;
+        m.gender = newGender.trim() || m.gender;
+        m.size = newSize.trim() || m.size;
+
+        refreshUI();
+        alert("회원 정보가 수정되었습니다.");
+
         try {
-            const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(oldName)}&name=${encodeURIComponent(newName.trim() || m.name)}&phone=${encodeURIComponent(newPhone.trim() || m.phone)}&birth=${encodeURIComponent(newBirth.trim() || m.birth)}&gender=${encodeURIComponent(newGender.trim() || m.gender)}&join=${encodeURIComponent(m.join)}&size=${encodeURIComponent(newSize.trim() || m.size)}`;
-            await fetch(url);
-            await fetchServerData(true);
-            renderAdminMemberList();
-            alert("회원 정보가 수정되었습니다.");
+            const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(oldName)}&name=${encodeURIComponent(m.name)}&phone=${encodeURIComponent(m.phone)}&birth=${encodeURIComponent(m.birth)}&gender=${encodeURIComponent(m.gender)}&join=${encodeURIComponent(m.join)}&size=${encodeURIComponent(m.size)}`;
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            alert("수정 중 오류가 발생했습니다.");
+            console.error("회원 수정 서버 오류:", e);
         }
     }
 
     async function removeMember(name) {
         if (!confirm(`[${name}] 회원을 정말 명부에서 삭제하시겠습니까?`)) return;
+        
+        globalMembers = globalMembers.filter(m => m.name !== name);
+        refreshUI();
+        alert("회원이 삭제되었습니다.");
+
         try {
             const url = `${API_URL}?action=deleteMember&name=${encodeURIComponent(name)}`;
-            await fetch(url);
-            await fetchServerData(true);
-            renderAdminMemberList();
-            alert("회원이 삭제되었습니다.");
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            alert("삭제 중 오류가 발생했습니다.");
+            console.error("회원 삭제 서버 오류:", e);
         }
     }
 
@@ -902,27 +934,52 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v12', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v13', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
     }
 
-    function initApp() {
-        fetchServerData(false);
-        // 백그라운드 동기화 간격 완화 (충돌 방지 및 쾌적한 속도 유지)
-        setInterval(() => {
-            fetchServerData(true);
-        }, 15000);
+    // 💡 버튼들에 직접 안전하게 이벤트 연결 (클릭 무반응 원인 차단)
+    function initEventBindings() {
+        document.getElementById('tab-apply-btn').onclick = () => switchTab('apply');
+        document.getElementById('tab-status-btn').onclick = () => switchTab('status');
+        document.getElementById('tab-members-btn').onclick = () => switchTab('members');
+        
+        document.getElementById('excel-down-action-btn').onclick = downloadExcel;
+        
+        document.getElementById('race-save-btn').onclick = saveRaceAction;
+        document.getElementById('race-cancel-btn').onclick = resetRaceForm;
+        
+        document.getElementById('member-add-btn').onclick = addNewMemberByAdmin;
+        document.getElementById('pwd-change-btn').onclick = changePassword;
+        
+        document.getElementById('admin-open-btn').onclick = toggleAdminMode;
+        document.getElementById('admin-close-btn').onclick = toggleAdminMode;
+
+        document.getElementById('chk-custom-1').onchange = () => toggleCustomCourseInput(1);
+        document.getElementById('chk-custom-2').onchange = () => toggleCustomCourseInput(2);
     }
 
-    (function() {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
+    function toggleCustomCourseInput(num) {
+        const chk = document.getElementById(`chk-custom-${num}`);
+        const input = document.getElementById(`custom-course-${num}-name`);
+        if (input && chk) {
+            input.disabled = !chk.checked;
+            if (chk.checked) input.focus();
         }
-    })();
+    }
+
+    function initApp() {
+        initEventBindings();
+        fetchServerData(false);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+        initApp();
+    }
 </script>
 
 </body>
