@@ -51,9 +51,6 @@
         
         .member-card { display: flex; flex-direction: column; padding: 10px 12px; margin-bottom: 8px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 9px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         
-        /* 미신청 상태 기본 카드 */
-        .member-card { background-color: #ffffff; border-color: var(--border); }
-        
         .member-info { display: flex; justify-content: space-between; align-items: center; }
         .member-name { font-weight: 800; font-size: 0.95rem; color: var(--primary); display: flex; align-items: center; gap: 6px; }
         .member-sub-info { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; margin-top: 2px; }
@@ -61,14 +58,12 @@
         .btn-group { display: flex; gap: 4px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 55px; padding: 8px 2px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
         
-        /* 코스별 고유 컬러 클래스 (버튼 및 카드 상태 공용) */
-        .course-5k-style { background: #f0fdf4 !important; color: #047857 !important; border-color: #4ade80 !important; }
-        .course-10k-style { background: #f0f9ff !important; color: #0369a1 !important; border-color: #60a5fa !important; }
-        .course-half-style { background: #fffbeb !important; color: #b45309 !important; border-color: #f6ad55 !important; }
-        .course-full-style { background: #f5f3ff !important; color: #6d28d9 !important; border-color: #a78bfa !important; }
-        .course-etc-style { background: #fdf2f8 !important; color: #be185d !important; border-color: #f472b6 !important; }
+        /* 코스별 고유 컬러 클래스 */
+        .course-badge-style { background: #f0fdf4 !important; color: #047857 !important; border-color: #4ade80 !important; }
+        .course-btn-style { background: #f8fafc; color: var(--text-sub); border-color: var(--border); }
+        .course-btn-style:hover { background: #e2e8f0; }
 
-        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; }
+        button.selected-course { background: var(--success) !important; color: white !important; border-color: var(--success) !important; font-weight: 800; flex: 1.5 !important; cursor: default; }
         button.btn-cancel { background: #fee2e2 !important; color: var(--danger) !important; border-color: #fca5a5 !important; font-weight: 800; flex: 0.8 !important; }
 
         .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
@@ -146,6 +141,7 @@
             <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 삼척황영조마라톤)">
             <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
             <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
+            <input type="text" id="new-race-courses" placeholder="해당 코스 설정 (콤마로 구분, 예: 5km,10km)" value="5km,10km,하프,풀코스">
             <button onclick="addNewRace()" style="background:#2563eb; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">대회 추가하기</button>
         </div>
 
@@ -198,8 +194,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v8') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v8') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v9') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v9') || "1234";
 
     async function fetchServerData(silent = false) {
         const statusEl = document.getElementById('sync-status');
@@ -289,27 +285,18 @@
                 <div class="race-info-sub">
                     <span>📅 대회일: ${race.date}</span>
                     <span>⏳ 접수마감: ${race.deadline}</span>
+                    <span style="color:var(--accent);">🏷️ 종목: ${race.courses || "5km,10km,하프,풀코스"}</span>
                 </div>
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v8', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v9', selectedRaceId);
                 renderRaceCards();
                 renderMemberList();
                 renderStatusTab();
             };
             container.appendChild(card);
         });
-    }
-
-    // 코스 이름에 따른 고유 스타일 클래스 반환 헬퍼 함수
-    function getCourseStyleClass(courseName) {
-        if (!courseName) return '';
-        if (courseName.includes('5k') || courseName.includes('5K')) return 'course-5k-style';
-        if (courseName.includes('10k') || courseName.includes('10K')) return 'course-10k-style';
-        if (courseName.includes('하프') || courseName.includes('Half') || courseName.includes('HALF')) return 'course-half-style';
-        if (courseName.includes('풀') || courseName.includes('Full') || courseName.includes('FULL')) return 'course-full-style';
-        return 'course-etc-style';
     }
 
     function renderMemberList() {
@@ -346,20 +333,19 @@
             return;
         }
 
+        // 해당 대회에 설정된 코스 목록 배열 추출 (예: "5km,10km" -> ["5km", "10km"])
+        const availableCourses = (currentRace.courses || "5km,10km,하프,풀코스").split(',').map(c => c.trim()).filter(c => c);
+
         filtered.forEach((member, index) => {
             const appliedCourse = raceApps[member.name] || null;
             const isApplied = (appliedCourse !== null);
 
             const card = document.createElement('div');
-            
-            // 신청 완료된 경우 해당 코스 고유의 색상 테두리와 배경 적용
-            let cardStyleClass = "";
             let badgeHtml = "";
 
             if (isApplied) {
-                cardStyleClass = getCourseStyleClass(appliedCourse);
-                card.className = `member-card ${cardStyleClass}`;
-                badgeHtml = `<span style="font-size:0.75rem; padding:2px 8px; border-radius:5px; font-weight:800;" class="${cardStyleClass}">✅ ${appliedCourse} 신청완료</span>`;
+                card.className = `member-card course-badge-style`;
+                badgeHtml = `<span style="font-size:0.75rem; padding:2px 8px; border-radius:5px; font-weight:800;" class="course-badge-style">✅ ${appliedCourse} 신청완료</span>`;
             } else {
                 card.className = `member-card`;
                 badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#64748b; padding:2px 8px; border-radius:5px;">미신청</span>`;
@@ -379,32 +365,19 @@
             btnGroup.className = 'btn-group';
 
             if (!isApplied) {
-                const courses = ["5km", "10km", "하프", "풀코스"];
-                const classNames = ["course-5k-style", "course-10k-style", "course-half-style", "course-full-style"];
-
-                courses.forEach((course, idx) => {
+                // 관리자가 설정한 코스들만 버튼으로 생성
+                availableCourses.forEach(course => {
                     const btn = document.createElement('button');
                     btn.textContent = course;
-                    btn.className = classNames[idx];
+                    btn.className = "course-btn-style";
                     btn.onclick = function() { handleApply(member.name, course); };
                     btnGroup.appendChild(btn);
                 });
 
-                const etcBtn = document.createElement('button');
-                etcBtn.textContent = "기타(직접)";
-                etcBtn.className = "course-etc-style";
-                etcBtn.onclick = function() {
-                    const customCourse = prompt(`[${member.name}]님이 참가할 기타 종목/코스를 직접 입력하세요 (예: 30km, 릴레이 등):`, "기타");
-                    if (customCourse && customCourse.trim() !== "") {
-                        handleApply(member.name, customCourse.trim());
-                    }
-                };
-                btnGroup.appendChild(etcBtn);
-
             } else {
                 const selectedBtn = document.createElement('button');
                 selectedBtn.textContent = `신청: ${appliedCourse}`;
-                selectedBtn.className = `selected-course ${cardStyleClass}`;
+                selectedBtn.className = `selected-course course-badge-style`;
                 selectedBtn.disabled = true;
 
                 const cancelBtn = document.createElement('button');
@@ -435,7 +408,7 @@
         document.getElementById('sync-status').style.display = 'block';
 
         try {
-            const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&raceName=${encodeURIComponent(currentRace.name)}&date=${encodeURIComponent(currentRace.date)}&deadline=${encodeURIComponent(currentRace.deadline)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course)}`;
+            const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&raceName=${encodeURIComponent(currentRace.name)}&date=${encodeURIComponent(currentRace.date)}&deadline=${encodeURIComponent(currentRace.deadline)}&courses=${encodeURIComponent(currentRace.courses)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course)}`;
             await fetch(url);
             await fetchServerData(true);
             document.getElementById('sync-status').style.display = 'none';
@@ -490,11 +463,10 @@
         
         globalMembers.forEach(m => {
             if (raceApps[m.name]) {
-                const badgeStyle = getCourseStyleClass(raceApps[m.name]);
                 detailHtml += `
                     <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;">
                         <div><strong>${m.name}</strong> <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.phone} / 👕${m.size})</span></div>
-                        <div style="font-weight:800; padding:3px 8px; border-radius:5px; font-size:0.8rem;" class="${badgeStyle}">${raceApps[m.name]}</div>
+                        <div style="font-weight:800; padding:3px 8px; border-radius:5px; font-size:0.8rem;" class="course-badge-style">${raceApps[m.name]}</div>
                     </div>
                 `;
             }
@@ -637,7 +609,7 @@
             const row = document.createElement('div');
             row.className = 'race-admin-row';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">종목: ${race.courses || "5km,10km,하프,풀코스"}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
                 <button onclick="removeRace('${race.id}')" style="background:#dc2626; color:white; border:none; padding:5px 9px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
             `;
             listDiv.appendChild(row);
@@ -648,10 +620,12 @@
         const nameInput = document.getElementById('new-race-name');
         const dateInput = document.getElementById('new-race-date');
         const deadlineInput = document.getElementById('new-race-deadline');
+        const coursesInput = document.getElementById('new-race-courses');
 
         const name = nameInput ? nameInput.value.trim() : "";
         const date = dateInput ? dateInput.value.trim() : "";
         const deadline = deadlineInput ? deadlineInput.value.trim() : "";
+        const courses = coursesInput ? coursesInput.value.trim() : "5km,10km,하프,풀코스";
 
         if (!name || !date) {
             alert("대회명과 대회일자는 필수 입력입니다.");
@@ -659,13 +633,14 @@
         }
 
         try {
-            const url = `${API_URL}?action=addRace&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}`;
+            const url = `${API_URL}?action=addRace&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(courses)}`;
             await fetch(url);
             await fetchServerData(true);
             renderAdminRaceList();
             if (nameInput) nameInput.value = '';
             if (dateInput) dateInput.value = '';
             if (deadlineInput) deadlineInput.value = '';
+            if (coursesInput) coursesInput.value = '5km,10km,하프,풀코스';
             alert(`[${name}] 대회가 성공적으로 등록되었습니다.`);
         } catch(e) {
             alert("대회 등록 중 오류가 발생했습니다.");
@@ -793,7 +768,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v8', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v9', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
