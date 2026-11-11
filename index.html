@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>복사골마라톤클럽 대회 신청 시스템</title>
     
+    <!-- 💡 카카오톡 공유 시 표시되는 타이틀 및 설명 설정 -->
     <meta property="og:title" content="복사골마라톤클럽 대회 신청 시스템">
     <meta property="og:description" content="단톡방 클릭 한 번으로 간편하게 마라톤 대회 접수 및 회원 현황을 확인하세요!">
     <meta property="og:type" content="website">
+    <meta property="og:image" content="og_image.jpg">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,7 +50,8 @@
         .search-box { margin-bottom: 10px; display: flex; gap: 6px; }
         .search-box input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; font-weight: 700; }
         
-        .member-card { display: flex; flex-direction: column; padding: 10px 12px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        /* 💡 회원 카드 레이아웃 완벽 정렬 및 가독성 개선 */
+        .member-card { display: flex; flex-direction: column; padding: 11px 13px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .member-card.style-full { background: #faf5ff; border-color: #d8b4fe; }
         .member-card.style-half { background: #fffbeb; border-color: #fde68a; }
         .member-card.style-10k { background: #f0f9ff; border-color: #bae6fd; }
@@ -56,9 +59,9 @@
         .member-card.style-etc { background: #fdf2f8; border-color: #fbcfe8; }
         
         .member-info { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .member-name-area { font-weight: 800; font-size: 0.92rem; color: var(--primary); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-        .member-sub-info { font-size: 0.75rem; color: #64748b; font-weight: 700; }
-        .applied-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 5px; font-weight: 800; white-space: nowrap; }
+        .member-name-area { font-weight: 800; font-size: 0.92rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
+        .member-sub-info { font-size: 0.76rem; color: #475569; font-weight: 700; white-space: nowrap; }
+        .applied-badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap; }
         
         .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 95px; padding: 8px 4px; font-size: 0.78rem; border: 1.5px solid var(--border); border-radius: 7px; cursor: pointer; font-weight: 800; text-align: center; }
@@ -240,8 +243,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v20') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v20') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v21') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v21') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -359,7 +362,6 @@
             const isSelected = (race.id === selectedRaceId);
             card.className = `race-card-item ${isSelected ? 'active' : ''}`;
             
-            // 💡 종목 및 참가비 안내 형식 명확하게 표시
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
@@ -372,7 +374,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v20', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v21', selectedRaceId);
                 refreshUI();
             };
             container.appendChild(card);
@@ -433,14 +435,15 @@
                 badgeHtml = `<span class="applied-badge ${cardStyleClass}">✅ ${appliedCourse} 신청완료</span>`;
             } else {
                 card.className = `member-card`;
-                badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#475569; padding:2px 7px; border-radius:5px; font-weight:700; white-space:nowrap;">미신청</span>`;
+                badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#475569; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap;">미신청</span>`;
             }
 
+            // 💡 이름 및 세부 정보 줄바꿈 방지 및 깔끔한 정렬 적용
             card.innerHTML = `
                 <div class="member-info">
                     <div class="member-name-area">
-                        <span style="color:#64748b; font-weight:700;">${index + 1}.</span> 
-                        <strong style="font-size:0.92rem;">${member.name}</strong>
+                        <span style="color:#64748b; font-weight:700; min-width:20px;">${index + 1}.</span> 
+                        <strong style="font-size:0.95rem; white-space:nowrap;">${member.name}</strong>
                         <span class="member-sub-info">(${member.birth} / ${member.gender} / 👕${member.size})</span>
                     </div>
                     <div>${badgeHtml}</div>
@@ -544,7 +547,6 @@
             return;
         }
 
-        // 💡 종목별 신청자 명단으로 타이틀 수정 완료
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 명단 (풀코스 ➡️ 하프 ➡️ 10km ➡️ 5km ➡️ 기타 순)</div>`;
         
         let appliedMembersList = globalMembers.filter(m => raceApps[m.name]).sort((a, b) => {
@@ -605,7 +607,6 @@
 
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${filtered.length}명)</div>`;
 
-        // 💡 전체 회원 명부 레이아웃을 쾌적하고 균형 있게 정렬
         filtered.forEach((m, idx) => {
             listHtml += `
                 <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;">
@@ -1032,7 +1033,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v20', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v21', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
