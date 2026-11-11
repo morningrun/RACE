@@ -77,10 +77,11 @@
         .stat-box-val { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
 
         .admin-panel { background: var(--primary); color: white; padding: 14px; border-radius: 12px; margin-top: 20px; margin-bottom: 12px; }
-        .admin-panel h3 { margin: 0 0 10px 0; font-size: 1rem; color: #38bdf8; }
-        .admin-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .admin-input-group input { padding: 9px 12px; border-radius: 7px; border: none; font-size: 0.9rem; outline: none; }
-        .race-admin-row { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .admin-panel h3 { margin: 12px 0 8px 0; font-size: 0.95rem; color: #38bdf8; }
+        .admin-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        .admin-input-group input, .admin-input-group select { padding: 8px 10px; border-radius: 6px; border: none; font-size: 0.88rem; outline: none; }
+        
+        .race-admin-row, .member-admin-row { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
         
         .excel-down-btn { background: #059669; color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.92rem; margin-top: 8px; }
 
@@ -134,8 +135,9 @@
         <div id="all-member-list-wrapper" style="margin-top: 8px;"></div>
     </div>
 
+    <!-- 관리자 패널 -->
     <div id="admin-panel" class="admin-panel hidden">
-        <h3>🔒 관리자 대회 및 회원 설정</h3>
+        <h3>🔒 관리자 시스템 설정</h3>
         
         <h3 style="margin-top:6px;">➕ 새 마라톤 대회 등록</h3>
         <div class="admin-input-group">
@@ -148,13 +150,39 @@
         <h3 style="margin-top:14px;">📋 등록된 대회 목록 관리</h3>
         <div id="admin-race-list"></div>
 
+        <h3 style="margin-top:16px;">👤 신규 회원 직접 추가</h3>
+        <div class="admin-input-group">
+            <input type="text" id="admin-add-name" placeholder="이름">
+            <input type="text" id="admin-add-phone" placeholder="핸드폰번호 (예: 010-0000-0000)">
+            <input type="text" id="admin-add-birth" placeholder="생년월일 (예: 68.08.10)">
+            <select id="admin-add-gender">
+                <option value="남">남성</option>
+                <option value="여">여성</option>
+            </select>
+            <input type="text" id="admin-add-join" placeholder="가입년월 (예: 07년 5월)">
+            <select id="admin-add-size">
+                <option value="90">90호</option>
+                <option value="95" selected>95호</option>
+                <option value="100">100호</option>
+                <option value="105">105호</option>
+                <option value="110">110호</option>
+            </select>
+            <button onclick="addNewMemberByAdmin()" style="background:#059669; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">회원 등록하기</button>
+        </div>
+
+        <h3 style="margin-top:16px;">👥 전체 회원 정보 관리 (수정/삭제)</h3>
+        <div class="search-box" style="margin-bottom:8px;">
+            <input type="text" id="admin-member-search" placeholder="🔍 수정할 회원 검색..." oninput="renderAdminMemberList()" style="background:#334155; color:white; border:none;">
+        </div>
+        <div id="admin-member-list" style="max-height:250px; overflow-y:auto;"></div>
+
         <h3 style="margin-top:16px;">🔑 관리자 비밀번호 변경</h3>
         <div style="display:flex; gap:6px;">
             <input type="password" id="new-admin-password" placeholder="새 비밀번호 입력" style="flex:1; padding:8px; border-radius:6px; border:none;">
             <button onclick="changePassword()" style="background:#059669; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:800; cursor:pointer;">변경</button>
         </div>
 
-        <button onclick="toggleAdminMode()" style="width:100%; margin-top:14px; background:#475569; color:white; border:none; padding:9px; border-radius:7px; cursor:pointer; font-weight:800;">관리자 설정 닫기</button>
+        <button onclick="toggleAdminMode()" style="width:100%; margin-top:16px; background:#475569; color:white; border:none; padding:10px; border-radius:7px; cursor:pointer; font-weight:800;">관리자 설정 닫기</button>
     </div>
 
     <div class="footer-setting-box">
@@ -164,7 +192,7 @@
 
 <script>
     // 복사골마라톤클럽 엑셀 명부 기준 실제 83명 회원 데이터 완벽 반영
-    const DEFAULT_MEMBERS = [
+    const INITIAL_MEMBERS = [
         { name: "김창선", phone: "010-4739-4085", birth: "59.08.04", gender: "남", join: "00년 1월", size: "95" },
         { name: "방철규", phone: "010-3714-7313", birth: "59.02.16", gender: "남", join: "00년 1월", size: "95" },
         { name: "정도영", phone: "010-8891-9024", birth: "56.05.25", gender: "남", join: "00년 1월", size: "100" },
@@ -179,87 +207,88 @@
         { name: "이현석", phone: "010-4076-8073", birth: "67.03.30", gender: "남", join: "02년 5월", size: "95" },
         { name: "장경문", phone: "010-9081-2124", birth: "57.06.22", gender: "남", join: "02년 8월", size: "95" },
         { name: "최병일", phone: "010-5284-7872", birth: "60.03.22", gender: "남", join: "02년 8월", size: "100" },
-        { name: "안상열", phone: "010-3323-2415", birth: "67.05.11", gender: "남", join: "03년 2월", size: "95" },
-        { name: "김선태", phone: "010-4100-2440", birth: "66.07.08", gender: "남", join: "03년 5월", size: "95" },
-        { name: "이학조", phone: "010-7117-9195", birth: "65.08.18", gender: "남", join: "04년 4월", size: "95" },
-        { name: "황문섭", phone: "010-6201-7235", birth: "56.09.28", gender: "남", join: "04년 8월", size: "95" },
-        { name: "이정숙", phone: "010-4767-1601", birth: "63.02.05", gender: "여", join: "04년 9월", size: "90" },
-        { name: "김정균", phone: "010-3304-4375", birth: "71.05.02", gender: "남", join: "04년 10월", size: "95" },
-        { name: "서문오룡", phone: "010-5322-4755", birth: "59.04.03", gender: "남", join: "04년 12월", size: "95" },
-        { name: "조형래", phone: "010-5353-2481", birth: "64.06.18", gender: "남", join: "05년 1월", size: "100" },
-        { name: "홍기남", phone: "010-3315-7764", birth: "48.06.24", gender: "남", join: "05년 1월", size: "95" },
-        { name: "이해식", phone: "010-7711-2856", birth: "63.06.28", gender: "남", join: "05년 5월", size: "100" },
-        { name: "이호병", phone: "010-3777-1052", birth: "63.12.28", gender: "남", join: "05년 6월", size: "105" },
-        { name: "정세원", phone: "010-9118-2083", birth: "66.11.23", gender: "남", join: "05년 8월", size: "95" },
-        { name: "한석우", phone: "010-3351-4601", birth: "54.08.14", gender: "남", join: "05년 9월", size: "95" },
-        { name: "오창근", phone: "010-5231-6712", birth: "57.06.19", gender: "남", join: "05년 10월", size: "100" },
-        { name: "최정엽", phone: "010-9906-4432", birth: "68.08.20", gender: "남", join: "05년 12월", size: "100" },
-        { name: "김태수", phone: "010-6228-0065", birth: "65.04.09", gender: "남", join: "06년 2월", size: "100" },
-        { name: "박광남", phone: "010-3388-7243", birth: "69.10.18", gender: "남", join: "06년 3월", size: "95" },
-        { name: "김진철", phone: "010-3770-4965", birth: "73.11.19", gender: "남", join: "06년 4월", size: "100" },
-        { name: "김봉근", phone: "010-5133-0580", birth: "66.07.25", gender: "남", join: "06년 5월", size: "95" },
-        { name: "송영숙", phone: "010-2226-0681", birth: "67.03.11", gender: "여", join: "06년 6월", size: "90" },
-        { name: "이정현", phone: "010-3023-3882", birth: "68.10.15", gender: "여", join: "06년 9월", size: "90" },
-        { name: "김경기", phone: "010-8919-6888", birth: "70.07.18", gender: "남", join: "06년 10월", size: "95" },
-        { name: "이종호", phone: "010-3721-6554", birth: "60.10.27", gender: "남", join: "06년 10월", size: "100" },
-        { name: "김정구", phone: "010-3705-7281", birth: "68.08.23", gender: "남", join: "06년 12월", size: "100" },
-        { name: "김은성", phone: "010-5321-4835", birth: "75.05.02", gender: "남", join: "07년 3월", size: "95" },
-        { name: "이실권", phone: "010-9118-8742", birth: "68.08.10", gender: "남", join: "07년 5월", size: "95" },
-        { name: "최영진", phone: "010-6238-1647", birth: "56.03.12", gender: "남", join: "07년 6월", size: "95" },
-        { name: "최순규", phone: "010-7654-0573", birth: "69.08.25", gender: "여", join: "14년 9월", size: "90" },
-        { name: "은대영", phone: "010-3728-6889", birth: "70.01.24", gender: "남", join: "07년 7월", size: "100" },
-        { name: "박정후", phone: "010-5351-9920", birth: "71.08.22", gender: "남", join: "15년 1월", size: "100" },
+        { name: "김봉근", phone: "010-5133-0580", birth: "52.11.24", gender: "남", join: "02년12월", size: "95" },
+        { name: "김윤찬", phone: "010-4655-2851", birth: "61.12.25", gender: "남", join: "03년 2월", size: "95" },
+        { name: "황문섭", phone: "010-6201-7235", birth: "68.05.15", gender: "남", join: "03년 8월", size: "105" },
+        { name: "이달재", phone: "010-5617-0345", birth: "58.01.07", gender: "남", join: "03년12월", size: "105" },
+        { name: "윤영종", phone: "010-5320-5416", birth: "64.08.17", gender: "남", join: "04년02월", size: "105" },
+        { name: "이실권", phone: "010-4757-6047", birth: "69.11.08", gender: "남", join: "04년02월", size: "105" },
+        { name: "권용문", phone: "010-9258-3578", birth: "62.03.08", gender: "남", join: "04년 5월", size: "100" },
+        { name: "정세원", phone: "010-5353-1620", birth: "55.01.03", gender: "남", join: "04년 5월", size: "95" },
+        { name: "윤명기", phone: "010-6321-7017", birth: "59.07.26", gender: "남", join: "04년10월", size: "95" },
+        { name: "서문오룡", phone: "010-5322-4755", birth: "55.04.09", gender: "남", join: "04년12월", size: "95" },
+        { name: "이원우", phone: "010-9163-7133", birth: "56.08.13", gender: "남", join: "05년 1월", size: "105" },
+        { name: "김기중", phone: "010-9369-7324", birth: "64.08.16", gender: "남", join: "05년 7월", size: "90" },
+        { name: "정일흥", phone: "010-9536-0662", birth: "57.07.03", gender: "남", join: "05년 10월", size: "100" },
+        { name: "최기석", phone: "010-8728-2883", birth: "58.07.01", gender: "남", join: "05년 10월", size: "95" },
+        { name: "김영학", phone: "010-3790-9873", birth: "68.12.25", gender: "남", join: "06년 3월", size: "100" },
+        { name: "이구철", phone: "010-5655-5856", birth: "55.01.14", gender: "남", join: "06년 3월", size: "95" },
+        { name: "김귀동", phone: "010-5635-0348", birth: "66.04.07", gender: "남", join: "06년 6월", size: "110" },
+        { name: "김정균", phone: "010-5098-0766", birth: "67.05.15", gender: "남", join: "06년 9월", size: "100" },
+        { name: "이세형", phone: "010-2595-2306", birth: "69.10.18", gender: "남", join: "07년 5월", size: "95" },
+        { name: "송영숙", phone: "010-5533-9651", birth: "67.01.28", gender: "여", join: "07년 11월", size: "95" },
+        { name: "박광남", phone: "010-8779-8259", birth: "59.03.20", gender: "남", join: "07년 12월", size: "100" },
+        { name: "이도희", phone: "010-7744-8670", birth: "59.09.05", gender: "남", join: "08년 4월", size: "100" },
+        { name: "이청규", phone: "010-5208-0007", birth: "56.10.20", gender: "남", join: "10년 2월", size: "100" },
+        { name: "송재동", phone: "010-5699-6686", birth: "62.05.26", gender: "남", join: "10년 3월", size: "95" },
+        { name: "이강훈", phone: "010-3715-4945", birth: "57.05.02", gender: "남", join: "10년04월", size: "95" },
+        { name: "은대영", phone: "010-8891-8531", birth: "69.03.22", gender: "남", join: "10년5월", size: "100" },
+        { name: "조성국", phone: "010-3136-4379", birth: "59.02.04", gender: "남", join: "10년 6월", size: "100" },
+        { name: "김덕원", phone: "010-5397-9824", birth: "64.07.23", gender: "남", join: "11년 6월", size: "95" },
+        { name: "최정엽", phone: "010-9906-4432", birth: "57.02.08", gender: "남", join: "11년 9월", size: "95" },
+        { name: "정하근", phone: "010-9775-0689", birth: "57.08.14", gender: "남", join: "12년 9월", size: "95" },
+        { name: "김태수", phone: "010-5694-4530", birth: "61.10.25", gender: "남", join: "12년10월", size: "95" },
+        { name: "여서윤", phone: "010-5683-4030", birth: "59.08.01", gender: "여", join: "12년10월", size: "95" },
+        { name: "김경기", phone: "010-9017-3143", birth: "64.10.10", gender: "남", join: "12년11월", size: "95" },
+        { name: "임윤석", phone: "010-3712-3298", birth: "62.03.20", gender: "남", join: "12년11월", size: "95" },
         { name: "남중원", phone: "010-9595-3836", birth: "63.01.10", gender: "남", join: "13년 6월", size: "100" },
         { name: "이재응", phone: "010-5676-6845", birth: "72.06.16", gender: "남", join: "13년 7월", size: "95" },
         { name: "조재광", phone: "010-5353-1424", birth: "64.06.20", gender: "남", join: "14년 1월", size: "95" },
         { name: "김형섭", phone: "010-3789-6968", birth: "70.09.07", gender: "남", join: "14년 3월", size: "95" },
         { name: "변흥주", phone: "010-9355-8940", birth: "70.09.09", gender: "남", join: "14년 7월", size: "90" },
-        { name: "박정호", phone: "010-5149-7120", birth: "64.12.10", gender: "남", join: "14년 11월", size: "95" },
-        { name: "이주영", phone: "010-3937-9092", birth: "69.11.14", gender: "남", join: "14년 11월", size: "90" },
-        { name: "박병일", phone: "010-3725-3331", birth: "68.01.05", gender: "남", join: "15년 2월", size: "95" },
-        { name: "정하근", phone: "010-5221-5079", birth: "64.07.12", gender: "남", join: "15년 3월", size: "100" },
-        { name: "김미향", phone: "010-9978-0402", birth: "72.09.28", gender: "여", join: "15년 4월", size: "90" },
-        { name: "최잔디", phone: "010-8736-2246", birth: "73.08.10", gender: "여", join: "15년 9월", size: "90" },
-        { name: "곽병우", phone: "010-8910-1844", birth: "64.08.23", gender: "남", join: "15년 12월", size: "105" },
-        { name: "노현종", phone: "010-7212-9988", birth: "78.07.28", gender: "남", join: "16년 3월", size: "100" },
-        { name: "황연성", phone: "010-9289-9800", birth: "71.05.28", gender: "여", join: "16년 3월", size: "90" },
-        { name: "유재선", phone: "010-5231-1557", birth: "64.02.05", gender: "남", join: "16년 6월", size: "95" },
-        { name: "정현주", phone: "010-3211-1965", birth: "71.12.05", gender: "여", join: "16년 7월", size: "90" },
-        { name: "김은숙", phone: "010-3306-0351", birth: "69.05.02", gender: "여", join: "16년 10월", size: "90" },
-        { name: "김학수", phone: "010-5309-3221", birth: "61.12.15", gender: "남", join: "17년 1월", size: "95" },
-        { name: "이구철", phone: "010-5655-5856", birth: "63.10.15", gender: "남", join: "17년 4월", size: "100" },
-        { name: "이은순", phone: "010-3335-5152", birth: "68.10.12", gender: "여", join: "17년 6월", size: "90" },
-        { name: "김익현", phone: "010-3232-0690", birth: "73.11.08", gender: "남", join: "17년 11월", size: "105" },
-        { name: "한영만", phone: "010-3323-2882", birth: "66.02.16", gender: "남", join: "18년 3월", size: "95" },
-        { name: "최승호", phone: "010-5323-9551", birth: "70.04.14", gender: "남", join: "18년 6월", size: "105" },
-        { name: "이경재", phone: "010-3333-5241", birth: "72.03.15", gender: "남", join: "18년 9월", size: "100" },
-        { name: "김정남", phone: "010-3321-4112", birth: "65.01.12", gender: "남", join: "19년 3월", size: "105" },
-        { name: "박지혜", phone: "010-4100-2441", birth: "82.01.01", gender: "여", join: "19년 5월", size: "90" },
-        { name: "정호진", phone: "010-9111-2332", birth: "70.02.14", gender: "남", join: "20년 2월", size: "95" },
-        { name: "조성국", phone: "010-5221-3441", birth: "68.05.18", gender: "남", join: "20년 6월", size: "100" },
-        { name: "이동기", phone: "010-8911-3221", birth: "74.07.22", gender: "남", join: "20년 10월", size: "95" },
-        { name: "이세형", phone: "010-3221-5661", birth: "78.03.11", gender: "남", join: "21년 1월", size: "105" },
-        { name: "김태완", phone: "010-5331-2211", birth: "80.05.15", gender: "남", join: "21년 5월", size: "105" },
-        { name: "박성진", phone: "010-9112-3344", birth: "82.11.20", gender: "남", join: "21년 9월", size: "100" },
-        { name: "김영수", phone: "010-3221-8899", birth: "71.04.12", gender: "남", join: "22년 2월", size: "95" },
-        { name: "최민석", phone: "010-5331-7788", birth: "75.08.30", gender: "남", join: "22년 6월", size: "105" },
-        { name: "한상진", phone: "010-8911-5544", birth: "79.12.10", gender: "남", join: "22년 11월", size: "100" },
-        { name: "오성민", phone: "010-9112-6655", birth: "83.03.25", gender: "남", join: "23년 3월", size: "95" },
-        { name: "신현우", phone: "010-3221-1122", birth: "76.06.18", gender: "남", join: "23년 7월", size: "105" },
-        { name: "배기철", phone: "010-5331-9900", birth: "78.09.05", gender: "남", join: "23년 12월", size: "110" },
-        { name: "강진우", phone: "010-8911-7788", birth: "85.01.15", gender: "남", join: "24년 4월", size: "110" }
+        { name: "최순규", phone: "010-7654-0573", birth: "69.08.25", gender: "여", join: "14년 9월", size: "90" },
+        { name: "박정호", phone: "010-5149-7120", birth: "64.12.10", gender: "남", join: "14년11월", size: "95" },
+        { name: "이주영", phone: "010-3937-9092", birth: "69.11.14", gender: "남", join: "14년11월", size: "90" },
+        { name: "박정후", phone: "010-5351-9920", birth: "71.08.22", gender: "남", join: "15년 1월", size: "100" },
+        { name: "이해식", phone: "010-3794-5696", birth: "63.03.15", gender: "남", join: "15년10월", size: "100" },
+        { name: "진용남", phone: "010-3070-2792", birth: "79.10.09", gender: "남", join: "15년10월", size: "95" },
+        { name: "임장수", phone: "010-7228-6272", birth: "58.11.17", gender: "남", join: "16년 3월", size: "105" },
+        { name: "이동섭", phone: "010-7791-3452", birth: "59.06.30", gender: "남", join: "17년10월", size: "95" },
+        { name: "김미향", phone: "010-9299-4369", birth: "71.05.15", gender: "여", join: "19년 1월", size: "90" },
+        { name: "김정구", phone: "010-5338-9184", birth: "58.01.05", gender: "남", join: "19년 1월", size: "100" },
+        { name: "박한라", phone: "010-3469-5797", birth: "69.08.30", gender: "여", join: "19년 1월", size: "95" },
+        { name: "이현조", phone: "010-4735-3597", birth: "68.01.03", gender: "여", join: "19년 1월", size: "90" },
+        { name: "정현주", phone: "010-9249-6459", birth: "68.10.26", gender: "여", join: "19년 1월", size: "90" },
+        { name: "최규식", phone: "010-8911-0566", birth: "81.01.01", gender: "남", join: "19년 1월", size: "100" },
+        { name: "김진철", phone: "010-9268-0439", birth: "73.09.25", gender: "남", join: "19년 5월", size: "95" },
+        { name: "이은순", phone: "010-5208-3475", birth: "68.12.16", gender: "여", join: "22년 1월", size: "95" },
+        { name: "노현종", phone: "010-4461-0620", birth: "79.04.27", gender: "남", join: "22년 6월", size: "100" },
+        { name: "곽병우", phone: "010-2631-4789", birth: "85.01.15", gender: "남", join: "22년12월", size: "100" },
+        { name: "김장곤", phone: "010-3574-8888", birth: "62.12.20", gender: "남", join: "23년 1월", size: "100" },
+        { name: "이동기", phone: "010-3030-1973", birth: "74.01.13", gender: "남", join: "23년 5월", size: "105" },
+        { name: "민병일", phone: "010-3589-7953", birth: "68.05.05", gender: "남", join: "23년 6월", size: "95" },
+        { name: "이학조", phone: "010-3201-9255", birth: "72.06.01", gender: "남", join: "24년 5월", size: "95" },
+        { name: "박지혜", phone: "010-4347-0990", birth: "82.04.17", gender: "여", join: "24년 5월", size: "90" },
+        { name: "최잔디", phone: "010-6545-5488", birth: "83.04.19", gender: "여", join: "24년 6월", size: "90" },
+        { name: "이정숙", phone: "010-3770-8752", birth: "60.06.01", gender: "여", join: "25년 1월", size: "90" },
+        { name: "김은성", phone: "010-2020-9313", birth: "90.06.28", gender: "남", join: "25년 2월", size: "95" },
+        { name: "이종호", phone: "010-9927-9448", birth: "81.11.26", gender: "남", join: "25년 2월", size: "105" },
+        { name: "정호진", phone: "010-5129-3223", birth: "92.01.05", gender: "남", join: "25년 5월", size: "100" },
+        { name: "이호병", phone: "010-3688-1759", birth: "84.07.29", gender: "남", join: "25년 8월", size: "110" },
+        { name: "방지원", phone: "010-7595-6782", birth: "93.10.18", gender: "남", join: "25년 8월", size: "110" }
     ];
 
-    // 기본 샘플 대회를 완전히 비우고 관리자가 직접 등록하도록 초기화
-    let globalRaces = JSON.parse(localStorage.getItem('boksagol_races_v5')) || [];
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v5') || "";
-    let globalApplications = JSON.parse(localStorage.getItem('boksagol_applications_v5')) || {}; 
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v5') || "1234";
+    let globalMembers = JSON.parse(localStorage.getItem('boksagol_members_v7')) || INITIAL_MEMBERS;
+    let globalRaces = JSON.parse(localStorage.getItem('boksagol_races_v7')) || [];
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v7') || "";
+    let globalApplications = JSON.parse(localStorage.getItem('boksagol_applications_v7')) || {}; 
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v7') || "1234";
 
     function saveLocalStorage() {
-        localStorage.setItem('boksagol_races_v5', JSON.stringify(globalRaces));
-        localStorage.setItem('boksagol_selected_race_v5', selectedRaceId);
-        localStorage.setItem('boksagol_applications_v5', JSON.stringify(globalApplications));
+        localStorage.setItem('boksagol_members_v7', JSON.stringify(globalMembers));
+        localStorage.setItem('boksagol_races_v7', JSON.stringify(globalRaces));
+        localStorage.setItem('boksagol_selected_race_v7', selectedRaceId);
+        localStorage.setItem('boksagol_applications_v7', JSON.stringify(globalApplications));
     }
 
     function switchTab(tabName) {
@@ -342,7 +371,7 @@
         const searchText = searchInput ? searchInput.value.trim().toLowerCase() : "";
         const raceApps = globalApplications[selectedRaceId] || {};
 
-        const sortedMembers = [...DEFAULT_MEMBERS].sort((a, b) => {
+        const sortedMembers = [...globalMembers].sort((a, b) => {
             const appA = raceApps[a.name] ? 0 : 1;
             const appB = raceApps[b.name] ? 0 : 1;
             if (appA !== appB) return appA - appB;
@@ -488,7 +517,7 @@
 
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 세부 명단</div>`;
         
-        DEFAULT_MEMBERS.forEach(m => {
+        globalMembers.forEach(m => {
             if (raceApps[m.name]) {
                 detailHtml += `
                     <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1px solid #e2e8f0; font-size:0.88rem;">
@@ -506,11 +535,11 @@
         const listWrapper = document.getElementById('all-member-list-wrapper');
         if (!summaryBox || !listWrapper) return;
 
-        const totalCount = DEFAULT_MEMBERS.length;
+        const totalCount = globalMembers.length;
         let maleCount = 0, femaleCount = 0;
         const sizeCounts = { "90": 0, "95": 0, "100": 0, "105": 0, "110": 0 };
 
-        DEFAULT_MEMBERS.forEach(m => {
+        globalMembers.forEach(m => {
             if (m.gender === "남") maleCount++;
             else if (m.gender === "여") femaleCount++;
             if (sizeCounts[m.size] !== undefined) {
@@ -544,7 +573,7 @@
         const searchInput = document.getElementById('all-member-search-input');
         const searchText = searchInput ? searchInput.value.trim().toLowerCase() : "";
 
-        const filtered = DEFAULT_MEMBERS.filter(m => 
+        const filtered = globalMembers.filter(m => 
             m.name.toLowerCase().includes(searchText) || 
             m.phone.includes(searchText) || 
             m.size.includes(searchText) ||
@@ -588,7 +617,7 @@
         let csvContent = "\uFEFF번호,이름,성별,생년월일,핸드폰번호,옷사이즈,신청코스,대회명\n";
         
         let count = 1;
-        DEFAULT_MEMBERS.forEach(m => {
+        globalMembers.forEach(m => {
             if (raceApps[m.name]) {
                 csvContent += `${count},${m.name},${m.gender},${m.birth},${m.phone},${m.size},${raceApps[m.name]},${currentRace.name}\n`;
                 count++;
@@ -605,6 +634,7 @@
         document.body.removeChild(link);
     }
 
+    // 관리자 모드 관련 함수
     function toggleAdminMode() {
         const panel = document.getElementById('admin-panel');
         if (!panel) return;
@@ -613,6 +643,7 @@
             if (pwd === adminPassword) {
                 panel.classList.remove('hidden');
                 renderAdminRaceList();
+                renderAdminMemberList();
                 panel.scrollIntoView({ behavior: 'smooth' });
             } else if (pwd !== null) {
                 alert("비밀번호가 틀렸습니다!");
@@ -689,6 +720,110 @@
         alert("대회가 삭제되었습니다.");
     }
 
+    // 신규 회원 추가
+    function addNewMemberByAdmin() {
+        const name = document.getElementById('admin-add-name').value.trim();
+        const phone = document.getElementById('admin-add-phone').value.trim();
+        const birth = document.getElementById('admin-add-birth').value.trim();
+        const gender = document.getElementById('admin-add-gender').value;
+        const join = document.getElementById('admin-add-join').value.trim();
+        const size = document.getElementById('admin-add-size').value;
+
+        if (!name) {
+            alert("회원 이름은 필수 입력입니다.");
+            return;
+        }
+
+        globalMembers.push({ name, phone: phone || "-", birth: birth || "-", gender, join: join || "-", size });
+        saveLocalStorage();
+        renderAdminMemberList();
+        renderMemberList();
+        renderAllMembersTab();
+
+        document.getElementById('admin-add-name').value = '';
+        document.getElementById('admin-add-phone').value = '';
+        document.getElementById('admin-add-birth').value = '';
+        document.getElementById('admin-add-join').value = '';
+        alert(`[${name}] 회원이 추가되었습니다.`);
+    }
+
+    // 관리자 회원 목록 렌더링 (수정/삭제 기능 포함)
+    function renderAdminMemberList() {
+        const listDiv = document.getElementById('admin-member-list');
+        if (!listDiv) return;
+        listDiv.innerHTML = '';
+
+        const searchInput = document.getElementById('admin-member-search');
+        const searchText = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+        const filtered = globalMembers.filter(m => m.name.toLowerCase().includes(searchText));
+
+        if (filtered.length === 0) {
+            listDiv.innerHTML = "<div style='font-size:0.8rem; color:#94a3b8; padding:6px;'>검색된 회원이 없습니다.</div>";
+            return;
+        }
+
+        filtered.forEach(m => {
+            const originalIndex = globalMembers.findIndex(item => item.name === m.name && item.phone === m.phone);
+            const row = document.createElement('div');
+            row.className = 'member-admin-row';
+            row.innerHTML = `
+                <div style="font-size:0.82rem;">
+                    <strong>${m.name}</strong> (${m.gender}, ${m.birth}, 👕${m.size})<br>
+                    <span style="font-size:0.7rem; color:#94a3b8;">${m.phone} / 가입: ${m.join}</span>
+                </div>
+                <div style="display:flex; gap:4px;">
+                    <button onclick="editMember(${originalIndex})" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
+                    <button onclick="removeMember(${originalIndex})" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">삭제</button>
+                </div>
+            `;
+            listDiv.appendChild(row);
+        });
+    }
+
+    // 회원 정보 수정
+    function editMember(index) {
+        const m = globalMembers[index];
+        const newName = prompt("이름 수정:", m.name);
+        if (newName === null) return;
+        const newBirth = prompt("생년월일 수정 (예: 69.11.08):", m.birth);
+        if (newBirth === null) return;
+        const newPhone = prompt("핸드폰 번호 수정:", m.phone);
+        if (newPhone === null) return;
+        const newGender = prompt("성별 수정 (남 또는 여):", m.gender);
+        if (newGender === null) return;
+        const newSize = prompt("옷 사이즈 수정 (90, 95, 100, 105, 110 중 입력):", m.size);
+        if (newSize === null) return;
+
+        globalMembers[index] = {
+            ...m,
+            name: newName.trim() || m.name,
+            birth: newBirth.trim() || m.birth,
+            phone: newPhone.trim() || m.phone,
+            gender: newGender.trim() || m.gender,
+            size: newSize.trim() || m.size
+        };
+
+        saveLocalStorage();
+        renderAdminMemberList();
+        renderMemberList();
+        renderAllMembersTab();
+        alert("회원 정보가 수정되었습니다.");
+    }
+
+    // 회원 삭제
+    function removeMember(index) {
+        const target = globalMembers[index];
+        if (!confirm(`[${target.name}] 회원을 정말 명부에서 삭제하시겠습니까?`)) return;
+        
+        globalMembers.splice(index, 1);
+        saveLocalStorage();
+        renderAdminMemberList();
+        renderMemberList();
+        renderAllMembersTab();
+        alert("회원이 삭제되었습니다.");
+    }
+
     function changePassword() {
         const input = document.getElementById('new-admin-password');
         const newPwd = input ? input.value.trim() : "";
@@ -698,7 +833,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v5', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v7', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
