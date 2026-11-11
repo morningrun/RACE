@@ -6,7 +6,7 @@
     <title>복사골마라톤클럽 대회 신청 시스템</title>
     
     <meta property="og:title" content="복사골마라톤클럽 대회 신청 시스템">
-    <meta property="og:description" content="단톡방 링크 클릭 한 번으로 간편하게 마라톤 대회 접수 및 회원 현황을 확인하세요!">
+    <meta property="og:description" content="단톡방 클릭 한 번으로 간편하게 마라톤 대회 접수 및 회원 현황을 확인하세요!">
     <meta property="og:type" content="website">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -192,8 +192,8 @@
 </div>
 
 <script>
-    // ⚠️ 여기에 구글 앱스 스크립트 웹 앱 URL을 반드시 입력하세요!
-    const API_URL = "https://script.google.com/macros/s/AKfycbyjiDGH-72bCnCWsAkoeTiX3D0TLfcelXLGKAmBwsNZxn9VGG7xKrEmdufVsGiVYvX1/exec";
+    // 전달해주신 구글 앱스 스크립트 웹 앱 URL 적용
+    const API_URL = "https://script.google.com/macros/s/AKfycbxORC5I89dyJl3ecD6h0ZvFU-s_NRyB6zhddIBYu7dMNoYLWUDXzrC5P953fP02kfGK/exec";
 
     let globalMembers = [];
     let globalRaces = [];
@@ -201,7 +201,6 @@
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v8') || "";
     let adminPassword = localStorage.getItem('boksagol_admin_pwd_v8') || "1234";
 
-    // 데이터 서버(구글 시트)에서 불러오기
     async function fetchServerData(silent = false) {
         const statusEl = document.getElementById('sync-status');
         if (!silent && statusEl) statusEl.style.display = 'block';
@@ -227,7 +226,7 @@
         } catch (error) {
             console.error("데이터 동기화 실패:", error);
             if (!silent && statusEl) {
-                statusEl.textContent = "⚠️ 구글 시트 연결 실패 (URL을 확인해주세요)";
+                statusEl.textContent = "⚠️ 구글 시트 연결 실패 (네트워크를 확인해주세요)";
             }
         }
     }
@@ -586,7 +585,6 @@
         document.body.removeChild(link);
     }
 
-    // 관리자 모드
     function toggleAdminMode() {
         const panel = document.getElementById('admin-panel');
         if (!panel) return;
@@ -780,11 +778,10 @@
         }
     }
 
-    // 앱 초기화 및 주기적 실시간 동기화 (5초마다 자동 갱신)
     function initApp() {
         fetchServerData(false);
         setInterval(() => {
-            fetchServerData(true); // 백그라운드 자동 동기화
+            fetchServerData(true);
         }, 5000);
     }
 
