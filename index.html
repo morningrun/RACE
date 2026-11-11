@@ -18,8 +18,6 @@
             --primary: #0f172a;
             --accent: #2563eb;
             --success: #059669;
-            --info: #0284c7;
-            --warning: #d97706;
             --danger: #dc2626;
             --bg-color: #f1f5f9;
             --card-bg: #ffffff;
@@ -52,22 +50,25 @@
         .search-box input { flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
         
         .member-card { display: flex; flex-direction: column; padding: 10px 12px; margin-bottom: 8px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 9px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .member-card.applied { background-color: #f0fdf4 !important; border-color: #4ade80 !important; border-left: 5px solid var(--success) !important; }
-
+        
+        /* 미신청 상태 기본 카드 */
+        .member-card { background-color: #ffffff; border-color: var(--border); }
+        
         .member-info { display: flex; justify-content: space-between; align-items: center; }
         .member-name { font-weight: 800; font-size: 0.95rem; color: var(--primary); display: flex; align-items: center; gap: 6px; }
         .member-sub-info { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; margin-top: 2px; }
         
         .btn-group { display: flex; gap: 4px; width: 100%; flex-wrap: wrap; }
-        .btn-group button { flex: 1; min-width: 60px; padding: 8px 2px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; background: #f8fafc; color: var(--text-sub); text-align: center; }
+        .btn-group button { flex: 1; min-width: 55px; padding: 8px 2px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
         
-        button.course-5k { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-        button.course-10k { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
-        button.course-half { background: #fffbeb; color: #b45309; border-color: #fde68a; }
-        button.course-full { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
-        button.course-etc { background: #fdf2f8; color: #be185d; border-color: #fbcfe8; }
+        /* 코스별 고유 컬러 클래스 (버튼 및 카드 상태 공용) */
+        .course-5k-style { background: #f0fdf4 !important; color: #047857 !important; border-color: #4ade80 !important; }
+        .course-10k-style { background: #f0f9ff !important; color: #0369a1 !important; border-color: #60a5fa !important; }
+        .course-half-style { background: #fffbeb !important; color: #b45309 !important; border-color: #f6ad55 !important; }
+        .course-full-style { background: #f5f3ff !important; color: #6d28d9 !important; border-color: #a78bfa !important; }
+        .course-etc-style { background: #fdf2f8 !important; color: #be185d !important; border-color: #f472b6 !important; }
 
-        button.selected-course { background: var(--success) !important; color: white !important; border-color: var(--success) !important; font-weight: 800; flex: 1.5 !important; }
+        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; }
         button.btn-cancel { background: #fee2e2 !important; color: var(--danger) !important; border-color: #fca5a5 !important; font-weight: 800; flex: 0.8 !important; }
 
         .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
@@ -192,8 +193,7 @@
 </div>
 
 <script>
-    // 전달해주신 구글 앱스 스크립트 웹 앱 URL 적용
-    const API_URL = "https://script.google.com/macros/s/AKfycbxORC5I89dyJl3ecD6h0ZvFU-s_NRyB6zhddIBYu7dMNoYLWUDXzrC5P953fP02kfGK/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyjiDGH-72bCnCWsAkoeTiX3D0TLfcelXLGKAmBwsNZxn9VGG7xKrEmdufVsGiVYvX1/exec";
 
     let globalMembers = [];
     let globalRaces = [];
@@ -302,6 +302,16 @@
         });
     }
 
+    // 코스 이름에 따른 고유 스타일 클래스 반환 헬퍼 함수
+    function getCourseStyleClass(courseName) {
+        if (!courseName) return '';
+        if (courseName.includes('5k') || courseName.includes('5K')) return 'course-5k-style';
+        if (courseName.includes('10k') || courseName.includes('10K')) return 'course-10k-style';
+        if (courseName.includes('하프') || courseName.includes('Half') || courseName.includes('HALF')) return 'course-half-style';
+        if (courseName.includes('풀') || courseName.includes('Full') || courseName.includes('FULL')) return 'course-full-style';
+        return 'course-etc-style';
+    }
+
     function renderMemberList() {
         const wrapper = document.getElementById('member-list-wrapper');
         if (!wrapper) return;
@@ -341,9 +351,19 @@
             const isApplied = (appliedCourse !== null);
 
             const card = document.createElement('div');
-            card.className = `member-card ${isApplied ? 'applied' : ''}`;
+            
+            // 신청 완료된 경우 해당 코스 고유의 색상 테두리와 배경 적용
+            let cardStyleClass = "";
+            let badgeHtml = "";
 
-            let badgeHtml = isApplied ? `<span style="font-size:0.75rem; background:var(--success); color:white; padding:2px 8px; border-radius:5px; font-weight:800;">✅ ${appliedCourse} 신청완료</span>` : `<span style="font-size:0.75rem; background:#e2e8f0; color:#64748b; padding:2px 8px; border-radius:5px;">미신청</span>`;
+            if (isApplied) {
+                cardStyleClass = getCourseStyleClass(appliedCourse);
+                card.className = `member-card ${cardStyleClass}`;
+                badgeHtml = `<span style="font-size:0.75rem; padding:2px 8px; border-radius:5px; font-weight:800;" class="${cardStyleClass}">✅ ${appliedCourse} 신청완료</span>`;
+            } else {
+                card.className = `member-card`;
+                badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#64748b; padding:2px 8px; border-radius:5px;">미신청</span>`;
+            }
 
             card.innerHTML = `
                 <div class="member-info">
@@ -360,7 +380,7 @@
 
             if (!isApplied) {
                 const courses = ["5km", "10km", "하프", "풀코스"];
-                const classNames = ["course-5k", "course-10k", "course-half", "course-full"];
+                const classNames = ["course-5k-style", "course-10k-style", "course-half-style", "course-full-style"];
 
                 courses.forEach((course, idx) => {
                     const btn = document.createElement('button');
@@ -372,7 +392,7 @@
 
                 const etcBtn = document.createElement('button');
                 etcBtn.textContent = "기타(직접)";
-                etcBtn.className = "course-etc";
+                etcBtn.className = "course-etc-style";
                 etcBtn.onclick = function() {
                     const customCourse = prompt(`[${member.name}]님이 참가할 기타 종목/코스를 직접 입력하세요 (예: 30km, 릴레이 등):`, "기타");
                     if (customCourse && customCourse.trim() !== "") {
@@ -384,7 +404,7 @@
             } else {
                 const selectedBtn = document.createElement('button');
                 selectedBtn.textContent = `신청: ${appliedCourse}`;
-                selectedBtn.className = 'selected-course';
+                selectedBtn.className = `selected-course ${cardStyleClass}`;
                 selectedBtn.disabled = true;
 
                 const cancelBtn = document.createElement('button');
@@ -470,10 +490,11 @@
         
         globalMembers.forEach(m => {
             if (raceApps[m.name]) {
+                const badgeStyle = getCourseStyleClass(raceApps[m.name]);
                 detailHtml += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1px solid #e2e8f0; font-size:0.88rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;">
                         <div><strong>${m.name}</strong> <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.phone} / 👕${m.size})</span></div>
-                        <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:2px 8px; border-radius:5px; font-size:0.8rem;">${raceApps[m.name]}</div>
+                        <div style="font-weight:800; padding:3px 8px; border-radius:5px; font-size:0.8rem;" class="${badgeStyle}">${raceApps[m.name]}</div>
                     </div>
                 `;
             }
