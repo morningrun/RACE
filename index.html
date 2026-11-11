@@ -240,8 +240,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v19') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v19') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v20') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v20') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -359,7 +359,7 @@
             const isSelected = (race.id === selectedRaceId);
             card.className = `race-card-item ${isSelected ? 'active' : ''}`;
             
-            // 💡 선택 카드 내부에 참가비 금액이 포함된 코스 목록 명확히 안내
+            // 💡 종목 및 참가비 안내 형식 명확하게 표시
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
@@ -372,7 +372,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v19', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v20', selectedRaceId);
                 refreshUI();
             };
             container.appendChild(card);
@@ -440,7 +440,7 @@
                 <div class="member-info">
                     <div class="member-name-area">
                         <span style="color:#64748b; font-weight:700;">${index + 1}.</span> 
-                        <strong style="font-size:0.95rem;">${member.name}</strong>
+                        <strong style="font-size:0.92rem;">${member.name}</strong>
                         <span class="member-sub-info">(${member.birth} / ${member.gender} / 👕${member.size})</span>
                     </div>
                     <div>${badgeHtml}</div>
@@ -453,7 +453,7 @@
             if (!isApplied) {
                 availableCoursesWithPrice.forEach(courseWithPrice => {
                     const btn = document.createElement('button');
-                    btn.textContent = courseWithPrice; // 💡 버튼에는 금액 포함 표시 (예: 10km(50,000원))
+                    btn.textContent = courseWithPrice;
                     btn.className = "course-btn-style";
                     const pureCourseName = courseWithPrice.replace(/\s*\(.*?\)/g, "").trim();
                     btn.onclick = function() { handleApply(member.name, pureCourseName); };
@@ -490,7 +490,7 @@
         if (course === null) {
             delete globalApplications[selectedRaceId][memberName];
         } else {
-            globalApplications[selectedRaceId][memberName] = course; // 💡 명단에는 순수 코스명만 저장됨
+            globalApplications[selectedRaceId][memberName] = course;
         }
 
         refreshUI();
@@ -544,7 +544,8 @@
             return;
         }
 
-        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 세부 명단 (풀코스 ➡️ 하프 ➡️ 10km ➡️ 5km ➡️ 기타 순)</div>`;
+        // 💡 종목별 신청자 명단으로 타이틀 수정 완료
+        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 명단 (풀코스 ➡️ 하프 ➡️ 10km ➡️ 5km ➡️ 기타 순)</div>`;
         
         let appliedMembersList = globalMembers.filter(m => raceApps[m.name]).sort((a, b) => {
             const rankA = getCourseRank(raceApps[a.name]);
@@ -579,7 +580,6 @@
             else if (m.gender === "여") femaleCount++;
         });
 
-        // 💡 옷 사이즈별 분류 현황 박스 제거 완료
         summaryBox.innerHTML = `
             <div class="stat-card-grid" style="grid-template-columns: repeat(2, 1fr);">
                 <div class="stat-box">
@@ -605,14 +605,16 @@
 
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${filtered.length}명)</div>`;
 
+        // 💡 전체 회원 명부 레이아웃을 쾌적하고 균형 있게 정렬
         filtered.forEach((m, idx) => {
             listHtml += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #e2e8f0; font-size:0.88rem;">
-                    <div>
-                        <strong>${idx + 1}. ${m.name}</strong> 
-                        <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.gender} / ${m.phone} / 가입: ${m.join})</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;">
+                    <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
+                        <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
+                        <strong style="font-size:0.95rem; white-space:nowrap; color:var(--primary);">${m.name}</strong>
+                        <span style="font-size:0.75rem; color:#475569; white-space:nowrap;">(${m.birth} / ${m.gender} / ${m.phone} / 가입:${m.join})</span>
                     </div>
-                    <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:2px 8px; border-radius:5px; font-size:0.78rem;">
+                    <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:3px 8px; border-radius:5px; font-size:0.78rem; white-space:nowrap; margin-left:6px;">
                         👕 ${m.size}호
                     </div>
                 </div>
@@ -1030,7 +1032,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v19', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v20', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
