@@ -58,16 +58,11 @@
         .btn-group { display: flex; gap: 4px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 55px; padding: 8px 2px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
         
-        /* 🎨 코스별 연한 파스텔톤 컬러 스타일 정의 */
-        /* 풀코스: 연보라 */
+        /* 코스별 파스텔톤 스타일 정의 */
         .style-full { background: #faf5ff !important; color: #6b21a8 !important; border-color: #d8b4fe !important; }
-        /* 하프: 연주황 */
         .style-half { background: #fffbeb !important; color: #b45309 !important; border-color: #fde68a !important; }
-        /* 10km: 연파랑 */
         .style-10k { background: #f0f9ff !important; color: #0369a1 !important; border-color: #bae6fd !important; }
-        /* 5km: 연초록 */
         .style-5k { background: #f0fdf4 !important; color: #15803d !important; border-color: #bbf7d0 !important; }
-        /* 기타: 연핑크 */
         .style-etc { background: #fdf2f8 !important; color: #be185d !important; border-color: #fbcfe8 !important; }
 
         .course-btn-style { background: #f8fafc; color: var(--text-sub); border-color: var(--border); }
@@ -107,7 +102,7 @@
     <div class="main-title-box">
         <div class="main-title">🏃‍♂️ 복사골마라톤클럽 대회 신청</div>
         <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용)</div>
-        <div id="sync-status" class="sync-loading">🔄 구글 시트 데이터 동기화 중...</div>
+        <div id="sync-status" class="sync-loading" style="display:none;">🔄 구글 시트 동기화 중...</div>
     </div>
     
     <div class="tab-group">
@@ -221,26 +216,19 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v11') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v11') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v12') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v12') || "1234";
 
-    // 코스 정렬 순위 정의 (풀코스 -> 하프 -> 10km -> 5km -> 기타)
-    const courseRank = {
-        "풀코스": 1,
-        "하프": 2,
-        "10km": 3,
-        "5km": 4
-    };
+    const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
     function getCourseRank(course) {
         if (!course) return 99;
         for (let key in courseRank) {
             if (course.includes(key)) return courseRank[key];
         }
-        return 5; // 기타 순위
+        return 5;
     }
 
-    // 코스별 파스텔톤 스타일 클래스 반환
     function getCourseStyleClass(course) {
         if (!course) return '';
         if (course.includes('풀코스') || course.includes('Full') || course.includes('FULL')) return 'style-full';
@@ -251,9 +239,6 @@
     }
 
     async function fetchServerData(silent = false) {
-        const statusEl = document.getElementById('sync-status');
-        if (!silent && statusEl) statusEl.style.display = 'block';
-
         try {
             const response = await fetch(API_URL + "?action=getData");
             const data = await response.json();
@@ -266,17 +251,9 @@
                 selectedRaceId = globalRaces[0].id;
             }
 
-            if (!silent && statusEl) {
-                statusEl.textContent = "✅ 구글 시트 동기화 완료!";
-                setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
-            }
-
             refreshUI();
         } catch (error) {
             console.error("데이터 동기화 실패:", error);
-            if (!silent && statusEl) {
-                statusEl.textContent = "⚠️ 구글 시트 연결 실패 (네트워크를 확인해주세요)";
-            }
         }
     }
 
@@ -343,7 +320,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v11', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v12', selectedRaceId);
                 renderRaceCards();
                 renderMemberList();
                 renderStatusTab();
@@ -372,16 +349,12 @@
         }
 
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
-        if (!currentRace) {
-            wrapper.innerHTML = "<div class='loading'>선택된 대회가 없습니다. 대회를 선택해주세요.</div>";
-            return;
-        }
+        if (!currentRace) return;
 
         const searchInput = document.getElementById('member-search-input');
         const searchText = searchInput ? searchInput.value.trim().toLowerCase() : "";
         const raceApps = globalApplications[selectedRaceId] || {};
 
-        // 🎯 정렬 규칙: 1순위 신청 여부(신청자 위로), 2순위 지정 코스 순위(풀코스->하프->10km->5km->기타), 3순위 이름 가나다순
         const sortedMembers = [...globalMembers].sort((a, b) => {
             const appA = raceApps[a.name] ? 0 : 1;
             const appB = raceApps[b.name] ? 0 : 1;
@@ -463,27 +436,30 @@
         });
     }
 
+    // ⚡ 즉시 반영(낙관적 업데이트)으로 인터발 없이 빠르게 처리
     async function handleApply(memberName, course) {
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
         if (!currentRace) return;
 
-        if (course === null) {
-            if (!confirm(`[${currentRace.name}] 대회에서 [${memberName}]님의 신청을 취소하시겠습니까?`)) return;
-        } else {
-            if (!confirm(`[${currentRace.name}] 대회에 [${memberName}]님을 [${course}] 코스로 접수하시겠습니까?`)) return;
+        if (!globalApplications[selectedRaceId]) {
+            globalApplications[selectedRaceId] = {};
         }
 
-        document.getElementById('sync-status').textContent = "🔄 서버에 반영 중...";
-        document.getElementById('sync-status').style.display = 'block';
+        if (course === null) {
+            delete globalApplications[selectedRaceId][memberName];
+        } else {
+            globalApplications[selectedRaceId][memberName] = course;
+        }
 
+        // 화면 즉시 갱신 (인터발 없음)
+        refreshUI();
+
+        // 백그라운드 서버 전송
         try {
             const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course)}`;
-            await fetch(url);
-            await fetchServerData(true);
-            document.getElementById('sync-status').style.display = 'none';
+            fetch(url);
         } catch(e) {
-            alert("신청 저장 중 오류가 발생했습니다.");
-            document.getElementById('sync-status').style.display = 'none';
+            console.error("서버 반영 오류:", e);
         }
     }
 
@@ -530,7 +506,6 @@
 
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 세부 명단 (풀코스 ➡️ 하프 ➡️ 10km ➡️ 5km ➡️ 기타 순)</div>`;
         
-        // 🎯 접수 현황 탭에서도 동일하게 풀코스 -> 하프 -> 10km -> 5km -> 기타 순으로 정렬
         let appliedMembersList = globalMembers.filter(m => raceApps[m.name]).sort((a, b) => {
             const rankA = getCourseRank(raceApps[a.name]);
             const rankB = getCourseRank(raceApps[b.name]);
@@ -563,9 +538,7 @@
         globalMembers.forEach(m => {
             if (m.gender === "남") maleCount++;
             else if (m.gender === "여") femaleCount++;
-            if (sizeCounts[m.size] !== undefined) {
-                sizeCounts[m.size]++;
-            }
+            if (sizeCounts[m.size] !== undefined) sizeCounts[m.size]++;
         });
 
         summaryBox.innerHTML = `
@@ -696,6 +669,7 @@
         });
     }
 
+    // ✏️ 수정 버튼 클릭 시 현재 상태를 폼에 정확히 세팅
     function editRace(raceId) {
         const race = globalRaces.find(r => r.id === raceId);
         if (!race) return;
@@ -928,7 +902,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v11', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v12', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
@@ -936,9 +910,10 @@
 
     function initApp() {
         fetchServerData(false);
+        // 백그라운드 동기화 간격 완화 (충돌 방지 및 쾌적한 속도 유지)
         setInterval(() => {
             fetchServerData(true);
-        }, 5000);
+        }, 15000);
     }
 
     (function() {
