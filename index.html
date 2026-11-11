@@ -6,7 +6,7 @@
     <title>복사골마라톤클럽 대회 신청 시스템</title>
     
     <meta property="og:title" content="복사골마라톤클럽 대회 신청 시스템">
-    <meta property="og:description" content="단톡방 클릭 한 번으로 간편하게 마라톤 대회 접수 및 회원 현황을 확인하세요!">
+    <meta property="og:description" content="단톡방 링크 클릭 한 번으로 간편하게 마라톤 대회 접수 및 회원 현황을 확인하세요!">
     <meta property="og:type" content="website">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,6 @@
             --success: #059669;
             --info: #0284c7;
             --warning: #d97706;
-            --purple: #7c3aed;
             --danger: #dc2626;
             --bg-color: #f1f5f9;
             --card-bg: #ffffff;
@@ -84,6 +83,7 @@
         .race-admin-row, .member-admin-row { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
         
         .excel-down-btn { background: #059669; color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.92rem; margin-top: 8px; }
+        .sync-loading { text-align: center; font-size: 0.82rem; color: #38bdf8; font-weight: 700; margin-bottom: 8px; }
 
         .footer-setting-box { text-align: center; margin-top: 24px; padding-top: 14px; border-top: 1.5px solid var(--border); }
         .admin-gear-btn-small { background: #f8fafc; border: 1.5px solid var(--border); font-size: 0.8rem; cursor: pointer; padding: 6px 14px; color: var(--text-sub); border-radius: 7px; font-weight: 800; }
@@ -97,7 +97,8 @@
 <div class="container">
     <div class="main-title-box">
         <div class="main-title">🏃‍♂️ 복사골마라톤클럽 대회 신청</div>
-        <div class="main-subtitle">단톡방 링크 클릭 후 본인 이름을 찾아 간편하게 코스를 신청하세요!</div>
+        <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용)</div>
+        <div id="sync-status" class="sync-loading">🔄 구글 시트 데이터 동기화 중...</div>
     </div>
     
     <div class="tab-group">
@@ -137,7 +138,7 @@
 
     <!-- 관리자 패널 -->
     <div id="admin-panel" class="admin-panel hidden">
-        <h3>🔒 관리자 시스템 설정</h3>
+        <h3>🔒 구글 시트 연동 관리자 설정</h3>
         
         <h3 style="margin-top:6px;">➕ 새 마라톤 대회 등록</h3>
         <div class="admin-input-group">
@@ -191,104 +192,55 @@
 </div>
 
 <script>
-    // 복사골마라톤클럽 엑셀 명부 기준 실제 83명 회원 데이터 완벽 반영
-    const INITIAL_MEMBERS = [
-        { name: "김창선", phone: "010-4739-4085", birth: "59.08.04", gender: "남", join: "00년 1월", size: "95" },
-        { name: "방철규", phone: "010-3714-7313", birth: "59.02.16", gender: "남", join: "00년 1월", size: "95" },
-        { name: "정도영", phone: "010-8891-9024", birth: "56.05.25", gender: "남", join: "00년 1월", size: "100" },
-        { name: "정범희", phone: "010-9950-3435", birth: "58.10.05", gender: "남", join: "00년 1월", size: "90" },
-        { name: "조한복", phone: "010-9145-7736", birth: "58.03.17", gender: "남", join: "00년 1월", size: "95" },
-        { name: "지덕수", phone: "010-3911-9209", birth: "65.07.01", gender: "남", join: "00년 1월", size: "100" },
-        { name: "필동만", phone: "010-8949-6522", birth: "68.02.24", gender: "남", join: "00년 1월", size: "95" },
-        { name: "이석형", phone: "010-3741-8239", birth: "59.12.30", gender: "남", join: "00년 12월", size: "95" },
-        { name: "김종수", phone: "010-2356-2945", birth: "52.03.09", gender: "남", join: "01년 7월", size: "95" },
-        { name: "이재학", phone: "010-9359-9315", birth: "64.04.16", gender: "남", join: "01년 12월", size: "100" },
-        { name: "심재현", phone: "010-8761-3573", birth: "53.03.25", gender: "남", join: "02년 2월", size: "90" },
-        { name: "이현석", phone: "010-4076-8073", birth: "67.03.30", gender: "남", join: "02년 5월", size: "95" },
-        { name: "장경문", phone: "010-9081-2124", birth: "57.06.22", gender: "남", join: "02년 8월", size: "95" },
-        { name: "최병일", phone: "010-5284-7872", birth: "60.03.22", gender: "남", join: "02년 8월", size: "100" },
-        { name: "김봉근", phone: "010-5133-0580", birth: "52.11.24", gender: "남", join: "02년12월", size: "95" },
-        { name: "김윤찬", phone: "010-4655-2851", birth: "61.12.25", gender: "남", join: "03년 2월", size: "95" },
-        { name: "황문섭", phone: "010-6201-7235", birth: "68.05.15", gender: "남", join: "03년 8월", size: "105" },
-        { name: "이달재", phone: "010-5617-0345", birth: "58.01.07", gender: "남", join: "03년12월", size: "105" },
-        { name: "윤영종", phone: "010-5320-5416", birth: "64.08.17", gender: "남", join: "04년02월", size: "105" },
-        { name: "이실권", phone: "010-4757-6047", birth: "69.11.08", gender: "남", join: "04년02월", size: "105" },
-        { name: "권용문", phone: "010-9258-3578", birth: "62.03.08", gender: "남", join: "04년 5월", size: "100" },
-        { name: "정세원", phone: "010-5353-1620", birth: "55.01.03", gender: "남", join: "04년 5월", size: "95" },
-        { name: "윤명기", phone: "010-6321-7017", birth: "59.07.26", gender: "남", join: "04년10월", size: "95" },
-        { name: "서문오룡", phone: "010-5322-4755", birth: "55.04.09", gender: "남", join: "04년12월", size: "95" },
-        { name: "이원우", phone: "010-9163-7133", birth: "56.08.13", gender: "남", join: "05년 1월", size: "105" },
-        { name: "김기중", phone: "010-9369-7324", birth: "64.08.16", gender: "남", join: "05년 7월", size: "90" },
-        { name: "정일흥", phone: "010-9536-0662", birth: "57.07.03", gender: "남", join: "05년 10월", size: "100" },
-        { name: "최기석", phone: "010-8728-2883", birth: "58.07.01", gender: "남", join: "05년 10월", size: "95" },
-        { name: "김영학", phone: "010-3790-9873", birth: "68.12.25", gender: "남", join: "06년 3월", size: "100" },
-        { name: "이구철", phone: "010-5655-5856", birth: "55.01.14", gender: "남", join: "06년 3월", size: "95" },
-        { name: "김귀동", phone: "010-5635-0348", birth: "66.04.07", gender: "남", join: "06년 6월", size: "110" },
-        { name: "김정균", phone: "010-5098-0766", birth: "67.05.15", gender: "남", join: "06년 9월", size: "100" },
-        { name: "이세형", phone: "010-2595-2306", birth: "69.10.18", gender: "남", join: "07년 5월", size: "95" },
-        { name: "송영숙", phone: "010-5533-9651", birth: "67.01.28", gender: "여", join: "07년 11월", size: "95" },
-        { name: "박광남", phone: "010-8779-8259", birth: "59.03.20", gender: "남", join: "07년 12월", size: "100" },
-        { name: "이도희", phone: "010-7744-8670", birth: "59.09.05", gender: "남", join: "08년 4월", size: "100" },
-        { name: "이청규", phone: "010-5208-0007", birth: "56.10.20", gender: "남", join: "10년 2월", size: "100" },
-        { name: "송재동", phone: "010-5699-6686", birth: "62.05.26", gender: "남", join: "10년 3월", size: "95" },
-        { name: "이강훈", phone: "010-3715-4945", birth: "57.05.02", gender: "남", join: "10년04월", size: "95" },
-        { name: "은대영", phone: "010-8891-8531", birth: "69.03.22", gender: "남", join: "10년5월", size: "100" },
-        { name: "조성국", phone: "010-3136-4379", birth: "59.02.04", gender: "남", join: "10년 6월", size: "100" },
-        { name: "김덕원", phone: "010-5397-9824", birth: "64.07.23", gender: "남", join: "11년 6월", size: "95" },
-        { name: "최정엽", phone: "010-9906-4432", birth: "57.02.08", gender: "남", join: "11년 9월", size: "95" },
-        { name: "정하근", phone: "010-9775-0689", birth: "57.08.14", gender: "남", join: "12년 9월", size: "95" },
-        { name: "김태수", phone: "010-5694-4530", birth: "61.10.25", gender: "남", join: "12년10월", size: "95" },
-        { name: "여서윤", phone: "010-5683-4030", birth: "59.08.01", gender: "여", join: "12년10월", size: "95" },
-        { name: "김경기", phone: "010-9017-3143", birth: "64.10.10", gender: "남", join: "12년11월", size: "95" },
-        { name: "임윤석", phone: "010-3712-3298", birth: "62.03.20", gender: "남", join: "12년11월", size: "95" },
-        { name: "남중원", phone: "010-9595-3836", birth: "63.01.10", gender: "남", join: "13년 6월", size: "100" },
-        { name: "이재응", phone: "010-5676-6845", birth: "72.06.16", gender: "남", join: "13년 7월", size: "95" },
-        { name: "조재광", phone: "010-5353-1424", birth: "64.06.20", gender: "남", join: "14년 1월", size: "95" },
-        { name: "김형섭", phone: "010-3789-6968", birth: "70.09.07", gender: "남", join: "14년 3월", size: "95" },
-        { name: "변흥주", phone: "010-9355-8940", birth: "70.09.09", gender: "남", join: "14년 7월", size: "90" },
-        { name: "최순규", phone: "010-7654-0573", birth: "69.08.25", gender: "여", join: "14년 9월", size: "90" },
-        { name: "박정호", phone: "010-5149-7120", birth: "64.12.10", gender: "남", join: "14년11월", size: "95" },
-        { name: "이주영", phone: "010-3937-9092", birth: "69.11.14", gender: "남", join: "14년11월", size: "90" },
-        { name: "박정후", phone: "010-5351-9920", birth: "71.08.22", gender: "남", join: "15년 1월", size: "100" },
-        { name: "이해식", phone: "010-3794-5696", birth: "63.03.15", gender: "남", join: "15년10월", size: "100" },
-        { name: "진용남", phone: "010-3070-2792", birth: "79.10.09", gender: "남", join: "15년10월", size: "95" },
-        { name: "임장수", phone: "010-7228-6272", birth: "58.11.17", gender: "남", join: "16년 3월", size: "105" },
-        { name: "이동섭", phone: "010-7791-3452", birth: "59.06.30", gender: "남", join: "17년10월", size: "95" },
-        { name: "김미향", phone: "010-9299-4369", birth: "71.05.15", gender: "여", join: "19년 1월", size: "90" },
-        { name: "김정구", phone: "010-5338-9184", birth: "58.01.05", gender: "남", join: "19년 1월", size: "100" },
-        { name: "박한라", phone: "010-3469-5797", birth: "69.08.30", gender: "여", join: "19년 1월", size: "95" },
-        { name: "이현조", phone: "010-4735-3597", birth: "68.01.03", gender: "여", join: "19년 1월", size: "90" },
-        { name: "정현주", phone: "010-9249-6459", birth: "68.10.26", gender: "여", join: "19년 1월", size: "90" },
-        { name: "최규식", phone: "010-8911-0566", birth: "81.01.01", gender: "남", join: "19년 1월", size: "100" },
-        { name: "김진철", phone: "010-9268-0439", birth: "73.09.25", gender: "남", join: "19년 5월", size: "95" },
-        { name: "이은순", phone: "010-5208-3475", birth: "68.12.16", gender: "여", join: "22년 1월", size: "95" },
-        { name: "노현종", phone: "010-4461-0620", birth: "79.04.27", gender: "남", join: "22년 6월", size: "100" },
-        { name: "곽병우", phone: "010-2631-4789", birth: "85.01.15", gender: "남", join: "22년12월", size: "100" },
-        { name: "김장곤", phone: "010-3574-8888", birth: "62.12.20", gender: "남", join: "23년 1월", size: "100" },
-        { name: "이동기", phone: "010-3030-1973", birth: "74.01.13", gender: "남", join: "23년 5월", size: "105" },
-        { name: "민병일", phone: "010-3589-7953", birth: "68.05.05", gender: "남", join: "23년 6월", size: "95" },
-        { name: "이학조", phone: "010-3201-9255", birth: "72.06.01", gender: "남", join: "24년 5월", size: "95" },
-        { name: "박지혜", phone: "010-4347-0990", birth: "82.04.17", gender: "여", join: "24년 5월", size: "90" },
-        { name: "최잔디", phone: "010-6545-5488", birth: "83.04.19", gender: "여", join: "24년 6월", size: "90" },
-        { name: "이정숙", phone: "010-3770-8752", birth: "60.06.01", gender: "여", join: "25년 1월", size: "90" },
-        { name: "김은성", phone: "010-2020-9313", birth: "90.06.28", gender: "남", join: "25년 2월", size: "95" },
-        { name: "이종호", phone: "010-9927-9448", birth: "81.11.26", gender: "남", join: "25년 2월", size: "105" },
-        { name: "정호진", phone: "010-5129-3223", birth: "92.01.05", gender: "남", join: "25년 5월", size: "100" },
-        { name: "이호병", phone: "010-3688-1759", birth: "84.07.29", gender: "남", join: "25년 8월", size: "110" },
-        { name: "방지원", phone: "010-7595-6782", birth: "93.10.18", gender: "남", join: "25년 8월", size: "110" }
-    ];
+    // ⚠️ 여기에 구글 앱스 스크립트 웹 앱 URL을 반드시 입력하세요!
+    const API_URL = "https://script.google.com/macros/s/AKfycbyjiDGH-72bCnCWsAkoeTiX3D0TLfcelXLGKAmBwsNZxn9VGG7xKrEmdufVsGiVYvX1/exec";
 
-    let globalMembers = JSON.parse(localStorage.getItem('boksagol_members_v7')) || INITIAL_MEMBERS;
-    let globalRaces = JSON.parse(localStorage.getItem('boksagol_races_v7')) || [];
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v7') || "";
-    let globalApplications = JSON.parse(localStorage.getItem('boksagol_applications_v7')) || {}; 
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v7') || "1234";
+    let globalMembers = [];
+    let globalRaces = [];
+    let globalApplications = {};
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v8') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v8') || "1234";
 
-    function saveLocalStorage() {
-        localStorage.setItem('boksagol_members_v7', JSON.stringify(globalMembers));
-        localStorage.setItem('boksagol_races_v7', JSON.stringify(globalRaces));
-        localStorage.setItem('boksagol_selected_race_v7', selectedRaceId);
-        localStorage.setItem('boksagol_applications_v7', JSON.stringify(globalApplications));
+    // 데이터 서버(구글 시트)에서 불러오기
+    async function fetchServerData(silent = false) {
+        const statusEl = document.getElementById('sync-status');
+        if (!silent && statusEl) statusEl.style.display = 'block';
+
+        try {
+            const response = await fetch(API_URL + "?action=getData");
+            const data = await response.json();
+            
+            globalMembers = data.members || [];
+            globalRaces = data.races || [];
+            globalApplications = data.applications || {};
+
+            if (globalRaces.length > 0 && !selectedRaceId) {
+                selectedRaceId = globalRaces[0].id;
+            }
+
+            if (!silent && statusEl) {
+                statusEl.textContent = "✅ 구글 시트 동기화 완료!";
+                setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+            }
+
+            refreshUI();
+        } catch (error) {
+            console.error("데이터 동기화 실패:", error);
+            if (!silent && statusEl) {
+                statusEl.textContent = "⚠️ 구글 시트 연결 실패 (URL을 확인해주세요)";
+            }
+        }
+    }
+
+    function refreshUI() {
+        renderRaceCards();
+        renderMemberList();
+        renderStatusTab();
+        renderAllMembersTab();
+        if(!document.getElementById('admin-panel').classList.contains('hidden')) {
+            renderAdminRaceList();
+            renderAdminMemberList();
+        }
     }
 
     function switchTab(tabName) {
@@ -342,7 +294,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                saveLocalStorage();
+                localStorage.setItem('boksagol_selected_race_v8', selectedRaceId);
                 renderRaceCards();
                 renderMemberList();
                 renderStatusTab();
@@ -450,25 +402,28 @@
         });
     }
 
-    function handleApply(memberName, course) {
+    async function handleApply(memberName, course) {
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
         if (!currentRace) return;
 
-        if (!globalApplications[selectedRaceId]) {
-            globalApplications[selectedRaceId] = {};
-        }
-
         if (course === null) {
             if (!confirm(`[${currentRace.name}] 대회에서 [${memberName}]님의 신청을 취소하시겠습니까?`)) return;
-            delete globalApplications[selectedRaceId][memberName];
         } else {
             if (!confirm(`[${currentRace.name}] 대회에 [${memberName}]님을 [${course}] 코스로 접수하시겠습니까?`)) return;
-            globalApplications[selectedRaceId][memberName] = course;
         }
 
-        saveLocalStorage();
-        renderMemberList();
-        renderStatusTab();
+        document.getElementById('sync-status').textContent = "🔄 서버에 반영 중...";
+        document.getElementById('sync-status').style.display = 'block';
+
+        try {
+            const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&raceName=${encodeURIComponent(currentRace.name)}&date=${encodeURIComponent(currentRace.date)}&deadline=${encodeURIComponent(currentRace.deadline)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course)}`;
+            await fetch(url);
+            await fetchServerData(true);
+            document.getElementById('sync-status').style.display = 'none';
+        } catch(e) {
+            alert("신청 저장 중 오류가 발생했습니다.");
+            document.getElementById('sync-status').style.display = 'none';
+        }
     }
 
     function renderStatusTab() {
@@ -484,10 +439,7 @@
         }
 
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
-        if (!currentRace) {
-            summaryBox.innerHTML = "<div class='loading'>선택된 대회가 없습니다.</div>";
-            return;
-        }
+        if (!currentRace) return;
 
         const raceApps = globalApplications[selectedRaceId] || {};
         const totalCount = Object.keys(raceApps).length;
@@ -634,7 +586,7 @@
         document.body.removeChild(link);
     }
 
-    // 관리자 모드 관련 함수
+    // 관리자 모드
     function toggleAdminMode() {
         const panel = document.getElementById('admin-panel');
         if (!panel) return;
@@ -673,7 +625,7 @@
         });
     }
 
-    function addNewRace() {
+    async function addNewRace() {
         const nameInput = document.getElementById('new-race-name');
         const dateInput = document.getElementById('new-race-date');
         const deadlineInput = document.getElementById('new-race-deadline');
@@ -687,41 +639,33 @@
             return;
         }
 
-        const newId = 'race_' + Date.now();
-        globalRaces.push({ id: newId, name, date, deadline: deadline || "마감일 미정" });
-        selectedRaceId = newId;
-
-        saveLocalStorage();
-        renderRaceCards();
-        renderAdminRaceList();
-        renderMemberList();
-
-        if (nameInput) nameInput.value = '';
-        if (dateInput) dateInput.value = '';
-        if (deadlineInput) deadlineInput.value = '';
-        alert(`[${name}] 대회가 성공적으로 등록되었습니다.`);
-    }
-
-    function removeRace(raceId) {
-        if (!confirm("정말 이 대회를 삭제하시겠습니까? 신청된 기록도 함께 삭제됩니다.")) return;
-        globalRaces = globalRaces.filter(r => r.id !== raceId);
-        delete globalApplications[raceId];
-
-        if (globalRaces.length > 0) {
-            selectedRaceId = globalRaces[0].id;
-        } else {
-            selectedRaceId = "";
+        try {
+            const url = `${API_URL}?action=addRace&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}`;
+            await fetch(url);
+            await fetchServerData(true);
+            renderAdminRaceList();
+            if (nameInput) nameInput.value = '';
+            if (dateInput) dateInput.value = '';
+            if (deadlineInput) deadlineInput.value = '';
+            alert(`[${name}] 대회가 성공적으로 등록되었습니다.`);
+        } catch(e) {
+            alert("대회 등록 중 오류가 발생했습니다.");
         }
-
-        saveLocalStorage();
-        renderRaceCards();
-        renderAdminRaceList();
-        renderMemberList();
-        alert("대회가 삭제되었습니다.");
     }
 
-    // 신규 회원 추가
-    function addNewMemberByAdmin() {
+    async function removeRace(raceId) {
+        if (!confirm("정말 이 대회를 삭제하시겠습니까? 신청된 기록도 함께 삭제됩니다.")) return;
+        try {
+            const url = `${API_URL}?action=deleteRace&raceId=${encodeURIComponent(raceId)}`;
+            await fetch(url);
+            await fetchServerData(true);
+            alert("대회가 삭제되었습니다.");
+        } catch(e) {
+            alert("대회 삭제 중 오류가 발생했습니다.");
+        }
+    }
+
+    async function addNewMemberByAdmin() {
         const name = document.getElementById('admin-add-name').value.trim();
         const phone = document.getElementById('admin-add-phone').value.trim();
         const birth = document.getElementById('admin-add-birth').value.trim();
@@ -734,20 +678,22 @@
             return;
         }
 
-        globalMembers.push({ name, phone: phone || "-", birth: birth || "-", gender, join: join || "-", size });
-        saveLocalStorage();
-        renderAdminMemberList();
-        renderMemberList();
-        renderAllMembersTab();
-
-        document.getElementById('admin-add-name').value = '';
-        document.getElementById('admin-add-phone').value = '';
-        document.getElementById('admin-add-birth').value = '';
-        document.getElementById('admin-add-join').value = '';
-        alert(`[${name}] 회원이 추가되었습니다.`);
+        try {
+            const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(name)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone || "-")}&birth=${encodeURIComponent(birth || "-")}&gender=${encodeURIComponent(gender)}&join=${encodeURIComponent(join || "-")}&size=${encodeURIComponent(size)}`;
+            await fetch(url);
+            await fetchServerData(true);
+            renderAdminMemberList();
+            
+            document.getElementById('admin-add-name').value = '';
+            document.getElementById('admin-add-phone').value = '';
+            document.getElementById('admin-add-birth').value = '';
+            document.getElementById('admin-add-join').value = '';
+            alert(`[${name}] 회원이 추가되었습니다.`);
+        } catch(e) {
+            alert("회원 추가 중 오류가 발생했습니다.");
+        }
     }
 
-    // 관리자 회원 목록 렌더링 (수정/삭제 기능 포함)
     function renderAdminMemberList() {
         const listDiv = document.getElementById('admin-member-list');
         if (!listDiv) return;
@@ -764,7 +710,6 @@
         }
 
         filtered.forEach(m => {
-            const originalIndex = globalMembers.findIndex(item => item.name === m.name && item.phone === m.phone);
             const row = document.createElement('div');
             row.className = 'member-admin-row';
             row.innerHTML = `
@@ -773,17 +718,18 @@
                     <span style="font-size:0.7rem; color:#94a3b8;">${m.phone} / 가입: ${m.join}</span>
                 </div>
                 <div style="display:flex; gap:4px;">
-                    <button onclick="editMember(${originalIndex})" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
-                    <button onclick="removeMember(${originalIndex})" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">삭제</button>
+                    <button onclick="editMember('${m.name}')" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
+                    <button onclick="removeMember('${m.name}')" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">삭제</button>
                 </div>
             `;
             listDiv.appendChild(row);
         });
     }
 
-    // 회원 정보 수정
-    function editMember(index) {
-        const m = globalMembers[index];
+    async function editMember(oldName) {
+        const m = globalMembers.find(item => item.name === oldName);
+        if (!m) return;
+
         const newName = prompt("이름 수정:", m.name);
         if (newName === null) return;
         const newBirth = prompt("생년월일 수정 (예: 69.11.08):", m.birth);
@@ -795,33 +741,28 @@
         const newSize = prompt("옷 사이즈 수정 (90, 95, 100, 105, 110 중 입력):", m.size);
         if (newSize === null) return;
 
-        globalMembers[index] = {
-            ...m,
-            name: newName.trim() || m.name,
-            birth: newBirth.trim() || m.birth,
-            phone: newPhone.trim() || m.phone,
-            gender: newGender.trim() || m.gender,
-            size: newSize.trim() || m.size
-        };
-
-        saveLocalStorage();
-        renderAdminMemberList();
-        renderMemberList();
-        renderAllMembersTab();
-        alert("회원 정보가 수정되었습니다.");
+        try {
+            const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(oldName)}&name=${encodeURIComponent(newName.trim() || m.name)}&phone=${encodeURIComponent(newPhone.trim() || m.phone)}&birth=${encodeURIComponent(newBirth.trim() || m.birth)}&gender=${encodeURIComponent(newGender.trim() || m.gender)}&join=${encodeURIComponent(m.join)}&size=${encodeURIComponent(newSize.trim() || m.size)}`;
+            await fetch(url);
+            await fetchServerData(true);
+            renderAdminMemberList();
+            alert("회원 정보가 수정되었습니다.");
+        } catch(e) {
+            alert("수정 중 오류가 발생했습니다.");
+        }
     }
 
-    // 회원 삭제
-    function removeMember(index) {
-        const target = globalMembers[index];
-        if (!confirm(`[${target.name}] 회원을 정말 명부에서 삭제하시겠습니까?`)) return;
-        
-        globalMembers.splice(index, 1);
-        saveLocalStorage();
-        renderAdminMemberList();
-        renderMemberList();
-        renderAllMembersTab();
-        alert("회원이 삭제되었습니다.");
+    async function removeMember(name) {
+        if (!confirm(`[${name}] 회원을 정말 명부에서 삭제하시겠습니까?`)) return;
+        try {
+            const url = `${API_URL}?action=deleteMember&name=${encodeURIComponent(name)}`;
+            await fetch(url);
+            await fetchServerData(true);
+            renderAdminMemberList();
+            alert("회원이 삭제되었습니다.");
+        } catch(e) {
+            alert("삭제 중 오류가 발생했습니다.");
+        }
     }
 
     function changePassword() {
@@ -833,15 +774,18 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v7', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v8', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
     }
 
+    // 앱 초기화 및 주기적 실시간 동기화 (5초마다 자동 갱신)
     function initApp() {
-        renderRaceCards();
-        renderMemberList();
+        fetchServerData(false);
+        setInterval(() => {
+            fetchServerData(true); // 백그라운드 자동 동기화
+        }, 5000);
     }
 
     if (document.readyState === 'loading') {
