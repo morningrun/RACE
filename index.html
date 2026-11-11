@@ -46,9 +46,9 @@
         .race-card-item.active .race-name { color: var(--accent); }
         .race-info-sub { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; display: flex; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
         
-        /* 💡 [대회 신청/접수 현황] 카드 내 종목/금액 정보 완벽 정렬 */
-        .race-info-courses { color: var(--accent); font-weight: 800; margin-top: 2px; display: flex; flex-wrap: wrap; gap: 3px 8px; }
-        .course-price-tag { white-space: nowrap; }
+        /* 💡 스마트폰 최적화: 종목 및 참가비 항목을 코스별로 줄바꿈하여 세로로 깔끔하게 나열 */
+        .race-info-courses-container { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
+        .course-price-row { color: var(--accent); font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
 
         .search-box { margin-bottom: 10px; display: flex; gap: 6px; }
         .search-box input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; font-weight: 700; }
@@ -245,8 +245,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v22') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v22') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v23') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v23') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -364,12 +364,12 @@
             const isSelected = (race.id === selectedRaceId);
             card.className = `race-card-item ${isSelected ? 'active' : ''}`;
             
-            // 💡 종목/금액 정보가 끊김 없이 완벽하게 표시되도록 태그로 감쌈
+            // 💡 코스별로 줄바꿈하여 세로로 깔끔하게 배치
             let coursesHtml = '';
             if (race.courses) {
                 const courseList = parseCourses(race.courses);
                 courseList.forEach(c => {
-                    coursesHtml += `<span class="course-price-tag">${c}</span>`;
+                    coursesHtml += `<div class="course-price-row">🔹 ${c}</div>`;
                 });
             }
 
@@ -379,14 +379,16 @@
                     <span>📅 대회일: ${race.date}</span>
                     <span>⏳ 마감일: ${race.deadline}</span>
                 </div>
-                <div class="race-info-sub race-info-courses">
-                    <span style="white-space:nowrap;">🏷️ 종목 및 참가비:</span>
-                    ${coursesHtml || "<span>5km(50,000원), 10km(50,000원)</span>"}
+                <div style="margin-top: 4px;">
+                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-sub);">🏷️ 종목 및 참가비 안내:</div>
+                    <div class="race-info-courses-container">
+                        ${coursesHtml || '<div class="course-price-row">🔹 5km(50,000원)</div><div class="course-price-row">🔹 10km(50,000원)</div>'}
+                    </div>
                 </div>
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v22', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v23', selectedRaceId);
                 refreshUI();
             };
             container.appendChild(card);
@@ -558,7 +560,6 @@
             return;
         }
 
-        // 💡 불필요한 안내 문구 삭제 완료
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 명단</div>`;
         
         let appliedMembersList = globalMembers.filter(m => raceApps[m.name]).sort((a, b) => {
@@ -1045,7 +1046,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v22', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v23', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
