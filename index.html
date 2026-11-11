@@ -58,11 +58,22 @@
         .btn-group { display: flex; gap: 4px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 55px; padding: 8px 2px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
         
-        .course-badge-style { background: #f0fdf4 !important; color: #047857 !important; border-color: #4ade80 !important; }
+        /* 🎨 코스별 연한 파스텔톤 컬러 스타일 정의 */
+        /* 풀코스: 연보라 */
+        .style-full { background: #faf5ff !important; color: #6b21a8 !important; border-color: #d8b4fe !important; }
+        /* 하프: 연주황 */
+        .style-half { background: #fffbeb !important; color: #b45309 !important; border-color: #fde68a !important; }
+        /* 10km: 연파랑 */
+        .style-10k { background: #f0f9ff !important; color: #0369a1 !important; border-color: #bae6fd !important; }
+        /* 5km: 연초록 */
+        .style-5k { background: #f0fdf4 !important; color: #15803d !important; border-color: #bbf7d0 !important; }
+        /* 기타: 연핑크 */
+        .style-etc { background: #fdf2f8 !important; color: #be185d !important; border-color: #fbcfe8 !important; }
+
         .course-btn-style { background: #f8fafc; color: var(--text-sub); border-color: var(--border); }
         .course-btn-style:hover { background: #e2e8f0; }
 
-        button.selected-course { background: var(--success) !important; color: white !important; border-color: var(--success) !important; font-weight: 800; flex: 1.5 !important; cursor: default; }
+        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; }
         button.btn-cancel { background: #fee2e2 !important; color: var(--danger) !important; border-color: #fca5a5 !important; font-weight: 800; flex: 0.8 !important; }
 
         .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
@@ -205,13 +216,39 @@
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbythvP7ge1496JEt4jRC3QqntVtdXKyXOKzg26BjPKvXLwpsUW_sZDD3EhhPDO_Cocv/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyjiDGH-72bCnCWsAkoeTiX3D0TLfcelXLGKAmBwsNZxn9VGG7xKrEmdufVsGiVYvX1/exec";
 
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v10') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v10') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v11') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v11') || "1234";
+
+    // 코스 정렬 순위 정의 (풀코스 -> 하프 -> 10km -> 5km -> 기타)
+    const courseRank = {
+        "풀코스": 1,
+        "하프": 2,
+        "10km": 3,
+        "5km": 4
+    };
+
+    function getCourseRank(course) {
+        if (!course) return 99;
+        for (let key in courseRank) {
+            if (course.includes(key)) return courseRank[key];
+        }
+        return 5; // 기타 순위
+    }
+
+    // 코스별 파스텔톤 스타일 클래스 반환
+    function getCourseStyleClass(course) {
+        if (!course) return '';
+        if (course.includes('풀코스') || course.includes('Full') || course.includes('FULL')) return 'style-full';
+        if (course.includes('하프') || course.includes('Half') || course.includes('HALF')) return 'style-half';
+        if (course.includes('10k') || course.includes('10K')) return 'style-10k';
+        if (course.includes('5k') || course.includes('5K')) return 'style-5k';
+        return 'style-etc';
+    }
 
     async function fetchServerData(silent = false) {
         const statusEl = document.getElementById('sync-status');
@@ -306,7 +343,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v10', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v11', selectedRaceId);
                 renderRaceCards();
                 renderMemberList();
                 renderStatusTab();
@@ -344,10 +381,18 @@
         const searchText = searchInput ? searchInput.value.trim().toLowerCase() : "";
         const raceApps = globalApplications[selectedRaceId] || {};
 
+        // 🎯 정렬 규칙: 1순위 신청 여부(신청자 위로), 2순위 지정 코스 순위(풀코스->하프->10km->5km->기타), 3순위 이름 가나다순
         const sortedMembers = [...globalMembers].sort((a, b) => {
             const appA = raceApps[a.name] ? 0 : 1;
             const appB = raceApps[b.name] ? 0 : 1;
             if (appA !== appB) return appA - appB;
+
+            if (appA === 0) {
+                const rankA = getCourseRank(raceApps[a.name]);
+                const rankB = getCourseRank(raceApps[b.name]);
+                if (rankA !== rankB) return rankA - rankB;
+            }
+
             return a.name.localeCompare(b.name, 'ko');
         });
 
@@ -366,10 +411,12 @@
 
             const card = document.createElement('div');
             let badgeHtml = "";
+            let cardStyleClass = "";
 
             if (isApplied) {
-                card.className = `member-card course-badge-style`;
-                badgeHtml = `<span style="font-size:0.75rem; padding:2px 8px; border-radius:5px; font-weight:800;" class="course-badge-style">✅ ${appliedCourse} 신청완료</span>`;
+                cardStyleClass = getCourseStyleClass(appliedCourse);
+                card.className = `member-card ${cardStyleClass}`;
+                badgeHtml = `<span style="font-size:0.75rem; padding:2px 8px; border-radius:5px; font-weight:800;" class="${cardStyleClass}">✅ ${appliedCourse} 신청완료</span>`;
             } else {
                 card.className = `member-card`;
                 badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#64748b; padding:2px 8px; border-radius:5px;">미신청</span>`;
@@ -399,7 +446,7 @@
             } else {
                 const selectedBtn = document.createElement('button');
                 selectedBtn.textContent = `신청: ${appliedCourse}`;
-                selectedBtn.className = `selected-course course-badge-style`;
+                selectedBtn.className = `selected-course ${cardStyleClass}`;
                 selectedBtn.disabled = true;
 
                 const cancelBtn = document.createElement('button');
@@ -481,17 +528,25 @@
             return;
         }
 
-        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 세부 명단</div>`;
+        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 세부 명단 (풀코스 ➡️ 하프 ➡️ 10km ➡️ 5km ➡️ 기타 순)</div>`;
         
-        globalMembers.forEach(m => {
-            if (raceApps[m.name]) {
-                detailHtml += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;">
-                        <div><strong>${m.name}</strong> <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.phone} / 👕${m.size})</span></div>
-                        <div style="font-weight:800; padding:3px 8px; border-radius:5px; font-size:0.8rem;" class="course-badge-style">${raceApps[m.name]}</div>
-                    </div>
-                `;
-            }
+        // 🎯 접수 현황 탭에서도 동일하게 풀코스 -> 하프 -> 10km -> 5km -> 기타 순으로 정렬
+        let appliedMembersList = globalMembers.filter(m => raceApps[m.name]).sort((a, b) => {
+            const rankA = getCourseRank(raceApps[a.name]);
+            const rankB = getCourseRank(raceApps[b.name]);
+            if (rankA !== rankB) return rankA - rankB;
+            return a.name.localeCompare(b.name, 'ko');
+        });
+
+        appliedMembersList.forEach(m => {
+            const course = raceApps[m.name];
+            const badgeStyle = getCourseStyleClass(course);
+            detailHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;" class="${badgeStyle}">
+                    <div><strong>${m.name}</strong> <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.phone} / 👕${m.size})</span></div>
+                    <div style="font-weight:800; padding:3px 8px; border-radius:5px; font-size:0.8rem;" class="${badgeStyle}">${course}</div>
+                </div>
+            `;
         });
         detailList.innerHTML = detailHtml;
     }
@@ -650,7 +705,6 @@
         document.getElementById('new-race-date').value = race.date;
         document.getElementById('new-race-deadline').value = race.deadline;
 
-        // 기존 체크박스 초기화 후 해당 대회 코스에 맞게 체크
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach(chk => chk.checked = false);
         document.getElementById('custom-course-1-name').value = "";
@@ -668,7 +722,6 @@
                 }
             });
             if (!matched) {
-                // 기타 맞춤 코스인 경우
                 if (!document.getElementById('custom-course-1-name').value && !chks[4].checked) {
                     chks[4].checked = true;
                     document.getElementById('custom-course-1-name').value = c;
@@ -696,7 +749,7 @@
         
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach((chk, idx) => {
-            chk.checked = (idx < 4); // 기본 4개는 기본 체크
+            chk.checked = (idx < 4);
         });
         document.getElementById('custom-course-1-name').value = "";
         document.getElementById('custom-course-1-name').disabled = true;
@@ -719,7 +772,6 @@
             return;
         }
 
-        // 선택된 코스 수집
         let selectedCourses = [];
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach((chk, idx) => {
@@ -876,7 +928,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v10', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v11', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
@@ -889,11 +941,13 @@
         }, 5000);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initApp);
-    } else {
-        initApp();
-    }
+    (function() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    })();
 </script>
 
 </body>
