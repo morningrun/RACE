@@ -31,7 +31,6 @@
         
         .main-title-box { text-align: center; margin: 8px 0 16px 0; }
         .main-title { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        .main-subtitle { font-size: 0.855rem; color: var(--text-sub); margin-top: 4px; font-weight: 700; }
 
         .tab-group { display: flex; gap: 4px; margin-bottom: 14px; background: #cbd5e1; padding: 3px; border-radius: 10px; position: sticky; top: 6px; z-index: 10; backdrop-filter: blur(8px); }
         .tab-btn { flex: 1; padding: 10px 2px; font-size: 0.8rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
@@ -49,7 +48,6 @@
         .search-box { margin-bottom: 10px; display: flex; gap: 6px; }
         .search-box input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; font-weight: 700; }
         
-        /* 🎨 안정적이고 깔끔한 회원 카드 디자인 (글씨 겹침 방지) */
         .member-card { display: flex; flex-direction: column; padding: 10px 12px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .member-card.style-full { background: #faf5ff; border-color: #d8b4fe; }
         .member-card.style-half { background: #fffbeb; border-color: #fde68a; }
@@ -65,7 +63,6 @@
         .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 95px; padding: 8px 4px; font-size: 0.78rem; border: 1.5px solid var(--border); border-radius: 7px; cursor: pointer; font-weight: 800; text-align: center; }
         
-        /* 코스별 파스텔톤 컬러 스타일 */
         .style-full { color: #6b21a8 !important; }
         .style-half { color: #b45309 !important; }
         .style-10k { color: #0369a1 !important; }
@@ -102,7 +99,6 @@
         .admin-gear-btn-small { background: #f8fafc; border: 1.5px solid var(--border); font-size: 0.8rem; cursor: pointer; padding: 6px 14px; color: var(--text-sub); border-radius: 7px; font-weight: 800; }
 
         .hidden { display: none; }
-        .loading { text-align: center; color: var(--text-sub); padding: 25px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -110,8 +106,7 @@
 <div class="container">
     <div class="main-title-box">
         <div class="main-title">🏃‍♂️ 복사골마라톤클럽 대회 신청</div>
-        <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용 v18)</div>
-        <div id="sync-status" class="sync-loading" style="display:none;">🔄 구글 시트 동기화 중...</div>
+        <div id="sync-status" class="sync-loading" style="display:none;">🔄 동기화 중...</div>
     </div>
     
     <div class="tab-group">
@@ -137,7 +132,6 @@
 
     <div id="tab-status" class="hidden">
         <div id="status-summary-box" style="margin-bottom: 14px;"></div>
-        <!-- 🔒 관리자 모드가 열렸을 때만 보이는 엑셀 다운로드 버튼 -->
         <button class="excel-down-btn hidden" id="excel-down-action-btn">📥 현재 대회 신청자 명부 엑셀(CSV) 다운로드</button>
         <div id="status-detail-list" style="margin-top: 12px;"></div>
     </div>
@@ -246,8 +240,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v18') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v18') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v19') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v19') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -365,7 +359,7 @@
             const isSelected = (race.id === selectedRaceId);
             card.className = `race-card-item ${isSelected ? 'active' : ''}`;
             
-            // 💡 위쪽 카드 하나에서 대회명, 날짜, 마감일, 종목 및 참가비 안내를 모두 깔끔하게 표시
+            // 💡 선택 카드 내부에 참가비 금액이 포함된 코스 목록 명확히 안내
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
@@ -373,12 +367,12 @@
                     <span>⏳ 마감일: ${race.deadline}</span>
                 </div>
                 <div class="race-info-sub" style="color:var(--accent); font-weight:800; margin-top:2px;">
-                    🏷️ 종목 및 참가비: ${race.courses || "5km, 10km, 하프, 풀코스"}
+                    🏷️ 종목 및 참가비: ${race.courses || "5km(50,000원), 10km(50,000원)"}
                 </div>
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v18', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v19', selectedRaceId);
                 refreshUI();
             };
             container.appendChild(card);
@@ -579,16 +573,15 @@
 
         const totalCount = globalMembers.length;
         let maleCount = 0, femaleCount = 0;
-        const sizeCounts = { "90": 0, "95": 0, "100": 0, "105": 0, "110": 0 };
 
         globalMembers.forEach(m => {
             if (m.gender === "남") maleCount++;
             else if (m.gender === "여") femaleCount++;
-            if (sizeCounts[m.size] !== undefined) sizeCounts[m.size]++;
         });
 
+        // 💡 옷 사이즈별 분류 현황 박스 제거 완료
         summaryBox.innerHTML = `
-            <div class="stat-card-grid">
+            <div class="stat-card-grid" style="grid-template-columns: repeat(2, 1fr);">
                 <div class="stat-box">
                     <div class="stat-box-title">👥 총 회원수</div>
                     <div class="stat-box-val">${totalCount}명</div>
@@ -596,16 +589,6 @@
                 <div class="stat-box">
                     <div class="stat-box-title">성별 분포</div>
                     <div class="stat-box-val" style="font-size:1.05rem;">남 ${maleCount}명 / 여 ${femaleCount}명</div>
-                </div>
-            </div>
-            <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; margin-bottom:12px;">
-                <div style="font-weight:800; font-size:0.88rem; color:var(--primary); margin-bottom:6px;">👕 옷 사이즈별 분류 현황</div>
-                <div style="font-size:0.82rem; font-weight:700; color:var(--text-sub); display:flex; gap:10px; flex-wrap:wrap;">
-                    <span>90호: <strong>${sizeCounts["90"]}명</strong></span>
-                    <span>95호: <strong>${sizeCounts["95"]}명</strong></span>
-                    <span>100호: <strong>${sizeCounts["100"]}명</strong></span>
-                    <span>105호: <strong>${sizeCounts["105"]}명</strong></span>
-                    <span>110호: <strong>${sizeCounts["110"]}명</strong></span>
                 </div>
             </div>
         `;
@@ -624,7 +607,7 @@
 
         filtered.forEach((m, idx) => {
             listHtml += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1px solid #e2e8f0; font-size:0.88rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #e2e8f0; font-size:0.88rem;">
                     <div>
                         <strong>${idx + 1}. ${m.name}</strong> 
                         <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.gender} / ${m.phone} / 가입: ${m.join})</span>
@@ -1047,7 +1030,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v18', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v19', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
