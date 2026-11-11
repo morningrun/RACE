@@ -55,8 +55,8 @@
         .member-name { font-weight: 800; font-size: 0.95rem; color: var(--primary); display: flex; align-items: center; gap: 6px; }
         .member-sub-info { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; margin-top: 2px; }
         
-        .btn-group { display: flex; gap: 4px; width: 100%; flex-wrap: wrap; }
-        .btn-group button { flex: 1; min-width: 75px; padding: 8px 4px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
+        .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
+        .btn-group button { flex: 1; min-width: 100px; padding: 8px 6px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; text-align: center; }
         
         /* 코스별 파스텔톤 컬러 스타일 정의 */
         .style-full { background: #faf5ff !important; color: #6b21a8 !important; border-color: #d8b4fe !important; }
@@ -103,7 +103,7 @@
 <div class="container">
     <div class="main-title-box">
         <div class="main-title">🏃‍♂️ 복사골마라톤클럽 대회 신청</div>
-        <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용 v14)</div>
+        <div class="main-subtitle">구글 시트 실시간 연동 시스템 (단톡방 공유용 v15)</div>
         <div id="sync-status" class="sync-loading" style="display:none;">🔄 구글 시트 동기화 중...</div>
     </div>
     
@@ -238,8 +238,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v14') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v14') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v15') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v15') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -258,6 +258,32 @@
         if (course.includes('10k') || course.includes('10K')) return 'style-10k';
         if (course.includes('5k') || course.includes('5K')) return 'style-5k';
         return 'style-etc';
+    }
+
+    // 💡 안전한 코스 파싱 함수 (쉼표 포함된 문자열을 올바르게 분리)
+    function parseCourses(coursesStr) {
+        if (!coursesStr) return [];
+        let rawList = coursesStr.split(',');
+        let result = [];
+        let temp = "";
+        
+        rawList.forEach(item => {
+            item = item.trim();
+            if (temp) {
+                temp += ", " + item;
+            } else {
+                temp = item;
+            }
+            // 괄호가 열리고 닫혔는지 확인하여 하나의 완전한 코스 항목으로 병합
+            let openCount = (temp.match(/\(/g) || []).length;
+            let closeCount = (temp.match(/\)/g) || []).length;
+            if (openCount === closeCount) {
+                result.push(temp);
+                temp = "";
+            }
+        });
+        if (temp) result.push(temp);
+        return result;
     }
 
     async function fetchServerData(silent = false) {
@@ -342,7 +368,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v14', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v15', selectedRaceId);
                 renderRaceCards();
                 renderMemberList();
                 renderStatusTab();
@@ -389,7 +415,7 @@
             return;
         }
 
-        const availableCourses = (currentRace.courses || "5km,10km,하프,풀코ส").split(',').map(c => c.trim()).filter(c => c);
+        const availableCourses = parseCourses(currentRace.courses || "5km(50,000원), 10km(50,000원), 하프(50,000원), 풀코스(50,000원)");
 
         filtered.forEach((member, index) => {
             const appliedCourse = raceApps[member.name] || null;
@@ -424,8 +450,7 @@
             if (!isApplied) {
                 availableCourses.forEach(course => {
                     const btn = document.createElement('button');
-                    // 💡 코스 이름과 참가비가 함께 나타나도록 표시 (예: 5km (50,000원))
-                    btn.innerHTML = course;
+                    btn.textContent = course; // 💡 코스명과 금액이 쪼개지지 않고 온전하게 버튼에 표시됨
                     btn.className = "course-btn-style";
                     btn.onclick = function() { handleApply(member.name, course); };
                     btnGroup.appendChild(btn);
@@ -696,7 +721,6 @@
         document.getElementById('new-race-date').value = race.date;
         document.getElementById('new-race-deadline').value = race.deadline;
 
-        // 초기화
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach(chk => chk.checked = false);
         document.getElementById('price-5km').value = "50,000";
@@ -712,12 +736,9 @@
         document.getElementById('price-custom-2').value = "50,000";
         document.getElementById('price-custom-2').disabled = true;
 
-        // 기존 저장된 코스 문자열 파싱 (예: "5km(50,000원), 10km(50,000원)")
-        const currentCoursesStr = race.courses || "";
-        const parts = currentCoursesStr.split(',').map(p => p.trim());
+        const parts = parseCourses(race.courses || "");
 
         parts.forEach(part => {
-            // "5km(50,000원)" 형태 분해
             const match = part.match(/^(.+?)\s*\(([^)]+)\)$/);
             let cName = part;
             let cPrice = "50,000";
@@ -831,7 +852,6 @@
                 }
 
                 if (courseName) {
-                    // 예: "5km(50,000원)" 형태로 조합
                     selectedCourses.push(`${courseName}(${coursePrice}원)`);
                 }
             }
@@ -1013,7 +1033,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v14', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v15', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
