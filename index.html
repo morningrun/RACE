@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>복사골마라톤클럽 대회접수</title>
-    
    
 <!-- 카카오톡 대회접수 미리보기 -->
 <meta property="og:title" content="복사골마라톤클럽 대회접수">
@@ -49,9 +48,10 @@
         .race-card-item.active { border-color: var(--accent); background: #eff6ff; box-shadow: 0 2px 6px rgba(37,99,235,0.15); }
         .race-name { font-size: 0.95rem; font-weight: 800; color: var(--primary); }
         .race-card-item.active .race-name { color: var(--accent); }
-        .race-info-sub { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; display: flex; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
         
-        /* 💡 스마트폰 최적화: 종목 및 참가비 항목을 코스별로 줄바꿈하여 세로로 깔끔하게 나열 */
+        /* 💡 굵기 강조 처리 */
+        .race-info-sub { font-size: 0.78rem; color: var(--text-sub); font-weight: 800; display: flex; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
+        
         .race-info-courses-container { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
         .course-price-row { color: var(--accent); font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
 
@@ -59,11 +59,13 @@
         .search-box input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; font-weight: 700; }
         
         .member-card { display: flex; flex-direction: column; padding: 11px 13px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .member-card.style-full { background: #faf5ff; border-color: #d8b4fe; }
-        .member-card.style-half { background: #fffbeb; border-color: #fde68a; }
-        .member-card.style-10k { background: #f0f9ff; border-color: #bae6fd; }
-        .member-card.style-5k { background: #f0fdf4; border-color: #bbf7d0; }
-        .member-card.style-etc { background: #fdf2f8; border-color: #fbcfe8; }
+        
+        /* 💡 신청 완료 회원 카드 배경색을 한 톤 더 진하게 설정 */
+        .member-card.style-full { background: #f3e8ff; border-color: #c084fc; }
+        .member-card.style-half { background: #fef3c7; border-color: #f59e0b; }
+        .member-card.style-10k { background: #e0f2fe; border-color: #38bdf8; }
+        .member-card.style-5k { background: #dcfce7; border-color: #4ade80; }
+        .member-card.style-etc { background: #fce7f3; border-color: #f472b6; }
         
         .member-info { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .member-name-area { font-weight: 800; font-size: 0.92rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
@@ -73,16 +75,16 @@
         .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 95px; padding: 8px 4px; font-size: 0.78rem; border: 1.5px solid var(--border); border-radius: 7px; cursor: pointer; font-weight: 800; text-align: center; }
         
-        .style-full { color: #6b21a8 !important; }
-        .style-half { color: #b45309 !important; }
-        .style-10k { color: #0369a1 !important; }
-        .style-5k { color: #15803d !important; }
-        .style-etc { color: #be185d !important; }
+        .style-full { color: #581c87 !important; }
+        .style-half { color: #92400e !important; }
+        .style-10k { color: #03588c !important; }
+        .style-5k { color: #166534 !important; }
+        .style-etc { color: #9d174d !important; }
 
         .course-btn-style { background: #ffffff; color: #1e293b; border-color: #94a3b8; }
         .course-btn-style:hover { background: #f1f5f9; border-color: var(--accent); color: var(--accent); }
 
-        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; font-size: 0.82rem !important; background: rgba(255,255,255,0.8); }
+        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; font-size: 0.82rem !important; background: rgba(255,255,255,0.9); }
         button.btn-cancel { background: #fee2e2 !important; color: var(--danger) !important; border-color: #fca5a5 !important; font-weight: 800; flex: 0.7 !important; }
 
         .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
@@ -250,8 +252,8 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v23') || "";
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v23') || "1234";
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v24') || "1234";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -369,7 +371,6 @@
             const isSelected = (race.id === selectedRaceId);
             card.className = `race-card-item ${isSelected ? 'active' : ''}`;
             
-            // 💡 코스별로 줄바꿈하여 세로로 깔끔하게 배치
             let coursesHtml = '';
             if (race.courses) {
                 const courseList = parseCourses(race.courses);
@@ -378,14 +379,15 @@
                 });
             }
 
+            // 💡 콜론(:) 삭제 및 굵기(Bold) 강조 적용
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
-                    <span>📅 대회일: ${race.date}</span>
-                    <span>⏳ 마감일: ${race.deadline}</span>
+                    <span>📅 <strong>대회일</strong>: ${race.date}</span>
+                    <span>⏳ <strong>마감일</strong>: ${race.deadline}</span>
                 </div>
                 <div style="margin-top: 4px;">
-                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-sub);">🏷️ 종목 및 참가비 안내:</div>
+                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-sub);">🏷️ <strong>종목 및 참가비 안내</strong></div>
                     <div class="race-info-courses-container">
                         ${coursesHtml || '<div class="course-price-row">🔹 5km(50,000원)</div><div class="course-price-row">🔹 10km(50,000원)</div>'}
                     </div>
@@ -393,7 +395,7 @@
             `;
             card.onclick = function() {
                 selectedRaceId = race.id;
-                localStorage.setItem('boksagol_selected_race_v23', selectedRaceId);
+                localStorage.setItem('boksagol_selected_race_v24', selectedRaceId);
                 refreshUI();
             };
             container.appendChild(card);
@@ -1051,7 +1053,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v23', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v24', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
