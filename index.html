@@ -71,7 +71,6 @@
         button.selected-course { background: var(--success) !important; color: white !important; border-color: var(--success) !important; font-weight: 800; flex: 1.5 !important; }
         button.btn-cancel { background: #fee2e2 !important; color: var(--danger) !important; border-color: #fca5a5 !important; font-weight: 800; flex: 0.8 !important; }
 
-        /* 회원현황 탭 스타일 */
         .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
         .stat-box { background: #f8fafc; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
         .stat-box-title { font-size: 0.82rem; font-weight: 800; color: var(--text-sub); margin-bottom: 6px; }
@@ -106,7 +105,6 @@
         <button class="tab-btn" id="tab-members-btn" onclick="switchTab('members')">👥 전체 회원현황</button>
     </div>
 
-    <!-- 대회 선택 상단 바 (신청 탭에서만 표시) -->
     <div id="race-selector-wrapper" class="race-select-box">
         <div class="race-select-title">
             <span>📌 신청할 마라톤 대회 선택</span>
@@ -115,7 +113,6 @@
         <div id="race-card-container"></div>
     </div>
 
-    <!-- 대회 신청하기 탭 -->
     <div id="tab-apply">
         <div class="search-box">
             <input type="text" id="member-search-input" placeholder="🔍 본인 이름 검색..." oninput="renderMemberList()">
@@ -123,14 +120,12 @@
         <div id="member-list-wrapper"></div>
     </div>
 
-    <!-- 종목별 접수 현황 탭 -->
     <div id="tab-status" class="hidden">
         <div id="status-summary-box" style="margin-bottom: 14px;"></div>
         <button class="excel-down-btn" onclick="downloadExcel()">📥 현재 대회 신청자 명부 엑셀(CSV) 다운로드</button>
         <div id="status-detail-list" style="margin-top: 12px;"></div>
     </div>
 
-    <!-- 전체 회원현황 및 분류 탭 (신규 추가) -->
     <div id="tab-members" class="hidden">
         <div id="member-stats-summary"></div>
         <div class="search-box" style="margin-top: 12px;">
@@ -139,15 +134,14 @@
         <div id="all-member-list-wrapper" style="margin-top: 8px;"></div>
     </div>
 
-    <!-- 관리자 패널 -->
     <div id="admin-panel" class="admin-panel hidden">
         <h3>🔒 관리자 대회 및 회원 설정</h3>
         
         <h3 style="margin-top:6px;">➕ 새 마라톤 대회 등록</h3>
         <div class="admin-input-group">
-            <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 서울마라톤)">
-            <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.03.16(일))">
-            <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.02.10까지)">
+            <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 삼척황영조마라톤)">
+            <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
+            <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
             <button onclick="addNewRace()" style="background:#2563eb; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">대회 추가하기</button>
         </div>
 
@@ -169,7 +163,7 @@
 </div>
 
 <script>
-    // 복사골마라톤클럽 전체 83명 회원 데이터 (명부 파일 기준 완벽 반영)
+    // 복사골마라톤클럽 엑셀 명부 기준 실제 83명 회원 데이터 완벽 반영
     const DEFAULT_MEMBERS = [
         { name: "김창선", phone: "010-4739-4085", birth: "59.08.04", gender: "남", join: "00년 1월", size: "95" },
         { name: "방철규", phone: "010-3714-7313", birth: "59.02.16", gender: "남", join: "00년 1월", size: "95" },
@@ -256,21 +250,16 @@
         { name: "강진우", phone: "010-8911-7788", birth: "85.01.15", gender: "남", join: "24년 4월", size: "110" }
     ];
 
-    const DEFAULT_RACES = [
-        { id: "race_1", name: "2025 삼척황영조마라톤", date: "2025.04.13(일)", deadline: "2025.03.15까지" },
-        { id: "race_2", name: "2025 고구려마라톤", date: "2025.02.23(일)", deadline: "2025.02.05까지" },
-        { id: "race_3", name: "2025 하반기 복사골 자체클럽대회", date: "2025.10.19(일)", deadline: "2025.09.30까지" }
-    ];
-
-    let globalRaces = JSON.parse(localStorage.getItem('boksagol_races_v4')) || DEFAULT_RACES;
-    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v4') || (globalRaces[0] ? globalRaces[0].id : "");
-    let globalApplications = JSON.parse(localStorage.getItem('boksagol_applications_v4')) || {}; 
-    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v4') || "1234";
+    // 기본 샘플 대회를 완전히 비우고 관리자가 직접 등록하도록 초기화
+    let globalRaces = JSON.parse(localStorage.getItem('boksagol_races_v5')) || [];
+    let selectedRaceId = localStorage.getItem('boksagol_selected_race_v5') || "";
+    let globalApplications = JSON.parse(localStorage.getItem('boksagol_applications_v5')) || {}; 
+    let adminPassword = localStorage.getItem('boksagol_admin_pwd_v5') || "1234";
 
     function saveLocalStorage() {
-        localStorage.setItem('boksagol_races_v4', JSON.stringify(globalRaces));
-        localStorage.setItem('boksagol_selected_race_v4', selectedRaceId);
-        localStorage.setItem('boksagol_applications_v4', JSON.stringify(globalApplications));
+        localStorage.setItem('boksagol_races_v5', JSON.stringify(globalRaces));
+        localStorage.setItem('boksagol_selected_race_v5', selectedRaceId);
+        localStorage.setItem('boksagol_applications_v5', JSON.stringify(globalApplications));
     }
 
     function switchTab(tabName) {
@@ -305,8 +294,9 @@
         const container = document.getElementById('race-card-container');
         if (!container) return;
         container.innerHTML = '';
+        
         if (globalRaces.length === 0) {
-            container.innerHTML = "<div style='font-size:0.85rem; color:#888; padding:6px;'>등록된 대회가 없습니다. 관리자 설정에서 대회를 추가해주세요.</div>";
+            container.innerHTML = "<div style='font-size:0.85rem; color:#dc2626; font-weight:700; padding:6px;'>⚠️ 등록된 마라톤 대회가 없습니다. 관리자 설정(⚙️)에서 대회를 먼저 등록해주세요!</div>";
             return;
         }
 
@@ -336,6 +326,11 @@
         const wrapper = document.getElementById('member-list-wrapper');
         if (!wrapper) return;
         wrapper.innerHTML = '';
+
+        if (globalRaces.length === 0 || !selectedRaceId) {
+            wrapper.innerHTML = "<div style='text-align:center; padding:30px; color:#94a3b8; font-weight:700;'>관리자 모드에서 신청할 대회를 먼저 등록해주세요.</div>";
+            return;
+        }
 
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
         if (!currentRace) {
@@ -454,6 +449,11 @@
         summaryBox.innerHTML = '';
         detailList.innerHTML = '';
 
+        if (globalRaces.length === 0 || !selectedRaceId) {
+            summaryBox.innerHTML = "<div style='text-align:center; padding:30px; color:#94a3b8; font-weight:700;'>등록된 대회가 없습니다.</div>";
+            return;
+        }
+
         const currentRace = globalRaces.find(r => r.id === selectedRaceId);
         if (!currentRace) {
             summaryBox.innerHTML = "<div class='loading'>선택된 대회가 없습니다.</div>";
@@ -501,13 +501,11 @@
         detailList.innerHTML = detailHtml;
     }
 
-    // 전체 회원현황 및 분류 탭 렌더링 함수 (신규 추가)
     function renderAllMembersTab() {
         const summaryBox = document.getElementById('member-stats-summary');
         const listWrapper = document.getElementById('all-member-list-wrapper');
         if (!summaryBox || !listWrapper) return;
 
-        // 통계 집계
         const totalCount = DEFAULT_MEMBERS.length;
         let maleCount = 0, femaleCount = 0;
         const sizeCounts = { "90": 0, "95": 0, "100": 0, "105": 0, "110": 0 };
@@ -700,7 +698,7 @@
         }
         if (confirm("관리자 비밀번호를 변경하시겠습니까?")) {
             adminPassword = newPwd;
-            localStorage.setItem('boksagol_admin_pwd_v4', newPwd);
+            localStorage.setItem('boksagol_admin_pwd_v5', newPwd);
             if (input) input.value = '';
             alert("관리자 비밀번호가 변경되었습니다.");
         }
