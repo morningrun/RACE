@@ -294,7 +294,6 @@
         return result;
     }
 
-    // 💡 실시간 현재 연도/월/일을 기준으로 정확한 '만 나이' 계산 함수
     function calculateAge(member) {
         let birthStr = member.birth;
         if (!birthStr || birthStr === "-" || birthStr === "undefined" || birthStr === "null") return null;
@@ -307,7 +306,6 @@
 
         let fullYear = yy >= 50 ? 1900 + yy : 2000 + yy;
 
-        // 💡 실시간 현재 날짜 가져오기 (시간이 지나도 자동 반영)
         const today = new Date();
         let currentYear = today.getFullYear();
         let currentMonth = today.getMonth() + 1;
@@ -320,16 +318,16 @@
         return age;
     }
 
+    // 💡 연대별 인원 분포 구간 버그 수정 (60대와 70대 이상 명확히 분리)
     function calculateAgeGroup(member) {
         let age = calculateAge(member);
-        if (age === null) return "미지정";
+        if (age === null) return "기타/미지정";
 
-        if (age < 10) return "10대 이하";
-        if (age < 20) return "10대";
-        if (age < 30) return "30대";
-        if (age < 40) return "40대";
-        if (age < 50) return "50대";
-        if (age < 60) return "60대";
+        if (age < 30) return "기타/미지정";
+        if (age < 40) return "30대";
+        if (age < 50) return "40대";
+        if (age < 60) return "50대";
+        if (age < 70) return "60대";
         return "70대 이상";
     }
 
@@ -682,7 +680,6 @@
 
         const averageAge = validAgeCount > 0 ? (totalAgeSum / validAgeCount).toFixed(1) : "0.0";
 
-        // 💡 실시간 현재 연도/월 문자열 생성 (예: 2026년 11월 현재 기준)
         const now = new Date();
         const currentYearStr = now.getFullYear();
         const currentMonthStr = now.getMonth() + 1;
@@ -730,7 +727,7 @@
                     </div>
                 </div>
 
-                <!-- 연대별 인원 분포 및 평균 나이 카드 (실시간 기준 표기) -->
+                <!-- 연대별 인원 분포 및 평균 나이 카드 -->
                 <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
                     <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:2px;">📊 연대별 인원 분포</div>
                     <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:8px;">(${baseDateString} 만 나이 기준)</div>
@@ -750,21 +747,21 @@
 
         globalMembers.forEach((m, idx) => {
             listHtml += `
-                <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:4px;">
+                <div style="display:flex; flex-direction:column; background:#f8fafc; padding:8px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:6px;">
                             <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
                             <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
                         </div>
-                        <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:3px 8px; border-radius:5px; font-size:0.78rem; white-space:nowrap;">
+                        <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:2px 7px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
                             👕 ${m.size}호
                         </div>
                     </div>
-                    <div style="font-size:0.78rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:8px; flex-wrap:wrap; line-height:1.4;">
-                        <span>🎂 ${m.birth}</span>
-                        <span>👤 ${m.gender}</span>
-                        <span>📞 ${m.phone}</span>
-                        <span>📅 가입: ${m.join}</span>
+                    <div style="font-size:0.76rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:10px; flex-wrap:wrap; line-height:1.2;">
+                        <span><span style="font-size:0.65rem;">🎂</span> ${m.birth}</span>
+                        <span><span style="font-size:0.65rem;">👤</span> ${m.gender}</span>
+                        <span><span style="font-size:0.65rem;">📞</span> ${m.phone}</span>
+                        <span><span style="font-size:0.65rem;">📅</span> 가입: ${m.join}</span>
                     </div>
                 </div>
             `;
