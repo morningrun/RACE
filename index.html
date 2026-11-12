@@ -576,9 +576,9 @@
             return;
         }
 
-        // 💡 번호와 이름이 나란히 밀착되도록 수정된 그리드 레이아웃
+        // 💡 모바일(1열)과 PC/태블릿(2열) 반응형 그리드 레이아웃 적용
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:10px; color:var(--primary);">📋 종목별 접수 현황</div>`;
-        detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">`;
+        detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">`;
 
         Object.keys(courseGroups).forEach(courseName => {
             const membersInCourse = courseGroups[courseName];
@@ -589,15 +589,15 @@
                 membersTagsHtml = `<div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-align:center; padding:12px 0;">신청자 없음</div>`;
             } else {
                 membersInCourse.sort((a, b) => a.localeCompare(b, 'ko')).forEach((mName, idx) => {
-                    membersTagsHtml += `<div style="display:flex; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:6px 10px; border-radius:6px; font-size:0.85rem; font-weight:800; color:var(--text-main);"><span style="color:#64748b; font-weight:700; min-width:28px;">${idx + 1}.</span> <span>${mName}</span></div>`;
+                    membersTagsHtml += `<div style="display:flex; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:6px 8px; border-radius:6px; font-size:0.82rem; font-weight:800; color:var(--text-main);"><span style="color:#64748b; font-weight:700; min-width:24px;">${idx + 1}.</span> <span>${mName}</span></div>`;
                 });
             }
 
             detailHtml += `
-                <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+                <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:6px;">
-                        <span style="font-weight:800; font-size:0.92rem;" class="${badgeStyle}">🔹 ${courseName}</span>
-                        <span style="font-size:0.78rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 8px; border-radius:5px;">${membersInCourse.length}명</span>
+                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">🔹 ${courseName}</span>
+                        <span style="font-size:0.75rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 6px; border-radius:5px;">${membersInCourse.length}명</span>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:4px; max-height:220px; overflow-y:auto;">
                         ${membersTagsHtml}
@@ -1080,7 +1080,7 @@
         document.getElementById('excel-down-action-btn').onclick = downloadExcel;
         
         document.getElementById('race-save-btn').onclick = saveRaceAction;
-        document.getElementById('race-cancel-btn').onclick = resetRaceForm;
+        document.getElementById('race-cancel-btn').noaction = resetRaceForm;
         
         document.getElementById('member-add-btn').onclick = addNewMemberByAdmin;
         document.getElementById('pwd-change-btn').onclick = changePassword;
