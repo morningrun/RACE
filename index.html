@@ -14,7 +14,7 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
-    <!-- 💡 스마트폰 홈 화면 추가 아이콘 및 앱 설정 (완벽 적용) -->
+    <!-- 스마트폰 홈 화면 추가 아이콘 및 앱 설정 -->
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
     <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
     <link rel="manifest" href="./manifest.json">
@@ -49,16 +49,9 @@
         .race-select-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
         .race-select-title { font-size: 0.9rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
         
-        .race-card-item { background: #ffffff; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .race-card-item { background: #ffffff; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 4px; }
         .race-card-item.active { border-color: var(--accent); background: #eff6ff; box-shadow: 0 2px 6px rgba(37,99,235,0.15); }
-        .race-name { font-size: 0.95rem; font-weight: 800; color: var(--primary); }
-        .race-card-item.active .race-name { color: var(--accent); }
         
-        .race-info-sub { font-size: 0.78rem; color: var(--text-sub); font-weight: 800; display: flex; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
-        
-        .race-info-courses-container { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
-        .course-price-row { color: var(--accent); font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
-
         .member-card { display: flex; flex-direction: column; padding: 11px 13px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         
         .member-card.style-full { background: #f3e8ff; border-color: #c084fc; }
@@ -117,19 +110,19 @@
 
 <div class="container">
     <div class="main-title-box">
-        <div class="main-title">🏃‍♂️ 복사골마라톤클럽 대회신청</div>
-        <div id="sync-status" class="sync-loading" style="display:none;">🔄 동기화 중...</div>
+        <div class="main-title">복사골마라톤클럽 대회신청</div>
+        <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
     <div class="tab-group">
-        <button class="tab-btn active" id="tab-apply-btn">📋 대회 신청</button>
-        <button class="tab-btn" id="tab-status-btn">🏆 접수 현황</button>
-        <button class="tab-btn" id="tab-members-btn">👥 전체 회원현황</button>
+        <button class="tab-btn active" id="tab-apply-btn">대회 신청</button>
+        <button class="tab-btn" id="tab-status-btn">접수 현황</button>
+        <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
     <div id="race-selector-wrapper" class="race-select-box">
         <div class="race-select-title">
-            <span>📌 신청할 마라톤 대회 선택</span>
+            <span>신청할 마라톤 대회 선택</span>
             <span id="active-race-badge" style="font-size:0.78rem; background:var(--accent); color:white; padding:2px 8px; border-radius:5px;">선택됨</span>
         </div>
         <div id="race-card-container"></div>
@@ -149,25 +142,24 @@
         <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
     </div>
 
-    <!-- 🔒 관리자 통합 패널 -->
+    <!-- 관리자 통합 패널 -->
     <div id="admin-panel" class="admin-panel hidden">
-        <h3>🔒 구글 시트 연동 관리자 설정</h3>
+        <h3>구글 시트 연동 관리자 설정</h3>
         
         <div style="background:#1e293b; padding:12px; border-radius:8px; border:1px solid #334155; margin-bottom:14px;">
-            <h3 style="margin:0 0 8px 0; color:#38bdf8;">📥 현재 대회 신청자 명부 엑셀 다운로드</h3>
+            <h3 style="margin:0 0 8px 0; color:#38bdf8;">현재 대회 신청자 명부 엑셀 다운로드</h3>
             <button class="excel-down-btn" id="excel-down-action-btn" style="margin-top:0;">현재 선택된 대회 엑셀(CSV) 다운로드</button>
         </div>
 
-        <h3 id="race-form-title" style="margin-top:6px;">➕ 새 마라톤 대회 등록</h3>
+        <h3 id="race-form-title" style="margin-top:6px;">새 마라톤 대회 등록</h3>
         <div class="admin-input-group">
             <input type="hidden" id="edit-race-id" value="">
             <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 삼척황영조마라톤)">
-            <!-- 💡 대회 장소 입력 필드 추가 완료 -->
             <input type="text" id="new-race-location" placeholder="대회 장소 (예: 삼척시민운동장)">
             <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
             <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
             
-            <div style="font-size:0.82rem; font-weight:700; color:#38bdf8; margin-top:4px;">🏁 코스 및 참가비 설정 (체크 및 금액 입력)</div>
+            <div style="font-size:0.82rem; font-weight:700; color:#38bdf8; margin-top:4px;">코스 및 참가비 설정 (체크 및 금액 입력)</div>
             <div class="course-setting-grid">
                 <div class="course-row">
                     <label><input type="checkbox" class="race-course-chk" value="5km" checked> 5km</label>
@@ -203,10 +195,10 @@
             </div>
         </div>
 
-        <h3 style="margin-top:14px;">📋 등록된 대회 목록 관리 (수정/삭제)</h3>
+        <h3 style="margin-top:14px;">등록된 대회 목록 관리 (수정/삭제)</h3>
         <div id="admin-race-list"></div>
 
-        <h3 style="margin-top:16px;">👤 신규 회원 직접 추가</h3>
+        <h3 style="margin-top:16px;">신규 회원 직접 추가</h3>
         <div class="admin-input-group">
             <input type="text" id="admin-add-name" placeholder="이름">
             <input type="text" id="admin-add-phone" placeholder="핸드폰번호 (예: 010-0000-0000)">
@@ -226,10 +218,10 @@
             <button id="member-add-btn" style="background:#059669; color:white; border:none; padding:9px; border-radius:7px; font-weight:800; cursor:pointer;">회원 등록하기</button>
         </div>
 
-        <h3 style="margin-top:16px;">👥 전체 회원 정보 관리 (수정/삭제)</h3>
+        <h3 style="margin-top:16px;">전체 회원 정보 관리 (수정/삭제)</h3>
         <div id="admin-member-list" style="max-height:250px; overflow-y:auto; margin-top:6px;"></div>
 
-        <h3 style="margin-top:16px;">🔑 관리자 비밀번호 변경</h3>
+        <h3 style="margin-top:16px;">관리자 비밀번호 변경</h3>
         <div style="display:flex; gap:6px;">
             <input type="password" id="new-admin-password" placeholder="새 비밀번호 입력" style="flex:1; padding:8px; border-radius:6px; border:none;">
             <button id="pwd-change-btn" style="background:#059669; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:800; cursor:pointer;">변경</button>
@@ -245,7 +237,7 @@
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx8ayp2Q8qwxBDzMUf3-pzx_h0YrkPolmIVKGQkN_JTnw7ntJONtQXnf0WMZnu2Pouk/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbypcUfmHxWwLWDThRirGHyXtUscWYlEr0CdECJeONokfhFOvPzofsIpvou_IPQJuO6B/exec";
 
     let globalMembers = [];
     let globalRaces = [];
@@ -394,6 +386,7 @@
         }
     }
 
+    // 💡 요청하신 디자인 반영: 기호 제거, 대회명 큰 글씨, 나머지 작고 검은색, 순서(대회일 -> 장소 -> 코스 -> 마감일) 아래로 한 줄씩
     function renderRaceCards() {
         const container = document.getElementById('race-card-container');
         if (!container) return;
@@ -413,24 +406,25 @@
             if (race.courses) {
                 const courseList = parseCourses(race.courses);
                 courseList.forEach(c => {
-                    coursesHtml += `<div class="course-price-row">🔹 ${c}</div>`;
+                    coursesHtml += `<div style="font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-top: 2px;">• ${c}</div>`;
                 });
             }
 
             card.innerHTML = `
-                <div class="race-name">🏁 ${race.name}</div>
-                <div class="race-info-sub">
-                    <span>📍 <strong>장소</strong>: ${race.location || '장소 미정'}</span>
-                    <span>📅 <strong>대회일</strong>: ${race.date}</span>
-                    <span>⏳ <strong>마감일</strong>: ${race.deadline}</span>
-                </div>
-                <div style="margin-top: 4px;">
-                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-sub);">🏷️ <strong>종목 및 참가비 안내</strong></div>
-                    <div class="race-info-courses-container">
-                        ${coursesHtml || '<div class="course-price-row">🔹 5km(50,000원)</div><div class="course-price-row">🔹 10km(50,000원)</div>'}
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin-bottom: 6px;">${race.name}</div>
+                <div style="display: flex; flex-direction: column; gap: 3px; font-size: 0.82rem; color: #1e293b; font-weight: 600;">
+                    <div>대회일: ${race.date}</div>
+                    <div>장소: ${race.location || '장소 미정'}</div>
+                    <div style="margin-top: 2px;">
+                        <div style="font-weight: 700; color: #1e293b;">코스 및 참가비:</div>
+                        <div style="padding-left: 6px; margin-top: 1px;">
+                            ${coursesHtml || '<div style="font-size: 0.8rem; color: #1e293b;">• 5km(50,000원)</div><div style="font-size: 0.8rem; color: #1e293b;">• 10km(50,000원)</div>'}
+                        </div>
                     </div>
+                    <div style="margin-top: 2px;">접수마감일: ${race.deadline}</div>
                 </div>
             `;
+            
             card.onclick = function() {
                 selectedRaceId = race.id;
                 localStorage.setItem('boksagol_selected_race_v24', selectedRaceId);
@@ -553,7 +547,7 @@
             globalApplications[selectedRaceId] = {};
         }
 
-        if (course === null) {
+        if (course === "null" || !course) {
             delete globalApplications[selectedRaceId][memberName];
         } else {
             globalApplications[selectedRaceId][memberName] = course;
@@ -603,7 +597,7 @@
 
         let summaryHtml = `
             <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
-                <div style="font-weight:800; font-size:1rem; color:var(--primary); margin-bottom:4px;">📊 [${currentRace.name}]</div>
+                <div style="font-weight:800; font-size:1rem; color:var(--primary); margin-bottom:4px;">[${currentRace.name}]</div>
                 <div style="font-size:0.9rem; font-weight:700; color:var(--text-sub);">
                     총 신청인원: <strong style="color:var(--accent); font-size:1.1rem;">${totalCount}명</strong>
                 </div>
@@ -611,7 +605,7 @@
         `;
         summaryBox.innerHTML = summaryHtml;
 
-        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-top:10px; margin-bottom:8px; color:var(--primary);">📋 코스별 신청 현황</div>`;
+        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-top:10px; margin-bottom:8px; color:var(--primary);">코스별 신청 현황</div>`;
         detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">`;
 
         availableCourses.forEach(courseName => {
@@ -635,7 +629,7 @@
             detailHtml += `
                 <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:6px;">
-                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">🔹 ${courseName}</span>
+                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">• ${courseName}</span>
                         <span style="font-size:0.75rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 6px; border-radius:5px;">${membersInCourse.length}명</span>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:2px;">
@@ -713,15 +707,13 @@
 
         summaryBox.innerHTML = `
             <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
-                <!-- 총 회원수 카드 -->
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
                     <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
-                        <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">👥 총 회원수</div>
+                        <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">총 회원수</div>
                         <div class="stat-box-val" style="font-size:1.4rem; color:var(--accent);">${totalCount}명</div>
                     </div>
                 </div>
 
-                <!-- 성별 분포 카드 -->
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
                     <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
                         <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">성별 분포</div>
@@ -729,23 +721,21 @@
                     </div>
                 </div>
 
-                <!-- 연대별 인원 분포 및 평균 나이 카드 -->
                 <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
-                    <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:2px;">📊 연대별 인원 분포</div>
+                    <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:2px;">연대별 인원 분포</div>
                     <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:8px;">(${baseDateString} 만 나이 기준)</div>
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:8px;">
                         ${ageGridHtml}
                     </div>
-                    <!-- 평균 나이 -->
                     <div style="border-top:1.5px solid #e2e8f0; padding-top:8px; margin-top:6px; font-size:0.88rem; font-weight:800; color:var(--text-main);">
-                        📌 전체 회원 평균 나이: <span style="color:var(--accent); font-size:1.05rem;">만 ${averageAge}세</span>
+                        전체 회원 평균 나이: <span style="color:var(--accent); font-size:1.05rem;">만 ${averageAge}세</span>
                     </div>
                     ${unassignedAlertHtml}
                 </div>
             </div>
         `;
 
-        let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
+        let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">전체 회원 명부 (${totalCount}명)</div>`;
 
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
@@ -764,10 +754,10 @@
                         </div>
                     </div>
                     <div style="font-size:0.76rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:10px; flex-wrap:wrap; line-height:1.2;">
-                        <span><span style="font-size:0.65rem;">🎂</span> ${m.birth}</span>
-                        <span><span style="font-size:0.65rem;">👤</span> ${m.gender}</span>
-                        <span><span style="font-size:0.65rem;">📞</span> ${m.phone}</span>
-                        <span><span style="font-size:0.65rem;">📅</span> 가입: ${m.join}</span>
+                        <span>생일: ${m.birth}</span>
+                        <span>성별: ${m.gender}</span>
+                        <span>연락처: ${m.phone}</span>
+                        <span>가입: ${m.join}</span>
                     </div>
                 </div>
             `;
@@ -866,7 +856,7 @@
 
         document.getElementById('edit-race-id').value = race.id;
         document.getElementById('new-race-name').value = race.name;
-        document.getElementById('new-race-location').value = race.location || ""; // 👈 장소 채우기
+        document.getElementById('new-race-location').value = race.location || "";
         document.getElementById('new-race-date').value = race.date;
         document.getElementById('new-race-deadline').value = race.deadline;
 
@@ -926,7 +916,7 @@
             }
         });
 
-        document.getElementById('race-form-title').textContent = "✏️ 마라톤 대회 정보 수정";
+        document.getElementById('race-form-title').textContent = "마라톤 대회 정보 수정";
         document.getElementById('race-save-btn').textContent = "수정 완료하기";
         document.getElementById('race-cancel-btn').style.display = 'block';
 
@@ -936,7 +926,7 @@
     function resetRaceForm() {
         document.getElementById('edit-race-id').value = "";
         document.getElementById('new-race-name').value = "";
-        document.getElementById('new-race-location').value = ""; // 👈 장소 초기화
+        document.getElementById('new-race-location').value = "";
         document.getElementById('new-race-date').value = "";
         document.getElementById('new-race-deadline').value = "";
         
@@ -957,7 +947,7 @@
         document.getElementById('price-custom-2').value = "50,000";
         document.getElementById('price-custom-2').disabled = true;
 
-        document.getElementById('race-form-title').textContent = "➕ 새 마라톤 대회 등록";
+        document.getElementById('race-form-title').textContent = "새 마라톤 대회 등록";
         document.getElementById('race-save-btn').textContent = "대회 추가하기";
         document.getElementById('race-cancel-btn').style.display = 'none';
     }
@@ -965,7 +955,7 @@
     async function saveRaceAction() {
         const raceId = document.getElementById('edit-race-id').value.trim();
         const name = document.getElementById('new-race-name').value.trim();
-        const location = document.getElementById('new-race-location').value.trim(); // 👈 장소 가져오기
+        const location = document.getElementById('new-race-location').value.trim();
         const date = document.getElementById('new-race-date').value.trim();
         const deadline = document.getElementById('new-race-deadline').value.trim();
 
