@@ -46,11 +46,6 @@
         .tab-btn { flex: 1; padding: 10px 2px; font-size: 0.8rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-        /* 💡 접수 현황 내부 종목 서브 탭 스타일 */
-        .course-tab-group { display: flex; gap: 4px; margin-bottom: 10px; background: #e2e8f0; padding: 3px; border-radius: 8px; overflow-x: auto; }
-        .course-tab-btn { flex: 1; padding: 8px 6px; font-size: 0.78rem; border: none; background: transparent; color: var(--text-sub); font-weight: 800; border-radius: 6px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
-        .course-tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-
         .race-select-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
         .race-select-title { font-size: 0.9rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
         
@@ -145,10 +140,9 @@
     </div>
 
     <div id="tab-status" class="hidden">
-        <div id="status-summary-box" style="margin-bottom: 10px;"></div>
-        <div id="status-course-tabs" class="course-tab-group"></div>
+        <div id="status-summary-box" style="margin-bottom: 12px;"></div>
         <button class="excel-down-btn hidden" id="excel-down-action-btn">📥 현재 대회 신청자 명부 엑셀(CSV) 다운로드</button>
-        <div id="status-detail-list" style="margin-top: 8px;"></div>
+        <div id="status-detail-list" style="margin-top: 10px;"></div>
     </div>
 
     <div id="tab-members" class="hidden">
@@ -251,7 +245,6 @@
     let globalApplications = {};
     let adminPassword = "1234";
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
-    let selectedStatusCourse = localStorage.getItem('boksagol_status_course_v24') || "";
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -397,7 +390,6 @@
             card.onclick = function() {
                 selectedRaceId = race.id;
                 localStorage.setItem('boksagol_selected_race_v24', selectedRaceId);
-                selectedStatusCourse = ""; // 대회 변경 시 초기화
                 refreshUI();
             };
             container.appendChild(card);
@@ -536,13 +528,11 @@
 
     function renderStatusTab() {
         const summaryBox = document.getElementById('status-summary-box');
-        const courseTabsBox = document.getElementById('status-course-tabs');
         const detailList = document.getElementById('status-detail-list');
         const excelBtn = document.getElementById('excel-down-action-btn');
 
-        if (!summaryBox || !courseTabsBox || !detailList) return;
+        if (!summaryBox || !detailList) return;
         summaryBox.innerHTML = '';
-        courseTabsBox.innerHTML = '';
         detailList.innerHTML = '';
 
         if (globalRaces.length === 0 || !selectedRaceId) {
@@ -558,10 +548,6 @@
         const totalCount = Object.keys(raceApps).length;
 
         const availableCourses = parseCourses(currentRace.courses).map(c => c.replace(/\s*\(.*?\)/g, "").trim());
-
-        if (availableCourses.length > 0 && (!selectedStatusCourse || !availableCourses.includes(selectedStatusCourse))) {
-            selectedStatusCourse = availableCourses[0];
-        }
 
         const courseGroups = {};
         availableCourses.forEach(c => courseGroups[c] = []);
@@ -585,69 +571,51 @@
         `;
         summaryBox.innerHTML = summaryHtml;
 
-        if (totalCount > 0 && excelBtn) {
+        // 💡 엑셀 다운로드 버튼은 관리자 모드가 열려있을 때만 노출되도록 제어
+        const isAdminOpen = !document.getElementById('admin-panel').classList.contains('hidden');
+        if (totalCount > 0 && isAdminOpen && excelBtn) {
             excelBtn.classList.remove('hidden');
         } else if (excelBtn) {
             excelBtn.classList.add('hidden');
         }
 
-        // 2. 상단 종목별 탭 버튼 생성
-        availableCourses.forEach(cName => {
-            const count = (courseGroups[cName] || []).length;
-            const btn = document.createElement('button');
-            const isActive = (cName === selectedStatusCourse);
-            btn.className = `course-tab-btn ${isActive ? 'active' : ''}`;
-            btn.textContent = `${cName} (${count}명)`;
-            
-            btn.onclick = function() {
-                selectedStatusCourse = cName;
-                localStorage.setItem('boksagol_status_course_v24', selectedStatusCourse);
-                renderStatusTab();
-            };
-            courseTabsBox.appendChild(btn);
-        });
+        // 2. 모든 코스별 현황 카드를 2열 그리드로 한눈에 모두 표시 (이름만 깔끔하게)
+        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:10px; color:var(--primary);">📋 코스별 신청 현황</div>`;
+        detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">`;
 
-        // 3. 선택된 종목의 신청자 명단만 깔끔하게 출력
-        if (!selectedStatusCourse || !courseGroups[selectedStatusCourse]) {
-            detailList.innerHTML = "<div style='text-align:center; padding:25px; color:#94a3b8; font-weight:700;'>해당 코스에 신청한 회원이 없습니다.</div>";
-            return;
-        }
+        availableCourses.forEach(courseName => {
+            const membersInCourse = courseGroups[courseName] || [];
+            const badgeStyle = getCourseStyleClass(courseName);
 
-        const membersInCourse = courseGroups[selectedStatusCourse];
-        const badgeStyle = getCourseStyleClass(selectedStatusCourse);
-
-        let membersTagsHtml = "";
-        if (membersInCourse.length === 0) {
-            membersTagsHtml = `<div style="text-align:center; padding:30px; color:#94a3b8; font-weight:700;">아직 이 종목에 신청한 회원이 없습니다.</div>`;
-        } else {
-            membersInCourse.sort((a, b) => a.localeCompare(b, 'ko')).forEach((mName, idx) => {
-                const memberInfo = globalMembers.find(m => m.name === mName) || {};
-                membersTagsHtml += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:8px 12px; border-radius:8px; font-size:0.88rem; font-weight:800; color:var(--text-main); margin-bottom:6px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
+            let membersTagsHtml = "";
+            if (membersInCourse.length === 0) {
+                membersTagsHtml = `<div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-align:center; padding:12px 0;">신청자 없음</div>`;
+            } else {
+                membersInCourse.sort((a, b) => a.localeCompare(b, 'ko')).forEach((mName, idx) => {
+                    membersTagsHtml += `
+                        <div style="display:flex; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:6px 8px; border-radius:6px; font-size:0.85rem; font-weight:800; color:var(--text-main); margin-bottom:4px;">
                             <span style="color:#64748b; font-weight:700; min-width:24px;">${idx + 1}.</span> 
                             <span>${mName}</span>
-                            <span style="font-size:0.75rem; color:#475569; font-weight:700;">(${memberInfo.birth || '-'} / ${memberInfo.gender || '-'})</span>
                         </div>
-                        <div style="font-size:0.78rem; color:var(--accent); background:#dbeafe; padding:2px 6px; border-radius:4px;">
-                            👕 ${memberInfo.size || '-'}호
-                        </div>
-                    </div>
-                `;
-            });
-        }
+                    `;
+                });
+            }
 
-        detailList.innerHTML = `
-            <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1.5px solid #e2e8f0; padding-bottom:6px;">
-                    <span style="font-weight:800; font-size:0.95rem;" class="${badgeStyle}">🔹 ${selectedStatusCourse} 신청자 명단</span>
-                    <span style="font-size:0.78rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 8px; border-radius:5px;">총 ${membersInCourse.length}명</span>
+            detailHtml += `
+                <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:6px;">
+                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">🔹 ${courseName}</span>
+                        <span style="font-size:0.75rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 6px; border-radius:5px;">${membersInCourse.length}명</span>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:2px; max-height:220px; overflow-y:auto;">
+                        ${membersTagsHtml}
+                    </div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:2px;">
-                    ${membersTagsHtml}
-                </div>
-            </div>
-        `;
+            `;
+        });
+
+        detailHtml += `</div>`;
+        detailList.innerHTML = detailHtml;
     }
 
     function renderAllMembersTab() {
@@ -733,14 +701,13 @@
 
     function toggleAdminMode() {
         const panel = document.getElementById('admin-panel');
-        const excelBtn = document.getElementById('excel-down-action-btn');
         if (!panel) return;
 
         if (panel.classList.contains('hidden')) {
             const pwd = prompt("관리자 비밀번호를 입력하세요:");
             if (pwd === adminPassword) {
                 panel.classList.remove('hidden');
-                if (excelBtn) excelBtn.classList.remove('hidden');
+                renderStatusTab(); // 관리자 열릴 때 엑셀 버튼 표시 갱신
                 renderAdminRaceList();
                 renderAdminMemberList();
                 panel.scrollIntoView({ behavior: 'smooth' });
@@ -749,7 +716,7 @@
             }
         } else {
             panel.classList.add('hidden');
-            if (excelBtn) excelBtn.classList.add('hidden');
+            renderStatusTab(); // 관리자 닫힐 때 엑셀 버튼 숨김 갱신
         }
     }
 
