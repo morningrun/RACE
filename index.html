@@ -68,8 +68,7 @@
         .member-card.style-etc { background: #fce7f3; border-color: #f472b6; }
         
         .member-info { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .member-name-area { font-weight: 800; font-size: 0.92rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
-        .member-sub-info { font-size: 0.76rem; color: #475569; font-weight: 700; white-space: nowrap; }
+        .member-name-area { font-weight: 800; font-size: 0.95rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
         .applied-badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap; }
         
         .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
@@ -258,7 +257,7 @@
 
     function getCourseStyleClass(course) {
         if (!course) return '';
-        if (course.includes('풀코с') || course.includes('풀코스') || course.includes('Full') || course.includes('FULL')) return 'style-full';
+        if (course.includes('풀코스') || course.includes('Full') || course.includes('FULL')) return 'style-full';
         if (course.includes('하프') || course.includes('Half') || course.includes('HALF')) return 'style-half';
         if (course.includes('10k') || course.includes('10K')) return 'style-10k';
         if (course.includes('5k') || course.includes('5K')) return 'style-5k';
@@ -449,12 +448,12 @@
                 badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#475569; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap;">미신청</span>`;
             }
 
+            // 💡 대회 신청 탭: 번호와 이름만 남기고 정보 삭제
             card.innerHTML = `
                 <div class="member-info">
                     <div class="member-name-area">
-                        <span style="color:#64748b; font-weight:700; min-width:20px;">${index + 1}.</span> 
+                        <span style="color:#64748b; font-weight:700; min-width:24px;">${index + 1}.</span> 
                         <strong style="font-size:0.95rem; white-space:nowrap;">${member.name}</strong>
-                        <span class="member-sub-info">(${member.birth} / ${member.gender} / 👕${member.size})</span>
                     </div>
                     <div>${badgeHtml}</div>
                 </div>
@@ -560,7 +559,6 @@
             courseGroups[course].push(memberName);
         });
 
-        // 💡 1. 요약 박스: 대회명과 총신청인원을 줄바꿈하여 가운데 정렬로 보기 좋게 배치
         let summaryHtml = `
             <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
                 <div style="font-weight:800; font-size:1rem; color:var(--primary); margin-bottom:4px;">📊 [${currentRace.name}]</div>
@@ -571,7 +569,6 @@
         `;
         summaryBox.innerHTML = summaryHtml;
 
-        // 엑셀 다운로드 버튼은 관리자 모드가 열려있을 때만 노출
         const isAdminOpen = !document.getElementById('admin-panel').classList.contains('hidden');
         if (totalCount > 0 && isAdminOpen && excelBtn) {
             excelBtn.classList.remove('hidden');
@@ -579,7 +576,6 @@
             excelBtn.classList.add('hidden');
         }
 
-        // 💡 2. 모든 코스별 현황을 2열 그리드로 스크롤 없이 한눈에 펼쳐서 노출 (이름 중심)
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-top:10px; margin-bottom:8px; color:var(--primary);">📋 코스별 신청 현황</div>`;
         detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">`;
 
