@@ -21,43 +21,44 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#1e293b">
 
     <style>
-        /* 💡 밝고 산뜻한 마라톤 클럽 분위기를 위한 화사한 컬러 팔레트 적용 */
+        /* 💡 강약이 살아있는 차분하고 고급스러운 모던 토탈 디자인 팔레트 */
         :root {
-            --primary: #1e40af;
-            --accent: #0284c7;
-            --success: #10b981;
-            --danger: #ef4444;
-            --bg-color: #f0fdf4; /* 은은하고 싱그러운 연두빛 틴트 배경 */
+            --primary: #0f172a;        /* 진중하고 무게감 있는 메인 타이틀 */
+            --accent: #2563eb;         /* 시선을 사로잡는 선명한 블루 포인트 */
+            --accent-hover: #1d4ed8;
+            --success: #059669;        /* 차분한 에메랄드 성공 톤 */
+            --danger: #dc2626;         /* 깔끔한 레드 경고 톤 */
+            --bg-color: #f8fafc;       /* 눈이 편안한 프리미엄 라이트 그레이 배경 */
             --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-sub: #475569;
-            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #cbd5e1;
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); margin: 0; padding: 8px; color: var(--text-main); -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 650px; margin: 0 auto; background: var(--card-bg); padding: 16px; border-radius: 16px; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08); border: 1px solid #e0f2fe; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); margin: 0; padding: 10px; color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 650px; margin: 0 auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); border: 1px solid #e2e8f0; }
         
-        .main-title-box { text-align: center; margin: 8px 0 16px 0; }
-        .main-title { font-size: 1.6rem; font-weight: 800; color: #1e3a8a; letter-spacing: -0.5px; background: linear-gradient(135deg, #1e40af, #0284c7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .main-title-box { text-align: center; margin: 6px 0 18px 0; }
+        .main-title { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
 
-        /* 💡 밝고 입체감 있는 탭 네비게이션 */
-        .tab-group { display: flex; gap: 6px; margin-bottom: 16px; background: #e0f2fe; padding: 4px; border-radius: 12px; position: sticky; top: 6px; z-index: 10; backdrop-filter: blur(8px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); }
-        .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: #0369a1; font-weight: 800; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
-        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15); }
+        /* 💡 무게감 있으면서도 세련된 탭 네비게이션 (강약 조절) */
+        .tab-group { display: flex; gap: 6px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 12px; position: sticky; top: 8px; z-index: 10; backdrop-filter: blur(8px); }
+        .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
+        .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
         /* 좌우 스크롤 컨테이너 설정 */
         .swipe-container { display: flex; width: 300%; transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1); }
         .swipe-pane { width: 33.333%; flex-shrink: 0; box-sizing: border-box; }
 
-        /* 💡 활기찬 대회 안내 카드 디자인 */
-        .race-card-item { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #bae6fd; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.08); }
-        .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 6px 16px rgba(37,99,235,0.2); transform: translateY(-1px); }
+        /* 💡 고급스럽고 정돈된 상단 대회 안내 카드 */
+        .race-card-item { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 6px 16px rgba(37,99,235,0.12); }
         
-        .member-card { display: flex; flex-direction: column; padding: 12px 14px; margin-bottom: 9px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.15s; }
-        .member-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .member-card { display: flex; flex-direction: column; padding: 12px 14px; margin-bottom: 9px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.15s; }
+        .member-card:hover { border-color: #94a3b8; }
         
         .member-card.style-full { background: #faf5ff; border-color: #d8b4fe; }
         .member-card.style-half { background: #fffbeb; border-color: #fde68a; }
@@ -78,7 +79,7 @@
         .style-5k { color: #15803d !important; }
         .style-etc { color: #be185d !important; }
 
-        .course-btn-style { background: #ffffff; color: #334155; border-color: #cbd5e1; }
+        .course-btn-style { background: #ffffff; color: var(--text-main); border-color: #cbd5e1; }
         .course-btn-style:hover { background: #f8fafc; border-color: var(--accent); color: var(--accent); }
 
         button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; font-size: 0.82rem !important; background: rgba(255,255,255,0.95); }
@@ -89,8 +90,8 @@
         .stat-box-title { font-size: 0.82rem; font-weight: 800; color: var(--text-sub); margin-bottom: 6px; }
         .stat-box-val { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
 
-        /* 💡 관리자 패널도 세련되고 정돈된 네이비 다크톤으로 유지 */
-        .admin-panel { background: #0f172a; color: white; padding: 16px; border-radius: 14px; margin-top: 24px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2); }
+        /* 관리자 패널 */
+        .admin-panel { background: var(--primary); color: white; padding: 16px; border-radius: 14px; margin-top: 24px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2); }
         .admin-panel h3 { margin: 12px 0 8px 0; font-size: 0.95rem; color: #38bdf8; }
         .admin-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
         .admin-input-group input, .admin-input-group select { padding: 9px 12px; border-radius: 8px; border: none; font-size: 0.88rem; outline: none; }
@@ -102,12 +103,12 @@
         
         .race-admin-row, .member-admin-row { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
         
-        .excel-down-btn { background: #059669; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; margin-top: 10px; box-shadow: 0 4px 12px rgba(5,150,105,0.25); transition: background 0.2s; }
+        .excel-down-btn { background: var(--success); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; margin-top: 10px; box-shadow: 0 4px 12px rgba(5,150,105,0.25); transition: background 0.2s; }
         .excel-down-btn:hover { background: #047857; }
-        .sync-loading { text-align: center; font-size: 0.82rem; color: #0284c7; font-weight: 800; margin-bottom: 8px; }
+        .sync-loading { text-align: center; font-size: 0.82rem; color: var(--accent); font-weight: 800; margin-bottom: 8px; }
 
         .footer-setting-box { display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 14px; border-top: 1.5px solid var(--border); }
-        .admin-gear-icon-btn { background: #f8fafc; border: 1.5px solid var(--border); font-size: 1.2rem; cursor: pointer; padding: 8px; color: var(--text-sub); border-radius: 50%; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .admin-gear-icon-btn { background: #ffffff; border: 1.5px solid var(--border); font-size: 1.2rem; cursor: pointer; padding: 8px; color: var(--text-sub); border-radius: 50%; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
         .admin-gear-icon-btn:hover { background: #f1f5f9; color: var(--accent); border-color: var(--accent); }
 
         .hidden { display: none; }
@@ -121,7 +122,7 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
-    <!-- 1. 대회 안내 카드(박스) 맨 위 배치 -->
+    <!-- 1. 대회 안내 카드 (상단 배치) -->
     <div id="race-selector-wrapper" style="margin-bottom: 16px;">
         <div id="race-card-container"></div>
     </div>
@@ -410,17 +411,17 @@
             if (race.courses) {
                 const courseList = parseCourses(race.courses);
                 courseList.forEach(c => {
-                    coursesHtml += `<div style="font-size: 0.82rem; font-weight: 700; color: #0f172a; margin-top: 2px;">- ${c}</div>`;
+                    coursesHtml += `<div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin-top: 2px;">- ${c}</div>`;
                 });
             }
 
             card.innerHTML = `
-                <div style="font-size: 1.18rem; font-weight: 800; color: #1e40af; margin-bottom: 6px;">${race.name}</div>
+                <div style="font-size: 1.18rem; font-weight: 800; color: #1d4ed8; margin-bottom: 6px;">${race.name}</div>
                 <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.84rem; color: #334155; font-weight: 600;">
                     <div>- 대회일: ${race.date}</div>
                     <div>- 장소: ${race.location || '장소 미정'}</div>
                     <div style="margin-top: 2px;">
-                        <div style="font-weight: 700; color: #0f172a;">- 코스 및 참가비:</div>
+                        <div style="font-weight: 700; color: #1e293b;">- 코스 및 참가비:</div>
                         <div style="padding-left: 14px; margin-top: 1px;">
                             ${coursesHtml || '<div style="font-size: 0.8rem; color: #1e293b;">- 5km(50,000원)</div><div style="font-size: 0.8rem; color: #1e293b;">- 10km(50,000원)</div>'}
                         </div>
@@ -600,8 +601,8 @@
         });
 
         let summaryHtml = `
-            <div style="background:#f8fafc; border:1.5px solid #bae6fd; border-radius:12px; padding:14px; text-align:center; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.05);">
-                <div style="font-weight:800; font-size:1.05rem; color:#1e40af; margin-bottom:4px;">[${currentRace.name}]</div>
+            <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:12px; padding:14px; text-align:center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="font-weight:800; font-size:1.05rem; color:var(--primary); margin-bottom:4px;">[${currentRace.name}]</div>
                 <div style="font-size:0.9rem; font-weight:700; color:var(--text-sub);">
                     총 신청인원: <strong style="color:var(--accent); font-size:1.15rem;">${totalCount}명</strong>
                 </div>
@@ -743,7 +744,7 @@
 
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
-            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#0284c7; background:#e0f2fe; border:1px solid #bae6fd; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
+            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:10px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
@@ -753,7 +754,7 @@
                             <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
                             ${ageDisplay}
                         </div>
-                        <div style="font-weight:800; color:var(--accent); background:#e0f2fe; padding:2px 8px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
+                        <div style="font-weight:800; color:var(--accent); background:#eff6ff; padding:2px 8px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
                             👕 ${m.size}호
                         </div>
                     </div>
