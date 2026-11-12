@@ -294,6 +294,7 @@
         return result;
     }
 
+    // 💡 실시간 현재 연도/월/일을 기준으로 정확한 '만 나이' 계산 함수
     function calculateAge(member) {
         let birthStr = member.birth;
         if (!birthStr || birthStr === "-" || birthStr === "undefined" || birthStr === "null") return null;
@@ -306,9 +307,11 @@
 
         let fullYear = yy >= 50 ? 1900 + yy : 2000 + yy;
 
-        let currentYear = 2026;
-        let currentMonth = 11;
-        let currentDay = 12;
+        // 💡 실시간 현재 날짜 가져오기 (시간이 지나도 자동 반영)
+        const today = new Date();
+        let currentYear = today.getFullYear();
+        let currentMonth = today.getMonth() + 1;
+        let currentDay = today.getDate();
 
         let age = currentYear - fullYear;
         if (currentMonth < mm || (currentMonth === mm && currentDay < dd)) {
@@ -679,6 +682,12 @@
 
         const averageAge = validAgeCount > 0 ? (totalAgeSum / validAgeCount).toFixed(1) : "0.0";
 
+        // 💡 실시간 현재 연도/월 문자열 생성 (예: 2026년 11월 현재 기준)
+        const now = new Date();
+        const currentYearStr = now.getFullYear();
+        const currentMonthStr = now.getMonth() + 1;
+        const baseDateString = `${currentYearStr}년 ${currentMonthStr}월 현재 기준`;
+
         let ageGridHtml = "";
         const targetAgeGroups = ["30대", "40대", "50대", "60대", "70대 이상", "기타/미지정"];
         
@@ -721,9 +730,10 @@
                     </div>
                 </div>
 
-                <!-- 연대별 인원 분포 및 평균 나이 카드 -->
+                <!-- 연대별 인원 분포 및 평균 나이 카드 (실시간 기준 표기) -->
                 <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
-                    <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:8px;">📊 연대별 인원 분포</div>
+                    <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:2px;">📊 연대별 인원 분포</div>
+                    <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:8px;">(${baseDateString} 만 나이 기준)</div>
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:8px;">
                         ${ageGridHtml}
                     </div>
@@ -739,7 +749,6 @@
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
 
         globalMembers.forEach((m, idx) => {
-            // 💡 이름 옆 연대 태그 제거하고 깔끔하게 번호, 이름, 옷 사이즈만 배치
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:4px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
