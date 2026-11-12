@@ -163,6 +163,7 @@
             <input type="hidden" id="edit-race-id" value="">
             <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 삼척황영조마라톤)">
             <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
+            <input type="text" id="new-race-location" placeholder="대회장소 (예: 부천 종합운동장)">
             <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
             
             <div style="font-size:0.82rem; font-weight:700; color:#38bdf8; margin-top:4px;">🏁 코스 및 참가비 설정 (체크 및 금액 입력)</div>
@@ -415,10 +416,14 @@
                 });
             }
 
+            // 💡 대회 장소가 있으면 카드에 함께 표시
+            const locationHtml = race.location ? `<span>📍 <strong>장소</strong>: ${race.location}</span>` : '';
+
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
                     <span>📅 <strong>대회일</strong>: ${race.date}</span>
+                    ${locationHtml}
                     <span>⏳ <strong>마감일</strong>: ${race.deadline}</span>
                 </div>
                 <div style="margin-top: 4px;">
@@ -746,7 +751,6 @@
 
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
-            // 💡 나이 글자 색상을 회색으로 변경함
             let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
             listHtml += `
@@ -841,7 +845,7 @@
             const row = document.createElement('div');
             row.className = 'race-admin-row';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">장소: ${race.location || '미입력'} / 일자: ${race.date}</span><br><span style="font-size:0.7rem; color:#94a3b8;">종목: ${race.courses}</span></div>
                 <div style="display:flex; gap:4px;">
                     <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
                     <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
@@ -865,6 +869,7 @@
         document.getElementById('edit-race-id').value = race.id;
         document.getElementById('new-race-name').value = race.name;
         document.getElementById('new-race-date').value = race.date;
+        document.getElementById('new-race-location').value = race.location || "";
         document.getElementById('new-race-deadline').value = race.deadline;
 
         const chks = document.querySelectorAll('.race-course-chk');
@@ -934,6 +939,7 @@
         document.getElementById('edit-race-id').value = "";
         document.getElementById('new-race-name').value = "";
         document.getElementById('new-race-date').value = "";
+        document.getElementById('new-race-location').value = "";
         document.getElementById('new-race-deadline').value = "";
         
         const chks = document.querySelectorAll('.race-course-chk');
@@ -962,6 +968,7 @@
         const raceId = document.getElementById('edit-race-id').value.trim();
         const name = document.getElementById('new-race-name').value.trim();
         const date = document.getElementById('new-race-date').value.trim();
+        const location = document.getElementById('new-race-location').value.trim();
         const deadline = document.getElementById('new-race-deadline').value.trim();
 
         if (!name || !date) {
@@ -1012,13 +1019,14 @@
 
         if (!raceId) {
             const tempId = "race_" + Date.now();
-            globalRaces.push({ id: tempId, name: name, date: date, deadline: deadline || "마감일 미정", courses: coursesStr });
+            globalRaces.push({ id: tempId, name: name, date: date, location: location, deadline: deadline || "마감일 미정", courses: coursesStr });
             selectedRaceId = tempId;
         } else {
             const target = globalRaces.find(r => r.id === raceId);
             if (target) {
                 target.name = name;
                 target.date = date;
+                target.location = location;
                 target.deadline = deadline;
                 target.courses = coursesStr;
             }
@@ -1029,7 +1037,7 @@
         alert(raceId ? "대회 정보가 수정되었습니다." : `[${name}] 대회가 성공적으로 등록되었습니다.`);
 
         try {
-            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
+            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&location=${encodeURIComponent(location)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
             fetch(url).then(() => fetchServerData(true));
         } catch(e) {
             console.error("서버 저장 오류:", e);
