@@ -115,19 +115,19 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
-    <!-- 탭 버튼 영역 ([접수 현황] [대회 신청] [전체 회원현황]) -->
+    <!-- 💡 1. 대회 안내 카드(박스)를 맨 위로 배치 -->
+    <div id="race-selector-wrapper" style="margin-bottom: 14px;">
+        <div id="race-card-container"></div>
+    </div>
+
+    <!-- 💡 2. 탭 버튼 영역 ([접수 현황] [대회 신청] [전체 회원현황]) -->
     <div class="tab-group">
         <button class="tab-btn active" id="tab-status-btn">접수 현황</button>
         <button class="tab-btn" id="tab-apply-btn">대회 신청</button>
         <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
-    <!-- 대회 선택 상자 (접수 현황 및 대회 신청 탭에서 공용 노출) -->
-    <div id="race-selector-wrapper" style="margin-bottom: 14px;">
-        <div id="race-card-container"></div>
-    </div>
-
-    <!-- 좌우 스크롤(스와이프)을 지원하는 컨테이너 뷰 -->
+    <!-- 💡 3. 좌우 스크롤(스와이프) 콘텐츠 영역 -->
     <div style="overflow: hidden; width: 100%;">
         <div id="swipe-container" class="swipe-container">
             <!-- 1번 패널: 접수 현황 -->
@@ -363,10 +363,8 @@
         }
     }
 
-    // 💡 좌우 스크롤(스와이프) 연동 탭 전환 함수
     function switchTab(index) {
         const container = document.getElementById('swipe-container');
-        const raceSelector = document.getElementById('race-selector-wrapper');
         
         document.getElementById('tab-status-btn').classList.remove('active');
         document.getElementById('tab-apply-btn').classList.remove('active');
@@ -375,17 +373,14 @@
         if (index === 0) {
             container.style.transform = 'translateX(0%)';
             document.getElementById('tab-status-btn').classList.add('active');
-            raceSelector.style.display = 'block';
             renderStatusTab();
         } else if (index === 1) {
             container.style.transform = 'translateX(-33.333%)';
             document.getElementById('tab-apply-btn').classList.add('active');
-            raceSelector.style.display = 'block';
             renderMemberList();
         } else if (index === 2) {
             container.style.transform = 'translateX(-66.666%)';
             document.getElementById('tab-members-btn').classList.add('active');
-            raceSelector.style.display = 'none';
             renderAllMembersTab();
         }
     }
@@ -1205,10 +1200,9 @@
         document.getElementById('chk-custom-1').onchange = () => toggleCustomInput(1);
         document.getElementById('chk-custom-2').onchange = () => toggleCustomInput(2);
 
-        // 💡 스마트폰 터치/마우스 좌우 스와이프(드래그) 제스처 지원 추가
+        // 스마트폰 터치/마우스 좌우 스와이프(드래그) 제스처 지원
         const swipeContainer = document.getElementById('swipe-container');
         let startX = 0;
-        let currentTranslate = 0;
         let currentIndex = 0;
 
         swipeContainer.addEventListener('touchstart', (e) => {
