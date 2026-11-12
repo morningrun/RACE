@@ -416,8 +416,9 @@
                 });
             }
 
-            // 💡 대회 장소가 있으면 카드에 함께 표시
-            const locationHtml = race.location ? `<span>📍 <strong>장소</strong>: ${race.location}</span>` : '';
+            // 💡 1순위: race.location, 2순위: 구글 시트에서 가져온 race.place 속성도 함께 체크하여 공백 방지
+            const locText = race.location || race.place || "";
+            const locationHtml = locText ? `<span>📍 <strong>장소</strong>: ${locText}</span>` : '';
 
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
@@ -844,8 +845,9 @@
         globalRaces.forEach(race => {
             const row = document.createElement('div');
             row.className = 'race-admin-row';
+            const loc = race.location || race.place || '미입력';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">장소: ${race.location || '미입력'} / 일자: ${race.date}</span><br><span style="font-size:0.7rem; color:#94a3b8;">종목: ${race.courses}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">장소: ${loc} / 일자: ${race.date}</span><br><span style="font-size:0.7rem; color:#94a3b8;">종목: ${race.courses}</span></div>
                 <div style="display:flex; gap:4px;">
                     <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
                     <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
@@ -869,7 +871,7 @@
         document.getElementById('edit-race-id').value = race.id;
         document.getElementById('new-race-name').value = race.name;
         document.getElementById('new-race-date').value = race.date;
-        document.getElementById('new-race-location').value = race.location || "";
+        document.getElementById('new-race-location').value = race.location || race.place || "";
         document.getElementById('new-race-deadline').value = race.deadline;
 
         const chks = document.querySelectorAll('.race-course-chk');
@@ -1169,7 +1171,7 @@
             const url = `${API_URL}?action=deleteMember&name=${encodeURIComponent(name)}`;
             fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            console.error("회원 삭제 서버 오류:", e);
+            console.error("회원 삭제 오류:", e);
         }
     }
 
