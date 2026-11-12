@@ -469,7 +469,13 @@
                     btn.textContent = courseWithPrice;
                     btn.className = "course-btn-style";
                     const pureCourseName = courseWithPrice.replace(/\s*\(.*?\)/g, "").trim();
-                    btn.onclick = function() { handleApply(member.name, pureCourseName); };
+                    
+                    // 💡 대회 신청 확인 창 추가
+                    btn.onclick = function() {
+                        if (confirm(`[${member.name}]님을 [${currentRace.name}] '${pureCourseName}' 코스로 신청하시겠습니까?`)) {
+                            handleApply(member.name, pureCourseName);
+                        }
+                    };
                     btnGroup.appendChild(btn);
                 });
             } else {
@@ -481,7 +487,13 @@
                 const cancelBtn = document.createElement('button');
                 cancelBtn.textContent = '신청취소';
                 cancelBtn.className = 'btn-cancel';
-                cancelBtn.onclick = function() { handleApply(member.name, null); };
+                
+                // 💡 신청 취소 확인 창 추가
+                cancelBtn.onclick = function() {
+                    if (confirm(`[${member.name}]님의 [${currentRace.name}] '${appliedCourse}' 신청을 취소하시겠습니까?`)) {
+                        handleApply(member.name, null);
+                    }
+                };
 
                 btnGroup.appendChild(selectedBtn);
                 btnGroup.appendChild(cancelBtn);
