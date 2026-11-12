@@ -106,7 +106,8 @@
         .excel-down-btn { background: #059669; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; margin-top: 10px; box-shadow: 0 2px 6px rgba(5,150,105,0.2); }
         .sync-loading { text-align: center; font-size: 0.82rem; color: #38bdf8; font-weight: 700; margin-bottom: 8px; }
 
-        .footer-setting-box { text-align: center; margin-top: 24px; padding-top: 14px; border-top: 1.5px solid var(--border); }
+        /* 💡 톱니바퀴 위치를 오른쪽 구석으로 정렬 */
+        .footer-setting-box { display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 14px; border-top: 1.5px solid var(--border); }
         .admin-gear-icon-btn { background: transparent; border: none; font-size: 1.3rem; cursor: pointer; padding: 6px; color: var(--text-sub); border-radius: 50%; transition: all 0.2s; }
         .admin-gear-icon-btn:hover { background: #e2e8f0; }
 
@@ -149,11 +150,10 @@
         <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
     </div>
 
-    <!-- 🔒 관리자 통합 패널 (엑셀 다운로드 및 모든 관리 기능 포함) -->
+    <!-- 🔒 관리자 통합 패널 -->
     <div id="admin-panel" class="admin-panel hidden">
         <h3>🔒 구글 시트 연동 관리자 설정</h3>
         
-        <!-- 💡 관리자 전용 엑셀 다운로드 기능 통합 -->
         <div style="background:#1e293b; padding:12px; border-radius:8px; border:1px solid #334155; margin-bottom:14px;">
             <h3 style="margin:0 0 8px 0; color:#38bdf8;">📥 현재 대회 신청자 명부 엑셀 다운로드</h3>
             <button class="excel-down-btn" id="excel-down-action-btn" style="margin-top:0;">현재 선택된 대회 엑셀(CSV) 다운로드</button>
@@ -237,7 +237,7 @@
         <button id="admin-close-btn" style="width:100%; margin-top:16px; background:#475569; color:white; border:none; padding:10px; border-radius:7px; cursor:pointer; font-weight:800;">관리자 설정 닫기</button>
     </div>
 
-    <!-- 하단 구석 톱니바퀴 아이콘 -->
+    <!-- 하단 오른쪽 구석 톱니바퀴 아이콘 -->
     <div class="footer-setting-box">
         <button class="admin-gear-icon-btn" id="admin-open-btn" title="관리자 설정">⚙️</button>
     </div>
@@ -293,6 +293,36 @@
         });
         if (temp) result.push(temp);
         return result;
+    }
+
+    function calculateAgeGroup(birthStr) {
+        if (!birthStr || birthStr === "-") return "미지정";
+        let clean = birthStr.replace(/[^0-9]/g, "");
+        if (clean.length < 6) return "미지정";
+
+        let yy = parseInt(clean.substring(0, 2), 10);
+        let mm = parseInt(clean.substring(2, 4), 10) || 1;
+        let dd = parseInt(clean.substring(4, 6), 10) || 1;
+
+        let fullYear = yy >= 50 ? 1900 + yy : 2000 + yy;
+
+        let currentYear = 2026;
+        let currentMonth = 11;
+        let currentDay = 12;
+
+        let age = currentYear - fullYear;
+        if (currentMonth < mm || (currentMonth === mm && currentDay < dd)) {
+            age--;
+        }
+
+        if (age < 10) return "10대 이하";
+        if (age < 20) return "10대";
+        if (age < 30) return "20대";
+        if (age < 40) return "30대";
+        if (age < 50) return "40대";
+        if (age < 60) return "50대";
+        if (age < 70) return "60대";
+        return "70대 이상";
     }
 
     async function fetchServerData(silent = false) {
@@ -618,21 +648,46 @@
 
         const totalCount = globalMembers.length;
         let maleCount = 0, femaleCount = 0;
+        const ageGroupCounts = { "40대": 0, "50대": 0, "60대": 0, "70대 이상": 0, "기타": 0 };
 
         globalMembers.forEach(m => {
             if (m.gender === "남") maleCount++;
             else if (m.gender === "여") femaleCount++;
+
+            let group = calculateAgeGroup(m.birth);
+            if (ageGroupCounts[group] !== undefined) {
+                ageGroupCounts[group]++;
+            } else {
+                ageGroupCounts["기타"]++;
+            }
         });
 
+        let ageHtml = "";
+        ["40대", "50대", "60대", "70대 이상"].forEach(ag => {
+            if (ageGroupCounts[ag] > 0) {
+                ageHtml += `<span style="margin-right:8px;">${ag}: <strong>${ageGroupCounts[ag]}명</strong></span>`;
+            }
+        });
+        if (ageGroupCounts["30대"] > 0) ageHtml += `<span style="margin-right:8px;">30대: <strong>${ageGroupCounts["30대"]}명</strong></span>`;
+        if (ageGroupCounts["기타"] > 0) ageHtml += `<span>기타/미지정: <strong>${ageGroupCounts["기타"]}명</strong></span>`;
+
         summaryBox.innerHTML = `
-            <div class="stat-card-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="stat-box">
-                    <div class="stat-box-title">👥 총 회원수</div>
-                    <div class="stat-box-val">${totalCount}명</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+                <div class="stat-card-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom:0;">
+                    <div class="stat-box">
+                        <div class="stat-box-title">👥 총 회원수</div>
+                        <div class="stat-box-val">${totalCount}명</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-title">성별 분포</div>
+                        <div class="stat-box-val" style="font-size:1.05rem;">남 ${maleCount}명 / 여 ${femaleCount}명</div>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-box-title">성별 분포</div>
-                    <div class="stat-box-val" style="font-size:1.05rem;">남 ${maleCount}명 / 여 ${femaleCount}명</div>
+                <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; text-align:center;">
+                    <div style="font-size:0.8rem; font-weight:800; color:var(--text-sub); margin-bottom:4px;">📊 연대별 인원 분포 (현재 기준)</div>
+                    <div style="font-size:0.88rem; font-weight:700; color:var(--primary); display:flex; justify-content:center; flex-wrap:wrap; gap:6px;">
+                        ${ageHtml || '<span>등록된 연대별 데이터가 없습니다.</span>'}
+                    </div>
                 </div>
             </div>
         `;
@@ -640,12 +695,14 @@
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
 
         globalMembers.forEach((m, idx) => {
+            let ageGroup = calculateAgeGroup(m.birth);
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:4px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:6px;">
                             <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
                             <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
+                            <span style="font-size:0.72rem; background:#e2e8f0; color:#334155; padding:1px 6px; border-radius:4px; font-weight:700;">${ageGroup}</span>
                         </div>
                         <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:3px 8px; border-radius:5px; font-size:0.78rem; white-space:nowrap;">
                             👕 ${m.size}호
