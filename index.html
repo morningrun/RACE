@@ -46,6 +46,10 @@
         .tab-btn { flex: 1; padding: 10px 2px; font-size: 0.8rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
+        /* 좌우 스크롤 컨테이너 설정 */
+        .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        .swipe-pane { width: 33.333%; flex-shrink: 0; box-sizing: border-box; }
+
         .race-card-item { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
         .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 4px 12px rgba(37,99,235,0.18); }
         
@@ -111,30 +115,36 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
-    <!-- 💡 탭 순서 및 명칭 변경: 접수 현황이 메인(첫 번째)으로 배치 -->
+    <!-- 탭 버튼 영역 ([접수 현황] [대회 신청] [전체 회원현황]) -->
     <div class="tab-group">
         <button class="tab-btn active" id="tab-status-btn">접수 현황</button>
         <button class="tab-btn" id="tab-apply-btn">대회 신청</button>
         <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
+    <!-- 대회 선택 상자 (접수 현황 및 대회 신청 탭에서 공용 노출) -->
     <div id="race-selector-wrapper" style="margin-bottom: 14px;">
         <div id="race-card-container"></div>
     </div>
 
-    <!-- 💡 초기 표시되는 탭을 '접수 현황'으로 변경 -->
-    <div id="tab-status">
-        <div id="status-summary-box" style="margin-bottom: 12px;"></div>
-        <div id="status-detail-list" style="margin-top: 10px;"></div>
-    </div>
-
-    <div id="tab-apply" class="hidden">
-        <div id="member-list-wrapper"></div>
-    </div>
-
-    <div id="tab-members" class="hidden">
-        <div id="member-stats-summary"></div>
-        <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
+    <!-- 좌우 스크롤(스와이프)을 지원하는 컨테이너 뷰 -->
+    <div style="overflow: hidden; width: 100%;">
+        <div id="swipe-container" class="swipe-container">
+            <!-- 1번 패널: 접수 현황 -->
+            <div class="swipe-pane" id="pane-status">
+                <div id="status-summary-box" style="margin-bottom: 12px;"></div>
+                <div id="status-detail-list" style="margin-top: 10px;"></div>
+            </div>
+            <!-- 2번 패널: 대회 신청 -->
+            <div class="swipe-pane" id="pane-apply">
+                <div id="member-list-wrapper"></div>
+            </div>
+            <!-- 3번 패널: 전체 회원현황 -->
+            <div class="swipe-pane" id="pane-members">
+                <div id="member-stats-summary"></div>
+                <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
+            </div>
+        </div>
     </div>
 
     <!-- 관리자 통합 패널 -->
@@ -353,28 +363,27 @@
         }
     }
 
-    function switchTab(tabName) {
-        document.getElementById('tab-apply').classList.add('hidden');
-        document.getElementById('tab-status').classList.add('hidden');
-        document.getElementById('tab-members').classList.add('hidden');
-        document.getElementById('tab-apply-btn').classList.remove('active');
+    // 💡 좌우 스크롤(스와이프) 연동 탭 전환 함수
+    function switchTab(index) {
+        const container = document.getElementById('swipe-container');
+        const raceSelector = document.getElementById('race-selector-wrapper');
+        
         document.getElementById('tab-status-btn').classList.remove('active');
+        document.getElementById('tab-apply-btn').classList.remove('active');
         document.getElementById('tab-members-btn').classList.remove('active');
 
-        const raceSelector = document.getElementById('race-selector-wrapper');
-
-        if (tabName === 'status') {
-            document.getElementById('tab-status').classList.remove('hidden');
+        if (index === 0) {
+            container.style.transform = 'translateX(0%)';
             document.getElementById('tab-status-btn').classList.add('active');
             raceSelector.style.display = 'block';
             renderStatusTab();
-        } else if (tabName === 'apply') {
-            document.getElementById('tab-apply').classList.remove('hidden');
+        } else if (index === 1) {
+            container.style.transform = 'translateX(-33.333%)';
             document.getElementById('tab-apply-btn').classList.add('active');
             raceSelector.style.display = 'block';
             renderMemberList();
-        } else if (tabName === 'members') {
-            document.getElementById('tab-members').classList.remove('hidden');
+        } else if (index === 2) {
+            container.style.transform = 'translateX(-66.666%)';
             document.getElementById('tab-members-btn').classList.add('active');
             raceSelector.style.display = 'none';
             renderAllMembersTab();
@@ -1178,9 +1187,9 @@
     }
 
     function initEventBindings() {
-        document.getElementById('tab-status-btn').onclick = () => switchTab('status');
-        document.getElementById('tab-apply-btn').onclick = () => switchTab('apply');
-        document.getElementById('tab-members-btn').onclick = () => switchTab('members');
+        document.getElementById('tab-status-btn').onclick = () => switchTab(0);
+        document.getElementById('tab-apply-btn').onclick = () => switchTab(1);
+        document.getElementById('tab-members-btn').onclick = () => switchTab(2);
         
         document.getElementById('excel-down-action-btn').onclick = downloadExcel;
         
@@ -1195,6 +1204,30 @@
 
         document.getElementById('chk-custom-1').onchange = () => toggleCustomInput(1);
         document.getElementById('chk-custom-2').onchange = () => toggleCustomInput(2);
+
+        // 💡 스마트폰 터치/마우스 좌우 스와이프(드래그) 제스처 지원 추가
+        const swipeContainer = document.getElementById('swipe-container');
+        let startX = 0;
+        let currentTranslate = 0;
+        let currentIndex = 0;
+
+        swipeContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        swipeContainer.addEventListener('touchend', (e) => {
+            let endX = e.changedTouches[0].clientX;
+            let diff = startX - endX;
+
+            if (Math.abs(diff) > 50) { // 50픽셀 이상 밀었을 때
+                if (diff > 0 && currentIndex < 2) {
+                    currentIndex++; // 오른쪽으로 밀면 다음 탭
+                } else if (diff < 0 && currentIndex > 0) {
+                    currentIndex--; // 왼쪽으로 밀면 이전 탭
+                }
+                switchTab(currentIndex);
+            }
+        });
     }
 
     function toggleCustomInput(num) {
