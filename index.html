@@ -24,14 +24,13 @@
     <meta name="theme-color" content="#1e293b">
 
     <style>
-        /* 💡 강약이 살아있는 차분하고 고급스러운 모던 토탈 디자인 팔레트 */
         :root {
-            --primary: #0f172a;        /* 진중하고 무게감 있는 메인 타이틀 */
-            --accent: #2563eb;         /* 시선을 사로잡는 선명한 블루 포인트 */
+            --primary: #0f172a;        
+            --accent: #2563eb;         
             --accent-hover: #1d4ed8;
-            --success: #059669;        /* 차분한 에메랄드 성공 톤 */
-            --danger: #dc2626;         /* 깔끔한 레드 경고 톤 */
-            --bg-color: #f8fafc;       /* 눈이 편안한 프리미엄 라이트 그레이 배경 */
+            --success: #059669;        
+            --danger: #dc2626;         
+            --bg-color: #f8fafc;       
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-sub: #64748b;
@@ -44,16 +43,15 @@
         .main-title-box { text-align: center; margin: 6px 0 18px 0; }
         .main-title { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
 
-        /* 💡 무게감 있으면서도 세련된 탭 네비게이션 (강약 조절) */
         .tab-group { display: flex; gap: 6px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 12px; position: sticky; top: 8px; z-index: 10; backdrop-filter: blur(8px); }
         .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
-        /* 좌우 스크롤 컨테이너 설정 */
+        /* 좌우 스크롤 컨테이너 설정 (높이 유연하게 변경되도록 transition 추가) */
+        .swipe-wrapper { overflow: hidden; width: 100%; transition: height 0.3s ease; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1); }
         .swipe-pane { width: 33.333%; flex-shrink: 0; box-sizing: border-box; }
 
-        /* 💡 고급스럽고 정돈된 상단 대회 안내 카드 */
         .race-card-item { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 6px 16px rgba(37,99,235,0.12); }
         
@@ -90,7 +88,6 @@
         .stat-box-title { font-size: 0.82rem; font-weight: 800; color: var(--text-sub); margin-bottom: 6px; }
         .stat-box-val { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
 
-        /* 관리자 패널 */
         .admin-panel { background: var(--primary); color: white; padding: 16px; border-radius: 14px; margin-top: 24px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2); }
         .admin-panel h3 { margin: 12px 0 8px 0; font-size: 0.95rem; color: #38bdf8; }
         .admin-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
@@ -127,7 +124,7 @@
         <div id="race-card-container"></div>
     </div>
 
-    <!-- 2. 탭 버튼 영역 ([접수 현황] [대회 신청] [전체 회원현황]) -->
+    <!-- 2. 탭 버튼 영역 -->
     <div class="tab-group">
         <button class="tab-btn active" id="tab-status-btn">접수 현황</button>
         <button class="tab-btn" id="tab-apply-btn">대회 신청</button>
@@ -135,7 +132,7 @@
     </div>
 
     <!-- 3. 좌우 스크롤(스와이프) 콘텐츠 영역 -->
-    <div style="overflow: hidden; width: 100%;">
+    <div class="swipe-wrapper" id="swipe-wrapper">
         <div id="swipe-container" class="swipe-container">
             <!-- 1번 패널: 접수 현황 -->
             <div class="swipe-pane" id="pane-status">
@@ -256,6 +253,7 @@
     let globalApplications = {};
     let adminPassword = "1234";
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
+    let activePaneIndex = 0;
 
     const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
@@ -364,13 +362,29 @@
         renderMemberList();
         renderStatusTab();
         renderAllMembersTab();
+        updateSwipeWrapperHeight();
         if(!document.getElementById('admin-panel').classList.contains('hidden')) {
             renderAdminRaceList();
             renderAdminMemberList();
         }
     }
 
+    function updateSwipeWrapperHeight() {
+        setTimeout(() => {
+            const wrapper = document.getElementById('swipe-wrapper');
+            const panes = [
+                document.getElementById('pane-status'),
+                document.getElementById('pane-apply'),
+                document.getElementById('pane-members')
+            ];
+            if (wrapper && panes[activePaneIndex]) {
+                wrapper.style.height = panes[activePaneIndex].scrollHeight + 'px';
+            }
+        }, 50);
+    }
+
     function switchTab(index) {
+        activePaneIndex = index;
         const container = document.getElementById('swipe-container');
         
         document.getElementById('tab-status-btn').classList.remove('active');
@@ -390,6 +404,7 @@
             document.getElementById('tab-members-btn').classList.add('active');
             renderAllMembersTab();
         }
+        updateSwipeWrapperHeight();
     }
 
     function renderRaceCards() {
@@ -446,6 +461,7 @@
 
         if (globalRaces.length === 0 || !selectedRaceId) {
             wrapper.innerHTML = "<div style='text-align:center; padding:30px; color:#94a3b8; font-weight:700;'>관리자 모드에서 신청할 대회를 먼저 등록해주세요.</div>";
+            updateSwipeWrapperHeight();
             return;
         }
 
@@ -470,6 +486,7 @@
 
         if (sortedMembers.length === 0) {
             wrapper.innerHTML = "<div style='text-align:center; padding:25px; color:#94a3b8;'>등록된 회원이 없습니다.</div>";
+            updateSwipeWrapperHeight();
             return;
         }
 
@@ -542,6 +559,7 @@
             card.appendChild(btnGroup);
             wrapper.appendChild(card);
         });
+        updateSwipeWrapperHeight();
     }
 
     async function handleApply(memberName, course) {
@@ -578,6 +596,7 @@
 
         if (globalRaces.length === 0 || !selectedRaceId) {
             summaryBox.innerHTML = "<div style='text-align:center; padding:30px; color:#94a3b8; font-weight:700;'>등록된 대회가 없습니다.</div>";
+            updateSwipeWrapperHeight();
             return;
         }
 
@@ -646,6 +665,7 @@
 
         detailHtml += `</div>`;
         detailList.innerHTML = detailHtml;
+        updateSwipeWrapperHeight();
     }
 
     function renderAllMembersTab() {
@@ -769,6 +789,7 @@
         });
 
         listWrapper.innerHTML = listHtml;
+        updateSwipeWrapperHeight();
     }
 
     function downloadExcel() {
@@ -823,6 +844,7 @@
         } else {
             panel.classList.add('hidden');
         }
+        updateSwipeWrapperHeight();
     }
 
     function renderAdminRaceList() {
@@ -1220,11 +1242,11 @@
             let endX = e.changedTouches[0].clientX;
             let diff = startX - endX;
 
-            if (Math.abs(diff) > 50) { // 50픽셀 이상 밀었을 때
+            if (Math.abs(diff) > 50) {
                 if (diff > 0 && currentIndex < 2) {
-                    currentIndex++; // 오른쪽으로 밀면 다음 탭
+                    currentIndex++;
                 } else if (diff < 0 && currentIndex > 0) {
-                    currentIndex--; // 왼쪽으로 밀면 이전 탭
+                    currentIndex--;
                 }
                 switchTab(currentIndex);
             }
