@@ -679,7 +679,6 @@
 
         const averageAge = validAgeCount > 0 ? (totalAgeSum / validAgeCount).toFixed(1) : "0.0";
 
-        // 💡 연대별 분포 정렬형 그리드 HTML 구성
         let ageGridHtml = "";
         const targetAgeGroups = ["30대", "40대", "50대", "60대", "70대 이상", "기타/미지정"];
         
@@ -706,7 +705,7 @@
 
         summaryBox.innerHTML = `
             <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
-                <!-- 총 회원수 카드 (단독 배치) -->
+                <!-- 총 회원수 카드 -->
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
                     <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
                         <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">👥 총 회원수</div>
@@ -728,7 +727,7 @@
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:8px;">
                         ${ageGridHtml}
                     </div>
-                    <!-- 평균 나이 (연대별 분포 바로 밑에 따로 표시) -->
+                    <!-- 평균 나이 -->
                     <div style="border-top:1.5px solid #e2e8f0; padding-top:8px; margin-top:6px; font-size:0.88rem; font-weight:800; color:var(--text-main);">
                         📌 전체 회원 평균 나이: <span style="color:var(--accent); font-size:1.05rem;">만 ${averageAge}세</span>
                     </div>
@@ -740,14 +739,13 @@
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
 
         globalMembers.forEach((m, idx) => {
-            let ageGroup = calculateAgeGroup(m);
+            // 💡 이름 옆 연대 태그 제거하고 깔끔하게 번호, 이름, 옷 사이즈만 배치
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:4px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:6px;">
                             <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
                             <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
-                            <span style="font-size:0.72rem; background:${ageGroup === '미지정' ? '#fee2e2' : '#e2e8f0'}; color:${ageGroup === '미지정' ? '#dc2626' : '#334155'}; padding:1px 6px; border-radius:4px; font-weight:700;">${ageGroup}</span>
                         </div>
                         <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:3px 8px; border-radius:5px; font-size:0.78rem; white-space:nowrap;">
                             👕 ${m.size}호
