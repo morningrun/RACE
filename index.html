@@ -470,7 +470,6 @@
                     btn.className = "course-btn-style";
                     const pureCourseName = courseWithPrice.replace(/\s*\(.*?\)/g, "").trim();
                     
-                    // 💡 대회 신청 확인 창 추가
                     btn.onclick = function() {
                         if (confirm(`[${member.name}]님을 [${currentRace.name}] '${pureCourseName}' 코스로 신청하시겠습니까?`)) {
                             handleApply(member.name, pureCourseName);
@@ -488,7 +487,6 @@
                 cancelBtn.textContent = '신청취소';
                 cancelBtn.className = 'btn-cancel';
                 
-                // 💡 신청 취소 확인 창 추가
                 cancelBtn.onclick = function() {
                     if (confirm(`[${member.name}]님의 [${currentRace.name}] '${appliedCourse}' 신청을 취소하시겠습니까?`)) {
                         handleApply(member.name, null);
@@ -546,11 +544,20 @@
         const raceApps = globalApplications[selectedRaceId] || {};
         const totalCount = Object.keys(raceApps).length;
 
-        const courseCounts = {};
-        Object.values(raceApps).forEach(course => {
-            courseCounts[course] = (courseCounts[course] || 0) + 1;
+        const availableCourses = parseCourses(currentRace.courses).map(c => c.replace(/\s*\(.*?\)/g, "").trim());
+
+        const courseGroups = {};
+        availableCourses.forEach(c => courseGroups[c] = []);
+
+        Object.keys(raceApps).forEach(memberName => {
+            const course = raceApps[memberName];
+            if (!courseGroups[course]) {
+                courseGroups[course] = [];
+            }
+            courseGroups[course].push(memberName);
         });
 
+        // 요약 박스
         let summaryHtml = `
             <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px;">
                 <div style="font-weight:800; font-size:0.95rem; color:var(--primary); margin-bottom:6px;">📊 [${currentRace.name}] 접수 요약</div>
@@ -558,8 +565,8 @@
                     <span>총 신청인원: <strong style="color:var(--accent); font-size:1.05rem;">${totalCount}명</strong></span>
         `;
 
-        Object.keys(courseCounts).forEach(c => {
-            summaryHtml += `<span>${c}: <strong>${courseCounts[c]}명</strong></span>`;
+        Object.keys(courseGroups).forEach(c => {
+            summaryHtml += `<span>${c}: <strong>${courseGroups[c].length}명</strong></span>`;
         });
         summaryHtml += `</div></div>`;
         summaryBox.innerHTML = summaryHtml;
@@ -569,25 +576,35 @@
             return;
         }
 
-        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 종목별 신청자 명단</div>`;
-        
-        let appliedMembersList = globalMembers.filter(m => raceApps[m.name]).sort((a, b) => {
-            const rankA = getCourseRank(raceApps[a.name]);
-            const rankB = getCourseRank(raceApps[b.name]);
-            if (rankA !== rankB) return rankA - rankB;
-            return a.name.localeCompare(b.name, 'ko');
-        });
+        // 💡 종목별 카드 형태로 심플하게 리스트 구성 (이름과 번호 중심)
+        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:10px; color:var(--primary);">📋 종목별 접수 현황</div>`;
 
-        appliedMembersList.forEach(m => {
-            const course = raceApps[m.name];
-            const badgeStyle = getCourseStyleClass(course);
+        Object.keys(courseGroups).forEach(courseName => {
+            const membersInCourse = courseGroups[courseName];
+            const badgeStyle = getCourseStyleClass(courseName);
+
+            let membersTagsHtml = "";
+            if (membersInCourse.length === 0) {
+                membersTagsHtml = `<span style="font-size:0.78rem; color:#94a3b8; font-weight:700;">신청자 없음</span>`;
+            } else {
+                membersInCourse.sort((a, b) => a.localeCompare(b, 'ko')).forEach((mName, idx) => {
+                    membersTagsHtml += `<span style="display:inline-block; background:#ffffff; border:1px solid #cbd5e1; padding:3px 8px; border-radius:6px; font-size:0.82rem; font-weight:800; color:var(--text-main);"><strong>${idx + 1}.</strong> ${mName}</span>`;
+                });
+            }
+
             detailHtml += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:7px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;" class="${badgeStyle}">
-                    <div><strong>${m.name}</strong> <span style="font-size:0.75rem; color:#64748b;">(${m.birth} / ${m.phone} / 👕${m.size})</span></div>
-                    <div style="font-weight:800; padding:3px 8px; border-radius:5px; font-size:0.8rem;" class="${badgeStyle}">${course}</div>
+                <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:12px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">🔹 ${courseName}</span>
+                        <span style="font-size:0.78rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 8px; border-radius:5px;">${membersInCourse.length}명</span>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        ${membersTagsHtml}
+                    </div>
                 </div>
             `;
         });
+
         detailList.innerHTML = detailHtml;
     }
 
