@@ -294,8 +294,19 @@
         return result;
     }
 
-    // 💡 생년월일 파싱 로직 개선 (C열 날짜 데이터를 정확히 읽어오도록 수정)
-    function calculateAge(birthStr) {
+    // 💡 생년월일 강제 매핑 및 나이 계산 함수
+    function calculateAge(member) {
+        let birthStr = member.birth;
+        
+        // 💡 혹시 시트 데이터가 안 읽히거나 빈 회원들의 생년월일 강제 지정 (형님 요청 반영)
+        const forcedBirthMap = {
+            // "회원이름": "생년월일(YY.MM.DD)" 형태 혹은 강제 나이 지정 가능
+        };
+        
+        if (forcedBirthMap[member.name]) {
+            birthStr = forcedBirthMap[member.name];
+        }
+
         if (!birthStr || birthStr === "-" || birthStr === "undefined" || birthStr === "null") return null;
         let clean = String(birthStr).replace(/[^0-9]/g, "");
         if (clean.length < 6) return null;
@@ -317,8 +328,8 @@
         return age;
     }
 
-    function calculateAgeGroup(birthStr) {
-        let age = calculateAge(birthStr);
+    function calculateAgeGroup(member) {
+        let age = calculateAge(member);
         if (age === null) return "미지정";
 
         if (age < 10) return "10대 이하";
@@ -663,13 +674,13 @@
             if (m.gender === "남") maleCount++;
             else if (m.gender === "여") femaleCount++;
 
-            let age = calculateAge(m.birth);
+            let age = calculateAge(m);
             if (age !== null) {
                 totalAgeSum += age;
                 validAgeCount++;
             }
 
-            let group = calculateAgeGroup(m.birth);
+            let group = calculateAgeGroup(m);
             if (ageGroupCounts[group] !== undefined) {
                 ageGroupCounts[group]++;
             } else {
@@ -724,7 +735,7 @@
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
 
         globalMembers.forEach((m, idx) => {
-            let ageGroup = calculateAgeGroup(m.birth);
+            let ageGroup = calculateAgeGroup(m);
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:4px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
