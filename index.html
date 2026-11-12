@@ -318,7 +318,6 @@
         return age;
     }
 
-    // 💡 연대별 인원 분포 구간 버그 수정 (60대와 70대 이상 명확히 분리)
     function calculateAgeGroup(member) {
         let age = calculateAge(member);
         if (age === null) return "기타/미지정";
@@ -746,12 +745,17 @@
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
 
         globalMembers.forEach((m, idx) => {
+            let age = calculateAge(m);
+            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:#eff6ff; padding:1px 6px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
+
+            // 💡 이름 바로 옆에 만 나이 살짝 추가
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:8px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="display:flex; align-items:center; gap:6px;">
+                        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
                             <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
                             <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
+                            ${ageDisplay}
                         </div>
                         <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:2px 7px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
                             👕 ${m.size}호
