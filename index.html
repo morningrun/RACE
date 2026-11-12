@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>복사골마라톤클럽 대회접수</title>
+    <title>복사골마라톤클럽 대회신청</title>
     
     <!-- 카카오톡 대회접수 미리보기 -->
-    <meta property="og:title" content="복사골마라톤클럽 대회접수">
+    <meta property="og:title" content="복사골마라톤클럽 대회신청">
     <meta property="og:description" content="복사골마라톤클럽 대회 접수 및 참가 현황을 확인하세요!">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://morningrun.github.io/RACE/">
@@ -49,8 +49,9 @@
         .race-select-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
         .race-select-title { font-size: 0.9rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
         
-        .race-card-item { background: #ffffff; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 4px; }
-        .race-card-item.active { border-color: var(--accent); background: #eff6ff; box-shadow: 0 2px 6px rgba(37,99,235,0.15); }
+        /* 대회 카드 배경 색상 적용 */
+        .race-card-item { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 4px 12px rgba(37,99,235,0.18); }
         
         .member-card { display: flex; flex-direction: column; padding: 11px 13px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         
@@ -237,6 +238,7 @@
 </div>
 
 <script>
+    // 💡 새로운 구글 앱스 스크립트 웹 앱 URL 적용 완료
     const API_URL = "https://script.google.com/macros/s/AKfycbypcUfmHxWwLWDThRirGHyXtUscWYlEr0CdECJeONokfhFOvPzofsIpvou_IPQJuO6B/exec";
 
     let globalMembers = [];
@@ -386,7 +388,7 @@
         }
     }
 
-    // 💡 순서(대회일 -> 장소 -> 코스 -> 마감일) 및 기호(•) 적용 완료된 renderRaceCards 함수
+    // 💡 순서 및 단순 하이픈(-) 기호 배치 적용된 renderRaceCards 함수
     function renderRaceCards() {
         const container = document.getElementById('race-card-container');
         if (!container) return;
@@ -406,22 +408,22 @@
             if (race.courses) {
                 const courseList = parseCourses(race.courses);
                 courseList.forEach(c => {
-                    coursesHtml += `<div style="font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-top: 2px;">• ${c}</div>`;
+                    coursesHtml += `<div style="font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-top: 2px;">- ${c}</div>`;
                 });
             }
 
             card.innerHTML = `
                 <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin-bottom: 6px;">${race.name}</div>
-                <div style="display: flex; flex-direction: column; gap: 3px; font-size: 0.82rem; color: #1e293b; font-weight: 600;">
-                    <div>• 대회일: ${race.date}</div>
-                    <div>• 장소: ${race.location || '장소 미정'}</div>
+                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: #1e293b; font-weight: 600;">
+                    <div>- 대회일: ${race.date}</div>
+                    <div>- 장소: ${race.location || '장소 미정'}</div>
                     <div style="margin-top: 2px;">
-                        <div style="font-weight: 700; color: #1e293b;">• 코스 및 참가비:</div>
-                        <div style="padding-left: 10px; margin-top: 1px;">
-                            ${coursesHtml || '<div style="font-size: 0.8rem; color: #1e293b;">• 5km(50,000원)</div><div style="font-size: 0.8rem; color: #1e293b;">• 10km(50,000원)</div>'}
+                        <div style="font-weight: 700; color: #1e293b;">- 코스 및 참가비:</div>
+                        <div style="padding-left: 14px; margin-top: 1px;">
+                            ${coursesHtml || '<div style="font-size: 0.8rem; color: #1e293b;">- 5km(50,000원)</div><div style="font-size: 0.8rem; color: #1e293b;">- 10km(50,000원)</div>'}
                         </div>
                     </div>
-                    <div style="margin-top: 2px;">• 접수마감일: ${race.deadline}</div>
+                    <div style="margin-top: 2px;">- 접수마감일: ${race.deadline}</div>
                 </div>
             `;
             
@@ -629,7 +631,7 @@
             detailHtml += `
                 <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:6px;">
-                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">• ${courseName}</span>
+                        <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">- ${courseName}</span>
                         <span style="font-size:0.75rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 6px; border-radius:5px;">${membersInCourse.length}명</span>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:2px;">
@@ -739,7 +741,7 @@
 
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
-            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#64748b; background:#f1f5f9; border:1.5px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
+            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:8px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
