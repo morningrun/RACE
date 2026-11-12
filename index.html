@@ -746,9 +746,9 @@
 
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
-            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:#eff6ff; padding:1px 6px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
+            // 💡 나이 글자 색상을 회색으로 변경함
+            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
-            // 💡 이름 바로 옆에 만 나이 살짝 추가
             listHtml += `
                 <div style="display:flex; flex-direction:column; background:#f8fafc; padding:8px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
