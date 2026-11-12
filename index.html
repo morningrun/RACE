@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>복사골마라톤클럽 대회접수</title>
    
+<!-- 카카오톡 대회접수 미리보기 -->
 <meta property="og:title" content="복사골마라톤클럽 대회접수">
 <meta property="og:description" content="복사골마라톤클럽 대회 접수 및 참가 현황을 확인하세요!">
 <meta property="og:type" content="website">
@@ -13,6 +14,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
+<!-- 💡 스마트폰 홈 화면 추가 아이콘 및 앱 설정 (완벽 적용) -->
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
 <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
 <link rel="manifest" href="./manifest.json">
@@ -161,7 +163,6 @@
             <input type="hidden" id="edit-race-id" value="">
             <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 삼척황영조마라톤)">
             <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
-            <input type="text" id="new-race-location" placeholder="대회장소 (예: 부천 종합운동장)">
             <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
             
             <div style="font-size:0.82rem; font-weight:700; color:#38bdf8; margin-top:4px;">🏁 코스 및 참가비 설정 (체크 및 금액 입력)</div>
@@ -414,14 +415,10 @@
                 });
             }
 
-            const locText = race.location || "";
-            const locationHtml = locText ? `<span>📍 <strong>장소</strong>: ${locText}</span>` : '';
-
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
                     <span>📅 <strong>대회일</strong>: ${race.date}</span>
-                    ${locationHtml}
                     <span>⏳ <strong>마감일</strong>: ${race.deadline}</span>
                 </div>
                 <div style="margin-top: 4px;">
@@ -562,7 +559,7 @@
         refreshUI();
 
         try {
-            const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course || "null")}`;
+            const url = `${API_URL}?action=applyRace&raceId=${encodeURIComponent(selectedRaceId)}&memberName=${encodeURIComponent(memberName)}&course=${encodeURIComponent(course)}`;
             fetch(url);
         } catch(e) {
             console.error("서버 반영 오류:", e);
@@ -681,11 +678,16 @@
         });
 
         const averageAge = validAgeCount > 0 ? (totalAgeSum / validAgeCount).toFixed(1) : "0.0";
+
         const now = new Date();
-        const baseDateString = `${now.getFullYear()}년 ${now.getMonth() + 1}월 현재 기준`;
+        const currentYearStr = now.getFullYear();
+        const currentMonthStr = now.getMonth() + 1;
+        const baseDateString = `${currentYearStr}년 ${currentMonthStr}월 현재 기준`;
 
         let ageGridHtml = "";
-        ["30대", "40대", "50대", "60대", "70대 이상", "기타/미지정"].forEach(ag => {
+        const targetAgeGroups = ["30대", "40대", "50대", "60대", "70대 이상", "기타/미지정"];
+        
+        targetAgeGroups.forEach(ag => {
             let count = ageGroupCounts[ag] || 0;
             let isDanger = (ag === "기타/미지정" && count > 0);
             ageGridHtml += `
@@ -696,36 +698,55 @@
             `;
         });
 
+        let unassignedAlertHtml = "";
+        if (unassignedMembers.length > 0) {
+            unassignedAlertHtml = `
+                <div style="background:#fee2e2; border:1.5px solid #fca5a5; border-radius:10px; padding:10px 12px; margin-top:8px; font-size:0.83rem; color:#991b1b; font-weight:700; line-height:1.4; text-align:left;">
+                    ⚠️ 생년월일 미지정 또는 형식 오류 회원 (${unassignedMembers.length}명): <br>
+                    <span style="font-weight:800; color:#b91c1c;">${unassignedMembers.join(', ')}</span>
+                </div>
+            `;
+        }
+
         summaryBox.innerHTML = `
             <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+                <!-- 총 회원수 카드 -->
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
                     <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
                         <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">👥 총 회원수</div>
                         <div class="stat-box-val" style="font-size:1.4rem; color:var(--accent);">${totalCount}명</div>
                     </div>
                 </div>
+
+                <!-- 성별 분포 카드 -->
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
                     <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
                         <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">성별 분포</div>
                         <div class="stat-box-val" style="font-size:1.15rem; color:var(--primary);">남 ${maleCount}명 / 여 ${femaleCount}명</div>
                     </div>
                 </div>
+
+                <!-- 연대별 인원 분포 및 평균 나이 카드 -->
                 <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
                     <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:2px;">📊 연대별 인원 분포</div>
                     <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:8px;">(${baseDateString} 만 나이 기준)</div>
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:8px;">
                         ${ageGridHtml}
                     </div>
+                    <!-- 평균 나이 -->
                     <div style="border-top:1.5px solid #e2e8f0; padding-top:8px; margin-top:6px; font-size:0.88rem; font-weight:800; color:var(--text-main);">
                         📌 전체 회원 평균 나이: <span style="color:var(--accent); font-size:1.05rem;">만 ${averageAge}세</span>
                     </div>
+                    ${unassignedAlertHtml}
                 </div>
             </div>
         `;
 
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
+
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
+            // 💡 나이 글자 색상을 회색으로 변경함
             let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
             listHtml += `
@@ -741,14 +762,15 @@
                         </div>
                     </div>
                     <div style="font-size:0.76rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:10px; flex-wrap:wrap; line-height:1.2;">
-                        <span>🎂 ${m.birth}</span>
-                        <span>👤 ${m.gender}</span>
-                        <span>📞 ${m.phone}</span>
-                        <span>📅 가입: ${m.join}</span>
+                        <span><span style="font-size:0.65rem;">🎂</span> ${m.birth}</span>
+                        <span><span style="font-size:0.65rem;">👤</span> ${m.gender}</span>
+                        <span><span style="font-size:0.65rem;">📞</span> ${m.phone}</span>
+                        <span><span style="font-size:0.65rem;">📅</span> 가입: ${m.join}</span>
                     </div>
                 </div>
             `;
         });
+
         listWrapper.innerHTML = listHtml;
     }
 
@@ -768,6 +790,7 @@
         }
 
         let csvContent = "\uFEFF번호,이름,성별,생년월일,핸드폰번호,옷사이즈,신청코스,대회명\n";
+        
         let count = 1;
         globalMembers.forEach(m => {
             if (raceApps[m.name]) {
@@ -817,9 +840,8 @@
         globalRaces.forEach(race => {
             const row = document.createElement('div');
             row.className = 'race-admin-row';
-            const loc = race.location || '미입력';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">장소: ${loc} / 일자: ${race.date}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
                 <div style="display:flex; gap:4px;">
                     <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
                     <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
@@ -843,12 +865,68 @@
         document.getElementById('edit-race-id').value = race.id;
         document.getElementById('new-race-name').value = race.name;
         document.getElementById('new-race-date').value = race.date;
-        document.getElementById('new-race-location').value = race.location || "";
         document.getElementById('new-race-deadline').value = race.deadline;
+
+        const chks = document.querySelectorAll('.race-course-chk');
+        chks.forEach(chk => chk.checked = false);
+        document.getElementById('price-5km').value = "50,000";
+        document.getElementById('price-10km').value = "50,000";
+        document.getElementById('price-half').value = "50,000";
+        document.getElementById('price-full').value = "50,000";
+        document.getElementById('custom-course-1-name').value = "";
+        document.getElementById('custom-course-1-name').disabled = true;
+        document.getElementById('price-custom-1').value = "50,000";
+        document.getElementById('price-custom-1').disabled = true;
+        document.getElementById('custom-course-2-name').value = "";
+        document.getElementById('custom-course-2-name').disabled = true;
+        document.getElementById('price-custom-2').value = "50,000";
+        document.getElementById('price-custom-2').disabled = true;
+
+        const parts = parseCourses(race.courses || "");
+
+        parts.forEach(part => {
+            const match = part.match(/^(.+?)\s*\(([^)]+)\)$/);
+            let cName = part;
+            let cPrice = "50,000";
+
+            if (match) {
+                cName = match[1].trim();
+                cPrice = match[2].trim().replace("원", "");
+            }
+
+            let matched = false;
+            chks.forEach(chk => {
+                if (chk.value === cName) {
+                    chk.checked = true;
+                    matched = true;
+                    if (cName === '5km') document.getElementById('price-5km').value = cPrice;
+                    if (cName === '10km') document.getElementById('price-10km').value = cPrice;
+                    if (cName === '하프') document.getElementById('price-half').value = cPrice;
+                    if (cName === '풀코스') document.getElementById('price-full').value = cPrice;
+                }
+            });
+
+            if (!matched) {
+                if (!document.getElementById('custom-course-1-name').value && !chks[4].checked) {
+                    chks[4].checked = true;
+                    document.getElementById('custom-course-1-name').value = cName;
+                    document.getElementById('custom-course-1-name').disabled = false;
+                    document.getElementById('price-custom-1').value = cPrice;
+                    document.getElementById('price-custom-1').disabled = false;
+                } else if (!document.getElementById('custom-course-2-name').value && !chks[5].checked) {
+                    chks[5].checked = true;
+                    document.getElementById('custom-course-2-name').value = cName;
+                    document.getElementById('custom-course-2-name').disabled = false;
+                    document.getElementById('price-custom-2').value = cPrice;
+                    document.getElementById('price-custom-2').disabled = false;
+                }
+            }
+        });
 
         document.getElementById('race-form-title').textContent = "✏️ 마라톤 대회 정보 수정";
         document.getElementById('race-save-btn').textContent = "수정 완료하기";
         document.getElementById('race-cancel-btn').style.display = 'block';
+
         document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -856,8 +934,25 @@
         document.getElementById('edit-race-id').value = "";
         document.getElementById('new-race-name').value = "";
         document.getElementById('new-race-date').value = "";
-        document.getElementById('new-race-location').value = "";
         document.getElementById('new-race-deadline').value = "";
+        
+        const chks = document.querySelectorAll('.race-course-chk');
+        chks.forEach((chk, idx) => {
+            chk.checked = (idx < 4);
+        });
+        document.getElementById('price-5km').value = "50,000";
+        document.getElementById('price-10km').value = "50,000";
+        document.getElementById('price-half').value = "50,000";
+        document.getElementById('price-full').value = "50,000";
+        document.getElementById('custom-course-1-name').value = "";
+        document.getElementById('custom-course-1-name').disabled = true;
+        document.getElementById('price-custom-1').value = "50,000";
+        document.getElementById('price-custom-1').disabled = true;
+        document.getElementById('custom-course-2-name').value = "";
+        document.getElementById('custom-course-2-name').disabled = true;
+        document.getElementById('price-custom-2').value = "50,000";
+        document.getElementById('price-custom-2').disabled = true;
+
         document.getElementById('race-form-title').textContent = "➕ 새 마라톤 대회 등록";
         document.getElementById('race-save-btn').textContent = "대회 추가하기";
         document.getElementById('race-cancel-btn').style.display = 'none';
@@ -867,7 +962,6 @@
         const raceId = document.getElementById('edit-race-id').value.trim();
         const name = document.getElementById('new-race-name').value.trim();
         const date = document.getElementById('new-race-date').value.trim();
-        const location = document.getElementById('new-race-location').value.trim();
         const deadline = document.getElementById('new-race-deadline').value.trim();
 
         if (!name || !date) {
@@ -876,43 +970,87 @@
         }
 
         let selectedCourses = [];
-        document.querySelectorAll('.race-course-chk').forEach((chk, idx) => {
+        const chks = document.querySelectorAll('.race-course-chk');
+
+        chks.forEach((chk, idx) => {
             if (chk.checked) {
-                let cName = "";
-                let cPrice = "50,000";
-                if (idx === 0) { cName = "5km"; cPrice = document.getElementById('price-5km').value.trim() || "50,000"; }
-                else if (idx === 1) { cName = "10km"; cPrice = document.getElementById('price-10km').value.trim() || "50,000"; }
-                else if (idx === 2) { cName = "하프"; cPrice = document.getElementById('price-half').value.trim() || "50,000"; }
-                else if (idx === 3) { cName = "풀코스"; cPrice = document.getElementById('price-full').value.trim() || "50,000"; }
-                else if (idx === 4) { cName = document.getElementById('custom-course-1-name').value.trim(); cPrice = document.getElementById('price-custom-1').value.trim() || "50,000"; }
-                else if (idx === 5) { cName = document.getElementById('custom-course-2-name').value.trim(); cPrice = document.getElementById('price-custom-2').value.trim() || "50,000"; }
-                if (cName) selectedCourses.push(`${cName}(${cPrice}원)`);
+                let courseName = "";
+                let coursePrice = "50,000";
+
+                if (idx === 0) {
+                    courseName = "5km";
+                    coursePrice = document.getElementById('price-5km').value.trim() || "50,000";
+                } else if (idx === 1) {
+                    courseName = "10km";
+                    coursePrice = document.getElementById('price-10km').value.trim() || "50,000";
+                } else if (idx === 2) {
+                    courseName = "하프";
+                    coursePrice = document.getElementById('price-half').value.trim() || "50,000";
+                } else if (idx === 3) {
+                    courseName = "풀코스";
+                    coursePrice = document.getElementById('price-full').value.trim() || "50,000";
+                } else if (idx === 4) {
+                    courseName = document.getElementById('custom-course-1-name').value.trim();
+                    coursePrice = document.getElementById('price-custom-1').value.trim() || "50,000";
+                } else if (idx === 5) {
+                    courseName = document.getElementById('custom-course-2-name').value.trim();
+                    coursePrice = document.getElementById('price-custom-2').value.trim() || "50,000";
+                }
+
+                if (courseName) {
+                    selectedCourses.push(`${courseName}(${coursePrice}원)`);
+                }
             }
         });
 
-        const coursesStr = selectedCourses.join(', ') || "5km(50,000원), 10km(50,000원)";
-        const finalId = raceId || ("race_" + Date.now());
+        if (selectedCourses.length === 0) {
+            alert("최소 하나 이상의 코스를 선택하고 명칭을 입력해주세요.");
+            return;
+        }
+
+        const coursesStr = selectedCourses.join(', ');
+
+        if (!raceId) {
+            const tempId = "race_" + Date.now();
+            globalRaces.push({ id: tempId, name: name, date: date, deadline: deadline || "마감일 미정", courses: coursesStr });
+            selectedRaceId = tempId;
+        } else {
+            const target = globalRaces.find(r => r.id === raceId);
+            if (target) {
+                target.name = name;
+                target.date = date;
+                target.deadline = deadline;
+                target.courses = coursesStr;
+            }
+        }
+
+        refreshUI();
+        resetRaceForm();
+        alert(raceId ? "대회 정보가 수정되었습니다." : `[${name}] 대회가 성공적으로 등록되었습니다.`);
 
         try {
-            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(finalId)}&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&location=${encodeURIComponent(location)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
-            await fetch(url);
-            fetchServerData(true);
-            resetRaceForm();
-            alert("대회 정보가 저장되었습니다.");
+            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
             console.error("서버 저장 오류:", e);
         }
     }
 
     async function removeRace(raceId) {
-        if (!confirm("정말 이 대회를 삭제하시겠습니까?")) return;
+        if (!confirm("정말 이 대회를 삭제하시겠습니까? 신청된 기록도 함께 삭제됩니다.")) return;
+        
+        globalRaces = globalRaces.filter(r => r.id !== raceId);
+        if (globalRaces.length > 0) selectedRaceId = globalRaces[0].id;
+        else selectedRaceId = "";
+        
+        refreshUI();
+        alert("대회가 삭제되었습니다.");
+
         try {
             const url = `${API_URL}?action=deleteRace&raceId=${encodeURIComponent(raceId)}`;
-            await fetch(url);
-            fetchServerData(true);
-            alert("대회가 삭제되었습니다.");
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            console.error("삭제 오류:", e);
+            console.error("서버 삭제 오류:", e);
         }
     }
 
@@ -929,16 +1067,20 @@
             return;
         }
 
+        globalMembers.push({ name, phone: phone||"-", birth: birth||"-", gender, join: join||"-", size });
+        refreshUI();
+
+        document.getElementById('admin-add-name').value = '';
+        document.getElementById('admin-add-phone').value = '';
+        document.getElementById('admin-add-birth').value = '';
+        document.getElementById('admin-add-join').value = '';
+        alert(`[${name}] 회원이 추가되었습니다.`);
+
         try {
             const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(name)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone || "-")}&birth=${encodeURIComponent(birth || "-")}&gender=${encodeURIComponent(gender)}&join=${encodeURIComponent(join || "-")}&size=${encodeURIComponent(size)}`;
-            await fetch(url);
-            fetchServerData(true);
-            document.getElementById('admin-add-name').value = '';
-            document.getElementById('admin-add-phone').value = '';
-            document.getElementById('admin-add-birth').value = '';
-            alert(`[${name}] 회원이 추가되었습니다.`);
+            fetch(url).then(() => fetchServerData(true));
         } catch(e) {
-            console.error("회원 추가 오류:", e);
+            console.error("회원 추가 서버 오류:", e);
         }
     }
 
@@ -946,38 +1088,134 @@
         const listDiv = document.getElementById('admin-member-list');
         if (!listDiv) return;
         listDiv.innerHTML = '';
+
+        if (globalMembers.length === 0) {
+            listDiv.innerHTML = "<div style='font-size:0.8rem; color:#94a3b8; padding:6px;'>등록된 회원이 없습니다.</div>";
+            return;
+        }
+
         globalMembers.forEach(m => {
             const row = document.createElement('div');
             row.className = 'member-admin-row';
             row.innerHTML = `
-                <div style="font-size:0.82rem;"><strong>${m.name}</strong> (${m.gender}, ${m.birth}, 👕${m.size})<br><span style="font-size:0.7rem; color:#38bdf8;">📞 ${m.phone}</span></div>
+                <div style="font-size:0.82rem;">
+                    <strong>${m.name}</strong> (${m.gender}, ${m.birth}, 👕${m.size})<br>
+                    <span style="font-size:0.7rem; color:#38bdf8;">📞 ${m.phone}</span> / <span style="font-size:0.7rem; color:#94a3b8;">가입: ${m.join}</span>
+                </div>
                 <div style="display:flex; gap:4px;">
+                    <button class="member-edit-btn" data-name="${m.name}" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
                     <button class="member-del-btn" data-name="${m.name}" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">삭제</button>
                 </div>
             `;
             listDiv.appendChild(row);
         });
-        listDiv.querySelectorAll('.member-del-btn').forEach(btn => {
-            btn.onclick = async () => {
-                const name = btn.getAttribute('data-name');
-                if (confirm(`[${name}] 회원을 삭제하시겠습니까?`)) {
-                    await fetch(`${API_URL}?action=deleteMember&name=${encodeURIComponent(name)}`);
-                    fetchServerData(true);
-                }
-            };
+
+        listDiv.querySelectorAll('.member-edit-btn').forEach(btn => {
+            btn.onclick = () => editMember(btn.getAttribute('data-name'));
         });
+        listDiv.querySelectorAll('.member-del-btn').forEach(btn => {
+            btn.onclick = () => removeMember(btn.getAttribute('data-name'));
+        });
+    }
+
+    async function editMember(oldName) {
+        const m = globalMembers.find(item => item.name === oldName);
+        if (!m) return;
+
+        const newName = prompt("이름 수정:", m.name);
+        if (newName === null) return;
+        const newBirth = prompt("생년월일 수정 (예: 69.11.08):", m.birth);
+        if (newBirth === null) return;
+        const newPhone = prompt("핸드폰 번호 수정 (예: 010-1234-5678):", m.phone);
+        if (newPhone === null) return;
+        const newGender = prompt("성별 수정 (남 또는 여):", m.gender);
+        if (newGender === null) return;
+        const newSize = prompt("옷 사이즈 수정 (90, 95, 100, 105, 110 중 입력):", m.size);
+        if (newSize === null) return;
+
+        m.name = newName.trim() || m.name;
+        m.birth = newBirth.trim() || m.birth;
+        m.phone = newPhone.trim() || m.phone;
+        m.gender = newGender.trim() || m.gender;
+        m.size = newSize.trim() || m.size;
+
+        refreshUI();
+        alert("회원 정보가 수정되었습니다.");
+
+        try {
+            const url = `${API_URL}?action=saveMember&oldName=${encodeURIComponent(oldName)}&name=${encodeURIComponent(m.name)}&phone=${encodeURIComponent(m.phone)}&birth=${encodeURIComponent(m.birth)}&gender=${encodeURIComponent(m.gender)}&join=${encodeURIComponent(m.join)}&size=${encodeURIComponent(m.size)}`;
+            fetch(url).then(() => fetchServerData(true));
+        } catch(e) {
+            console.error("회원 수정 서버 오류:", e);
+        }
+    }
+
+    async function removeMember(name) {
+        if (!confirm(`[${name}] 회원을 정말 명부에서 삭제하시겠습니까?`)) return;
+        
+        globalMembers = globalMembers.filter(m => m.name !== name);
+        refreshUI();
+        alert("회원이 삭제되었습니다.");
+
+        try {
+            const url = `${API_URL}?action=deleteMember&name=${encodeURIComponent(name)}`;
+            fetch(url).then(() => fetchServerData(true));
+        } catch(e) {
+            console.error("회원 삭제 서버 오류:", e);
+        }
+    }
+
+    async function changePassword() {
+        const input = document.getElementById('new-admin-password');
+        const newPwd = input ? input.value.trim() : "";
+        if (!newPwd) {
+            alert("새 비밀번호를 입력해주세요.");
+            return;
+        }
+        if (confirm("관리자 비밀번호를 변경하시겠습니까? (모든 기기에서 동일하게 적용됩니다.)")) {
+            adminPassword = newPwd;
+            if (input) input.value = '';
+            alert("관리자 비밀번호가 변경되었습니다.");
+
+            try {
+                const url = `${API_URL}?action=saveAdminPassword&password=${encodeURIComponent(newPwd)}`;
+                await fetch(url);
+                fetchServerData(true);
+            } catch(e) {
+                console.error("비밀번호 서버 저장 오류:", e);
+            }
+        }
     }
 
     function initEventBindings() {
         document.getElementById('tab-apply-btn').onclick = () => switchTab('apply');
         document.getElementById('tab-status-btn').onclick = () => switchTab('status');
         document.getElementById('tab-members-btn').onclick = () => switchTab('members');
+        
         document.getElementById('excel-down-action-btn').onclick = downloadExcel;
+        
         document.getElementById('race-save-btn').onclick = saveRaceAction;
         document.getElementById('race-cancel-btn').onclick = resetRaceForm;
+        
         document.getElementById('member-add-btn').onclick = addNewMemberByAdmin;
+        document.getElementById('pwd-change-btn').onclick = changePassword;
+        
         document.getElementById('admin-open-btn').onclick = toggleAdminMode;
         document.getElementById('admin-close-btn').onclick = toggleAdminMode;
+
+        document.getElementById('chk-custom-1').onchange = () => toggleCustomInput(1);
+        document.getElementById('chk-custom-2').onchange = () => toggleCustomInput(2);
+    }
+
+    function toggleCustomInput(num) {
+        const chk = document.getElementById(`chk-custom-${num}`);
+        const nameInput = document.getElementById(`custom-course-${num}-name`);
+        const priceInput = document.getElementById(`price-custom-${num}`);
+        if (chk && nameInput && priceInput) {
+            nameInput.disabled = !chk.checked;
+            priceInput.disabled = !chk.checked;
+            if (chk.checked) nameInput.focus();
+        }
     }
 
     function initApp() {
