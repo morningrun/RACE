@@ -416,7 +416,7 @@
                 });
             }
 
-            // 💡 1순위: race.location, 2순위: 구글 시트에서 가져온 race.place 속성도 함께 체크하여 공백 방지
+            // 💡 장소 데이터가 존재할 때만 확실하게 출력되도록 설정
             const locText = race.location || race.place || "";
             const locationHtml = locText ? `<span>📍 <strong>장소</strong>: ${locText}</span>` : '';
 
