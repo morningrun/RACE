@@ -576,7 +576,7 @@
             return;
         }
 
-        // 💡 깔끔하고 정돈된 그리드 레이아웃 적용
+        // 💡 번호와 이름이 나란히 밀착되도록 수정된 그리드 레이아웃
         let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:10px; color:var(--primary);">📋 종목별 접수 현황</div>`;
         detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">`;
 
@@ -589,7 +589,7 @@
                 membersTagsHtml = `<div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-align:center; padding:12px 0;">신청자 없음</div>`;
             } else {
                 membersInCourse.sort((a, b) => a.localeCompare(b, 'ko')).forEach((mName, idx) => {
-                    membersTagsHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:6px 10px; border-radius:6px; font-size:0.85rem; font-weight:800; color:var(--text-main);"><span>${mName}</span><span style="font-size:0.75rem; color:#64748b; font-weight:700;">No.${idx + 1}</span></div>`;
+                    membersTagsHtml += `<div style="display:flex; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:6px 10px; border-radius:6px; font-size:0.85rem; font-weight:800; color:var(--text-main);"><span style="color:#64748b; font-weight:700; min-width:28px;">${idx + 1}.</span> <span>${mName}</span></div>`;
                 });
             }
 
