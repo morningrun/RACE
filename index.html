@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <title>복사골마라톤클럽 대회접수</title>
-   
-<!-- 카카오톡 대회접수 미리보기 -->
-<meta property="og:title" content="복사골마라톤클럽 대회접수">
-<meta property="og:description" content="복사골마라톤클럽 대회 접수 및 참가 현황을 확인하세요!">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://morningrun.github.io/RACE/">
-<meta property="og:image" content="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+    <title>복사골마라톤클럽 대회접수</title>
+    
+    <!-- 카카오톡 대회접수 미리보기 -->
+    <meta property="og:title" content="복사골마라톤클럽 대회접수">
+    <meta property="og:description" content="복사골마라톤클럽 대회 접수 및 참가 현황을 확인하세요!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://morningrun.github.io/RACE/">
+    <meta property="og:image" content="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
 
-<!-- 💡 스마트폰 홈 화면 추가 아이콘 및 앱 설정 (완벽 적용) -->
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
-<link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
-<link rel="manifest" href="./manifest.json">
+    <!-- 💡 스마트폰 홈 화면 추가 아이콘 및 앱 설정 (완벽 적용) -->
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
+    <link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/morningrun/RACE/main/boksagol_event_registration_og.jpg">
+    <link rel="manifest" href="./manifest.json">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -162,6 +162,8 @@
         <div class="admin-input-group">
             <input type="hidden" id="edit-race-id" value="">
             <input type="text" id="new-race-name" placeholder="대회명 (예: 2025 삼척황영조마라톤)">
+            <!-- 💡 대회 장소 입력 필드 추가 완료 -->
+            <input type="text" id="new-race-location" placeholder="대회 장소 (예: 삼척시민운동장)">
             <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
             <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
             
@@ -418,6 +420,7 @@
             card.innerHTML = `
                 <div class="race-name">🏁 ${race.name}</div>
                 <div class="race-info-sub">
+                    <span>📍 <strong>장소</strong>: ${race.location || '장소 미정'}</span>
                     <span>📅 <strong>대회일</strong>: ${race.date}</span>
                     <span>⏳ <strong>마감일</strong>: ${race.deadline}</span>
                 </div>
@@ -746,7 +749,6 @@
 
         globalMembers.forEach((m, idx) => {
             let age = calculateAge(m);
-            // 💡 나이 글자 색상을 회색으로 변경함
             let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
             listHtml += `
@@ -841,7 +843,7 @@
             const row = document.createElement('div');
             row.className = 'race-admin-row';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong><br><span style="font-size:0.72rem; color:#38bdf8;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong> (${race.location || '장소미정'})<br><span style="font-size:0.72rem; color:#38bdf8;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
                 <div style="display:flex; gap:4px;">
                     <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
                     <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
@@ -864,6 +866,7 @@
 
         document.getElementById('edit-race-id').value = race.id;
         document.getElementById('new-race-name').value = race.name;
+        document.getElementById('new-race-location').value = race.location || ""; // 👈 장소 채우기
         document.getElementById('new-race-date').value = race.date;
         document.getElementById('new-race-deadline').value = race.deadline;
 
@@ -933,6 +936,7 @@
     function resetRaceForm() {
         document.getElementById('edit-race-id').value = "";
         document.getElementById('new-race-name').value = "";
+        document.getElementById('new-race-location').value = ""; // 👈 장소 초기화
         document.getElementById('new-race-date').value = "";
         document.getElementById('new-race-deadline').value = "";
         
@@ -961,6 +965,7 @@
     async function saveRaceAction() {
         const raceId = document.getElementById('edit-race-id').value.trim();
         const name = document.getElementById('new-race-name').value.trim();
+        const location = document.getElementById('new-race-location').value.trim(); // 👈 장소 가져오기
         const date = document.getElementById('new-race-date').value.trim();
         const deadline = document.getElementById('new-race-deadline').value.trim();
 
@@ -1012,12 +1017,13 @@
 
         if (!raceId) {
             const tempId = "race_" + Date.now();
-            globalRaces.push({ id: tempId, name: name, date: date, deadline: deadline || "마감일 미정", courses: coursesStr });
+            globalRaces.push({ id: tempId, name: name, location: location, date: date, deadline: deadline || "마감일 미정", courses: coursesStr });
             selectedRaceId = tempId;
         } else {
             const target = globalRaces.find(r => r.id === raceId);
             if (target) {
                 target.name = name;
+                target.location = location;
                 target.date = date;
                 target.deadline = deadline;
                 target.courses = coursesStr;
@@ -1029,7 +1035,7 @@
         alert(raceId ? "대회 정보가 수정되었습니다." : `[${name}] 대회가 성공적으로 등록되었습니다.`);
 
         try {
-            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
+            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&location=${encodeURIComponent(location)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
             fetch(url).then(() => fetchServerData(true));
         } catch(e) {
             console.error("서버 저장 오류:", e);
