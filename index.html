@@ -54,9 +54,6 @@
         .race-info-courses-container { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
         .course-price-row { color: var(--accent); font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
 
-        .search-box { margin-bottom: 10px; display: flex; gap: 6px; }
-        .search-box input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; font-weight: 700; }
-        
         .member-card { display: flex; flex-direction: column; padding: 11px 13px; margin-bottom: 8px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         
         .member-card.style-full { background: #f3e8ff; border-color: #c084fc; }
@@ -244,10 +241,10 @@
     let globalMembers = [];
     let globalRaces = [];
     let globalApplications = {};
-    let adminPassword = "1234"; // 서버에서 불러온 값으로 갱신됨
+    let adminPassword = "1234";
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
 
-    const courseRank = { "풀코ส": 1, "하프": 2, "10km": 3, "5km": 4 };
+    const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
     function getCourseRank(course) {
         if (!course) return 99;
@@ -299,7 +296,6 @@
             globalRaces = data.races || [];
             globalApplications = data.applications || {};
             
-            // 서버에 설정된 관리자 비밀번호 반영 (없으면 기본값 "1234")
             if (data.adminPassword) {
                 adminPassword = data.adminPassword;
             }
@@ -961,7 +957,7 @@
             row.innerHTML = `
                 <div style="font-size:0.82rem;">
                     <strong>${m.name}</strong> (${m.gender}, ${m.birth}, 👕${m.size})<br>
-                    <span style="font-size:0.7rem; color:#94a3b8;">${m.phone} / 가입: ${m.join}</span>
+                    <span style="font-size:0.7rem; color:#38bdf8;">📞 ${m.phone}</span> / <span style="font-size:0.7rem; color:#94a3b8;">가입: ${m.join}</span>
                 </div>
                 <div style="display:flex; gap:4px;">
                     <button class="member-edit-btn" data-name="${m.name}" style="background:#2563eb; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.72rem; font-weight:700;">수정</button>
@@ -979,6 +975,7 @@
         });
     }
 
+    // 💡 회원 정보 수정 (전화번호 포함 수정 가능하도록 개선)
     async function editMember(oldName) {
         const m = globalMembers.find(item => item.name === oldName);
         if (!m) return;
@@ -987,7 +984,7 @@
         if (newName === null) return;
         const newBirth = prompt("생년월일 수정 (예: 69.11.08):", m.birth);
         if (newBirth === null) return;
-        const newPhone = prompt("핸드폰 번호 수정:", m.phone);
+        const newPhone = prompt("핸드폰 번호 수정 (예: 010-1234-5678):", m.phone);
         if (newPhone === null) return;
         const newGender = prompt("성별 수정 (남 또는 여):", m.gender);
         if (newGender === null) return;
@@ -1026,7 +1023,6 @@
         }
     }
 
-    // 💡 관리자 비밀번호 변경 함수 (서버 저장 연동)
     async function changePassword() {
         const input = document.getElementById('new-admin-password');
         const newPwd = input ? input.value.trim() : "";
