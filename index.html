@@ -448,7 +448,6 @@
                 badgeHtml = `<span style="font-size:0.75rem; background:#e2e8f0; color:#475569; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap;">미신청</span>`;
             }
 
-            // 💡 대회 신청 탭: 번호와 이름만 남기고 정보 삭제
             card.innerHTML = `
                 <div class="member-info">
                     <div class="member-name-area">
@@ -642,16 +641,24 @@
 
         let listHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:8px; color:var(--primary);">📋 전체 회원 명부 (${totalCount}명)</div>`;
 
+        // 💡 전체 회원현황 탭: 이름과 옷사이즈를 윗줄에, 상세 정보(생년월일, 성별, 전화번호, 가입일)를 아랫줄로 배치하여 모바일 화면에서 잘리지 않도록 개선
         globalMembers.forEach((m, idx) => {
             listHtml += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; font-size:0.88rem;">
-                    <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
-                        <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
-                        <strong style="font-size:0.95rem; white-space:nowrap; color:var(--primary);">${m.name}</strong>
-                        <span style="font-size:0.75rem; color:#475569; white-space:nowrap;">(${m.birth} / ${m.gender} / ${m.phone} / 가입:${m.join})</span>
+                <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:8px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
+                            <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
+                        </div>
+                        <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:3px 8px; border-radius:5px; font-size:0.78rem; white-space:nowrap;">
+                            👕 ${m.size}호
+                        </div>
                     </div>
-                    <div style="font-weight:800; color:var(--accent); background:#dbeafe; padding:3px 8px; border-radius:5px; font-size:0.78rem; white-space:nowrap; margin-left:6px;">
-                        👕 ${m.size}호
+                    <div style="font-size:0.78rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:8px; flex-wrap:wrap; line-height:1.4;">
+                        <span>🎂 ${m.birth}</span>
+                        <span>👤 ${m.gender}</span>
+                        <span>📞 ${m.phone}</span>
+                        <span>📅 가입: ${m.join}</span>
                     </div>
                 </div>
             `;
