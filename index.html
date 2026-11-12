@@ -294,9 +294,10 @@
         return result;
     }
 
+    // 💡 생년월일 파싱 로직 개선 (C열 날짜 데이터를 정확히 읽어오도록 수정)
     function calculateAge(birthStr) {
-        if (!birthStr || birthStr === "-") return null;
-        let clean = birthStr.replace(/[^0-9]/g, "");
+        if (!birthStr || birthStr === "-" || birthStr === "undefined" || birthStr === "null") return null;
+        let clean = String(birthStr).replace(/[^0-9]/g, "");
         if (clean.length < 6) return null;
 
         let yy = parseInt(clean.substring(0, 2), 10);
@@ -677,7 +678,6 @@
             }
         });
 
-        // 💡 평균 나이 소수점 첫째 자리 계산
         const averageAge = validAgeCount > 0 ? (totalAgeSum / validAgeCount).toFixed(1) : "0.0";
 
         let ageHtml = "";
