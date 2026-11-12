@@ -111,24 +111,25 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
+    <!-- 💡 탭 순서 및 명칭 변경: 접수 현황이 메인(첫 번째)으로 배치 -->
     <div class="tab-group">
-        <button class="tab-btn active" id="tab-apply-btn">대회 신청</button>
-        <button class="tab-btn" id="tab-status-btn">접수 현황</button>
+        <button class="tab-btn active" id="tab-status-btn">접수 현황</button>
+        <button class="tab-btn" id="tab-apply-btn">대회 신청</button>
         <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
-    <!-- 상단 불필요한 텍스트 및 박스 완전 제거 완료 -->
     <div id="race-selector-wrapper" style="margin-bottom: 14px;">
         <div id="race-card-container"></div>
     </div>
 
-    <div id="tab-apply">
-        <div id="member-list-wrapper"></div>
-    </div>
-
-    <div id="tab-status" class="hidden">
+    <!-- 💡 초기 표시되는 탭을 '접수 현황'으로 변경 -->
+    <div id="tab-status">
         <div id="status-summary-box" style="margin-bottom: 12px;"></div>
         <div id="status-detail-list" style="margin-top: 10px;"></div>
+    </div>
+
+    <div id="tab-apply" class="hidden">
+        <div id="member-list-wrapper"></div>
     </div>
 
     <div id="tab-members" class="hidden">
@@ -362,16 +363,16 @@
 
         const raceSelector = document.getElementById('race-selector-wrapper');
 
-        if (tabName === 'apply') {
-            document.getElementById('tab-apply').classList.remove('hidden');
-            document.getElementById('tab-apply-btn').classList.add('active');
-            raceSelector.style.display = 'block';
-            renderMemberList();
-        } else if (tabName === 'status') {
+        if (tabName === 'status') {
             document.getElementById('tab-status').classList.remove('hidden');
             document.getElementById('tab-status-btn').classList.add('active');
             raceSelector.style.display = 'block';
             renderStatusTab();
+        } else if (tabName === 'apply') {
+            document.getElementById('tab-apply').classList.remove('hidden');
+            document.getElementById('tab-apply-btn').classList.add('active');
+            raceSelector.style.display = 'block';
+            renderMemberList();
         } else if (tabName === 'members') {
             document.getElementById('tab-members').classList.remove('hidden');
             document.getElementById('tab-members-btn').classList.add('active');
@@ -1177,8 +1178,8 @@
     }
 
     function initEventBindings() {
-        document.getElementById('tab-apply-btn').onclick = () => switchTab('apply');
         document.getElementById('tab-status-btn').onclick = () => switchTab('status');
+        document.getElementById('tab-apply-btn').onclick = () => switchTab('apply');
         document.getElementById('tab-members-btn').onclick = () => switchTab('members');
         
         document.getElementById('excel-down-action-btn').onclick = downloadExcel;
