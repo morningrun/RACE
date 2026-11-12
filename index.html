@@ -258,7 +258,7 @@
 
     function getCourseStyleClass(course) {
         if (!course) return '';
-        if (course.includes('풀코스') || course.includes('Full') || course.includes('FULL')) return 'style-full';
+        if (course.includes('풀코с') || course.includes('풀코스') || course.includes('Full') || course.includes('FULL')) return 'style-full';
         if (course.includes('하프') || course.includes('Half') || course.includes('HALF')) return 'style-half';
         if (course.includes('10k') || course.includes('10K')) return 'style-10k';
         if (course.includes('5k') || course.includes('5K')) return 'style-5k';
@@ -560,18 +560,18 @@
             courseGroups[course].push(memberName);
         });
 
-        // 1. 요약 박스
+        // 💡 1. 요약 박스: 대회명과 총신청인원을 줄바꿈하여 가운데 정렬로 보기 좋게 배치
         let summaryHtml = `
-            <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-weight:800; font-size:0.9rem; color:var(--primary);">📊 [${currentRace.name}]</div>
-                <div style="font-size:0.85rem; font-weight:700; color:var(--text-sub);">
-                    총 신청인원: <strong style="color:var(--accent); font-size:1rem;">${totalCount}명</strong>
+            <div style="background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
+                <div style="font-weight:800; font-size:1rem; color:var(--primary); margin-bottom:4px;">📊 [${currentRace.name}]</div>
+                <div style="font-size:0.9rem; font-weight:700; color:var(--text-sub);">
+                    총 신청인원: <strong style="color:var(--accent); font-size:1.1rem;">${totalCount}명</strong>
                 </div>
             </div>
         `;
         summaryBox.innerHTML = summaryHtml;
 
-        // 💡 엑셀 다운로드 버튼은 관리자 모드가 열려있을 때만 노출되도록 제어
+        // 엑셀 다운로드 버튼은 관리자 모드가 열려있을 때만 노출
         const isAdminOpen = !document.getElementById('admin-panel').classList.contains('hidden');
         if (totalCount > 0 && isAdminOpen && excelBtn) {
             excelBtn.classList.remove('hidden');
@@ -579,8 +579,8 @@
             excelBtn.classList.add('hidden');
         }
 
-        // 2. 모든 코스별 현황 카드를 2열 그리드로 한눈에 모두 표시 (이름만 깔끔하게)
-        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-bottom:10px; color:var(--primary);">📋 코스별 신청 현황</div>`;
+        // 💡 2. 모든 코스별 현황을 2열 그리드로 스크롤 없이 한눈에 펼쳐서 노출 (이름 중심)
+        let detailHtml = `<div style="font-weight:800; font-size:0.9rem; margin-top:10px; margin-bottom:8px; color:var(--primary);">📋 코스별 신청 현황</div>`;
         detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">`;
 
         availableCourses.forEach(courseName => {
@@ -607,7 +607,7 @@
                         <span style="font-weight:800; font-size:0.9rem;" class="${badgeStyle}">🔹 ${courseName}</span>
                         <span style="font-size:0.75rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 6px; border-radius:5px;">${membersInCourse.length}명</span>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:2px; max-height:220px; overflow-y:auto;">
+                    <div style="display:flex; flex-direction:column; gap:2px;">
                         ${membersTagsHtml}
                     </div>
                 </div>
@@ -707,7 +707,7 @@
             const pwd = prompt("관리자 비밀번호를 입력하세요:");
             if (pwd === adminPassword) {
                 panel.classList.remove('hidden');
-                renderStatusTab(); // 관리자 열릴 때 엑셀 버튼 표시 갱신
+                renderStatusTab();
                 renderAdminRaceList();
                 renderAdminMemberList();
                 panel.scrollIntoView({ behavior: 'smooth' });
@@ -716,7 +716,7 @@
             }
         } else {
             panel.classList.add('hidden');
-            renderStatusTab(); // 관리자 닫힐 때 엑셀 버튼 숨김 갱신
+            renderStatusTab();
         }
     }
 
