@@ -47,7 +47,7 @@
         .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
-        /* 💡 태블릿 잘림 방지를 위한 유연한 높이 동적 래퍼 */
+        /* 💡 래퍼 높이 잘림 원천 방지 구조 */
         .swipe-wrapper { overflow: hidden; width: 100%; position: relative; transition: height 0.25s ease-out; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; }
         
@@ -372,25 +372,27 @@
     }
 
     function updateSwipeWrapperHeight() {
-        // 💡 태블릿 렌더링 지연 및 화면 회전 대응을 위한 다중 지연 안전장치 적용
-        setTimeout(() => {
-            requestAnimationFrame(() => {
-                const wrapper = document.getElementById('swipe-wrapper');
-                const panes = [
-                    document.getElementById('pane-status'),
-                    document.getElementById('pane-apply'),
-                    document.getElementById('pane-members')
-                ];
-                if (wrapper && panes[activePaneIndex]) {
-                    const targetPane = panes[activePaneIndex];
-                    const targetHeight = targetPane.scrollHeight;
-                    if (targetHeight > 0) {
-                        // 패널 내용보다 30px 여유를 주어 태블릿에서 잘림 방지 보장
-                        wrapper.style.height = (targetHeight + 30) + 'px';
-                    }
+        // 💡 모든 기기(패드/휴대폰)에서 컨텐츠가 렌더링된 직후 정확한 높이를 재계산하도록 다중 타이밍 보장
+        const calculate = () => {
+            const wrapper = document.getElementById('swipe-wrapper');
+            const panes = [
+                document.getElementById('pane-status'),
+                document.getElementById('pane-apply'),
+                document.getElementById('pane-members')
+            ];
+            if (wrapper && panes[activePaneIndex]) {
+                const targetPane = panes[activePaneIndex];
+                const targetHeight = targetPane.scrollHeight;
+                if (targetHeight > 0) {
+                    // 여유 공간 40px을 주어 하단 잘림 현상 원천 차단
+                    wrapper.style.height = (targetHeight + 40) + 'px';
                 }
-            });
-        }, 120);
+            }
+        };
+
+        requestAnimationFrame(calculate);
+        setTimeout(calculate, 50);
+        setTimeout(calculate, 200);
     }
 
     function switchTab(index) {
@@ -431,6 +433,7 @@
         
         if (globalRaces.length === 0) {
             container.innerHTML = "<div style='font-size:0.85rem; color:#dc2626; font-weight:700; padding:6px;'>⚠️ 등록된 마라톤 대회가 없습니다. 관리자 설정(⚙️)에서 대회를 먼저 등록해주세요!</div>";
+            updateSwipeWrapperHeight();
             return;
         }
 
@@ -469,6 +472,7 @@
             };
             container.appendChild(card);
         });
+        updateSwipeWrapperHeight();
     }
 
     function renderMemberList() {
@@ -1246,7 +1250,6 @@
         document.getElementById('chk-custom-1').onchange = () => toggleCustomInput(1);
         document.getElementById('chk-custom-2').onchange = () => toggleCustomInput(2);
 
-        // 💡 화면 크기 변경(태블릿 회전 등) 감지 시 높이 자동 재계산 리스너 추가
         window.addEventListener('resize', () => {
             updateSwipeWrapperHeight();
         });
