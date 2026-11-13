@@ -47,11 +47,10 @@
         .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
-        /* 💡 하단 여백 원인 완전 차단을 위한 래퍼 및 패널 높이 제어 */
+        /* 💡 태블릿 잘림 방지를 위한 유연한 높이 동적 래퍼 */
         .swipe-wrapper { overflow: hidden; width: 100%; position: relative; transition: height 0.25s ease-out; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; }
         
-        /* 💡 비활성 패널은 높이를 0으로 숨겨 하단 여백 생성 원천 차단 */
         .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; height: 0; overflow: hidden; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
@@ -373,21 +372,25 @@
     }
 
     function updateSwipeWrapperHeight() {
-        requestAnimationFrame(() => {
-            const wrapper = document.getElementById('swipe-wrapper');
-            const panes = [
-                document.getElementById('pane-status'),
-                document.getElementById('pane-apply'),
-                document.getElementById('pane-members')
-            ];
-            if (wrapper && panes[activePaneIndex]) {
-                const targetPane = panes[activePaneIndex];
-                const targetHeight = targetPane.scrollHeight;
-                if (targetHeight > 0) {
-                    wrapper.style.height = targetHeight + 'px';
+        // 💡 태블릿 렌더링 지연 및 화면 회전 대응을 위한 다중 지연 안전장치 적용
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                const wrapper = document.getElementById('swipe-wrapper');
+                const panes = [
+                    document.getElementById('pane-status'),
+                    document.getElementById('pane-apply'),
+                    document.getElementById('pane-members')
+                ];
+                if (wrapper && panes[activePaneIndex]) {
+                    const targetPane = panes[activePaneIndex];
+                    const targetHeight = targetPane.scrollHeight;
+                    if (targetHeight > 0) {
+                        // 패널 내용보다 30px 여유를 주어 태블릿에서 잘림 방지 보장
+                        wrapper.style.height = (targetHeight + 30) + 'px';
+                    }
                 }
-            }
-        });
+            });
+        }, 120);
     }
 
     function switchTab(index) {
@@ -1243,7 +1246,12 @@
         document.getElementById('chk-custom-1').onchange = () => toggleCustomInput(1);
         document.getElementById('chk-custom-2').onchange = () => toggleCustomInput(2);
 
-        // 💡 터치 스와이프 제스처 핸들링
+        // 💡 화면 크기 변경(태블릿 회전 등) 감지 시 높이 자동 재계산 리스너 추가
+        window.addEventListener('resize', () => {
+            updateSwipeWrapperHeight();
+        });
+
+        // 💡 터치 스와이프 이벤트 제스처 핸들링
         const swipeContainer = document.getElementById('swipe-container');
         let startX = 0;
         let startY = 0;
