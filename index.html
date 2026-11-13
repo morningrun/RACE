@@ -37,8 +37,11 @@
             --border: #cbd5e1;
         }
 
+        /* 💡 모바일 화면 통째로 밀림 현상 방지를 위한 루트 레벨 오버플로우 제한 */
+        html, body { overflow-x: hidden; width: 100%; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); margin: 0; padding: 10px; color: var(--text-main); -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 650px; margin: 0 auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); border: 1px solid #e2e8f0; }
+        
+        .container { max-width: 650px; width: 100%; box-sizing: border-box; margin: 0 auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); border: 1px solid #e2e8f0; overflow: hidden; }
         
         .main-title-box { text-align: center; margin: 6px 0 18px 0; }
         .main-title { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
@@ -47,17 +50,17 @@
         .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
-        /* 💡 패드 웹브라우저 주소창 변수 대응을 위한 유연한 래퍼 구조 */
-        .swipe-wrapper { width: 100%; position: relative; min-height: 600px; }
-        .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; }
+        /* 💡 모바일 좌우 통째 밀림 방지를 위한 스와이프 래퍼 엄격 통제 */
+        .swipe-wrapper { width: 100%; position: relative; overflow: hidden; min-height: 600px; box-sizing: border-box; }
+        .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; box-sizing: border-box; }
         
-        .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; display: none; }
+        .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; display: none; padding: 0 2px; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; display: block; height: auto; }
 
         .race-card-item { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 6px 16px rgba(37,99,235,0.12); }
         
-        .member-card { display: flex; flex-direction: column; padding: 12px 14px; margin-bottom: 9px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.15s; }
+        .member-card { display: flex; flex-direction: column; padding: 12px 14px; margin-bottom: 9px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.15s; box-sizing: border-box; }
         .member-card:hover { border-color: #94a3b8; }
         
         .member-card.style-full { background: #faf5ff; border-color: #d8b4fe; }
@@ -70,8 +73,8 @@
         .member-name-area { font-weight: 800; font-size: 0.98rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
         .applied-badge { font-size: 0.75rem; padding: 3px 9px; border-radius: 6px; font-weight: 800; white-space: nowrap; }
         
-        .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
-        .btn-group button { flex: 1; min-width: 95px; padding: 9px 4px; font-size: 0.8rem; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 800; text-align: center; transition: all 0.15s; }
+        .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; box-sizing: border-box; }
+        .btn-group button { flex: 1; min-width: 90px; padding: 9px 4px; font-size: 0.8rem; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 800; text-align: center; transition: all 0.15s; box-sizing: border-box; }
         
         .style-full { color: #6b21a8 !important; }
         .style-half { color: #b45309 !important; }
@@ -85,24 +88,24 @@
         button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; font-size: 0.82rem !important; background: rgba(255,255,255,0.95); }
         button.btn-cancel { background: #fef2f2 !important; color: var(--danger) !important; border-color: #fecaca !important; font-weight: 800; flex: 0.7 !important; }
 
-        .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
-        .stat-box { background: #f8fafc; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+        .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        .stat-box { background: #f8fafc; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; box-sizing: border-box; }
         .stat-box-title { font-size: 0.82rem; font-weight: 800; color: var(--text-sub); margin-bottom: 6px; }
         .stat-box-val { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
 
-        .admin-panel { background: var(--primary); color: white; padding: 16px; border-radius: 14px; margin-top: 24px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2); }
+        .admin-panel { background: var(--primary); color: white; padding: 16px; border-radius: 14px; margin-top: 24px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2); box-sizing: border-box; }
         .admin-panel h3 { margin: 12px 0 8px 0; font-size: 0.95rem; color: #38bdf8; }
         .admin-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-        .admin-input-group input, .admin-input-group select { padding: 9px 12px; border-radius: 8px; border: none; font-size: 0.88rem; outline: none; }
+        .admin-input-group input, .admin-input-group select { padding: 9px 12px; border-radius: 8px; border: none; font-size: 0.88rem; outline: none; box-sizing: border-box; }
         
-        .course-setting-grid { display: flex; flex-direction: column; gap: 6px; background: #1e293b; padding: 12px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 6px; }
+        .course-setting-grid { display: flex; flex-direction: column; gap: 6px; background: #1e293b; padding: 12px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box; }
         .course-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.82rem; font-weight: 700; }
         .course-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; min-width: 70px; }
         .course-row input[type="text"] { padding: 4px 8px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 0.8rem; text-align: right; width: 90px; }
         
-        .race-admin-row, .member-admin-row { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .race-admin-row, .member-admin-row { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
         
-        .excel-down-btn { background: var(--success); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; margin-top: 10px; box-shadow: 0 4px 12px rgba(5,150,105,0.25); transition: background 0.2s; }
+        .excel-down-btn { background: var(--success); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; margin-top: 10px; box-shadow: 0 4px 12px rgba(5,150,105,0.25); transition: background 0.2s; box-sizing: border-box; }
         .excel-down-btn:hover { background: #047857; }
         .sync-loading { text-align: center; font-size: 0.82rem; color: var(--accent); font-weight: 800; margin-bottom: 8px; }
 
@@ -133,7 +136,7 @@
         <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
-    <!-- 3. 좌우 스와이프 영역 (패드 웹브라우저 주소창 간섭 원천 차단) -->
+    <!-- 3. 좌우 스와이프 영역 (모바일 화면 밀림 완전 차단) -->
     <div class="swipe-wrapper" id="swipe-wrapper">
         <div id="swipe-container" class="swipe-container">
             <!-- 1번 패널: 접수 현황 -->
@@ -372,7 +375,6 @@
     }
 
     function updateSwipeWrapperHeight() {
-        // 💡 패드 웹브라우저 주소창 높이 계산 오차를 잡기 위해 넉넉한 여유값(80px)과 다중 타이밍 보장 적용
         const calculate = () => {
             const wrapper = document.getElementById('swipe-wrapper');
             const panes = [
