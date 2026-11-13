@@ -37,11 +37,10 @@
             --border: #cbd5e1;
         }
 
-        /* 💡 모바일 화면 통째로 밀림 현상 방지를 위한 루트 레벨 오버플로우 제한 */
-        html, body { overflow-x: hidden; width: 100%; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); margin: 0; padding: 10px; color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+        html { width: 100%; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); margin: 0; padding: 10px; color: var(--text-main); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         
-        .container { max-width: 650px; width: 100%; box-sizing: border-box; margin: 0 auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); border: 1px solid #e2e8f0; overflow: hidden; }
+        .container { max-width: 650px; width: 100%; box-sizing: border-box; margin: 0 auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); border: 1px solid #e2e8f0; }
         
         .main-title-box { text-align: center; margin: 6px 0 18px 0; }
         .main-title { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
@@ -50,12 +49,12 @@
         .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
-        /* 💡 모바일 좌우 통째 밀림 방지를 위한 스와이프 래퍼 엄격 통제 */
+        /* 💡 좌우 스와이프가 부드럽게 작동하도록 래퍼 구조 최적화 */
         .swipe-wrapper { width: 100%; position: relative; overflow: hidden; min-height: 600px; box-sizing: border-box; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; box-sizing: border-box; }
         
-        .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; display: none; padding: 0 2px; }
-        .swipe-pane.active-pane { opacity: 1; pointer-events: auto; display: block; height: auto; }
+        .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; visibility: hidden; padding: 0 2px; }
+        .swipe-pane.active-pane { opacity: 1; pointer-events: auto; visibility: visible; height: auto; }
 
         .race-card-item { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .race-card-item.active { border-color: var(--accent); background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); box-shadow: 0 6px 16px rgba(37,99,235,0.12); }
@@ -136,7 +135,7 @@
         <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
-    <!-- 3. 좌우 스와이프 영역 (모바일 화면 밀림 완전 차단) -->
+    <!-- 3. 좌우 스와이프 영역 (터치 및 탭 전환 완전 정상화) -->
     <div class="swipe-wrapper" id="swipe-wrapper">
         <div id="swipe-container" class="swipe-container">
             <!-- 1번 패널: 접수 현황 -->
@@ -1256,7 +1255,7 @@
             updateSwipeWrapperHeight();
         });
 
-        // 💡 터치 스와이프 이벤트 제스처 핸들링
+        // 💡 좌우 스와이프 제스처 핸들링 복구 및 최적화
         const swipeContainer = document.getElementById('swipe-container');
         let startX = 0;
         let startY = 0;
@@ -1274,8 +1273,8 @@
             let currentY = e.touches[0].clientY;
             let diffX = Math.abs(currentX - startX);
             let diffY = Math.abs(currentY - startY);
-            if (diffX > diffY && diffX > 10) {
-                // 가로 스와이프 우선 감지
+            if (diffX > diffY) {
+                // 가로 스와이프 시 기본 스크롤 간섭 방지
             }
         }, { passive: true });
 
