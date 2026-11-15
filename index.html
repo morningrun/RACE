@@ -48,12 +48,12 @@
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
         /* 🔍 검색창 스타일 */
-        .search-box { margin-bottom: 12px; }
-        .search-input { width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; background: #ffffff; outline: none; box-sizing: border-box; transition: border-color 0.2s; font-weight: 600; }
+        .search-box { margin-bottom: 10px; }
+        .search-input { width: 100%; padding: 8px 12px; font-size: 0.88rem; border: 1.5px solid var(--border); border-radius: 8px; background: #ffffff; outline: none; box-sizing: border-box; transition: border-color 0.2s; font-weight: 600; }
         .search-input:focus { border-color: var(--accent); }
 
         /* 📦 콘텐츠 전체를 하나로 감싸는 큰 박스 컨테이너 */
-        .content-card-box { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .content-card-box { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
 
         /* 📦 상단 대회 안내 영역 (은은한 파란색 계통 배경 적용 및 스크롤) */
         .race-content-card-box { background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 14px; padding: 14px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(37,99,235,0.04); max-height: 420px; overflow-y: auto; }
@@ -65,13 +65,13 @@
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
         /* 🏁 대회 아코디언 카드 스타일 */
-        .race-card-item { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .race-card-item { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .race-card-item:last-child { margin-bottom: 0; }
         .race-card-item.active { border-color: var(--accent) !important; box-shadow: 0 6px 16px rgba(37,99,235,0.08); }
         .race-card-item.ended-race { border-color: #94a3b8 !important; opacity: 0.9; }
         
-        .race-card-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; background: #ffffff; }
-        .race-card-title-area { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 1.3; color: #1e293b; flex-wrap: wrap; }
+        .race-card-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; background: #ffffff; }
+        .race-card-title-area { font-size: 1.02rem; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 1.3; color: #1e293b; flex-wrap: wrap; }
         
         .status-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; font-weight: 800; white-space: nowrap; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         .race-card-item.active:not(.ended-race) .status-badge.active-badge { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
@@ -80,17 +80,18 @@
         .race-toggle-icon { font-size: 0.8rem; color: #64748b; transition: transform 0.2s ease; flex-shrink: 0; padding-left: 8px; }
         .race-card-item.expanded .race-toggle-icon { transform: rotate(180deg); }
 
-        .race-card-body { padding: 0 16px 16px 16px; display: none; border-top: 1px solid #e2e8f0; margin-top: 2px; padding-top: 12px; background: #ffffff; }
-        .race-card-item.expanded .race-card-body { display: flex; flex-direction: column; gap: 5px; }
+        .race-card-body { padding: 0 14px 12px 14px; display: none; border-top: 1px solid #e2e8f0; margin-top: 2px; padding-top: 10px; background: #ffffff; }
+        .race-card-item.expanded .race-card-body { display: flex; flex-direction: column; gap: 4px; }
 
         /* 종료된 대회 모음 섹션 아코디언 스타일 */
-        .ended-section-container { margin-top: 12px; border: 2px dashed #94a3b8; border-radius: 12px; background: #ffffff; overflow: hidden; padding: 6px; }
-        .ended-section-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; font-size: 0.95rem; color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; user-select: none; }
-        .ended-section-body { padding: 10px 4px 4px 4px; display: none; flex-direction: column; gap: 8px; }
+        .ended-section-container { margin-top: 10px; border: 2px dashed #94a3b8; border-radius: 12px; background: #ffffff; overflow: hidden; padding: 6px; }
+        .ended-section-header { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; font-size: 0.9rem; color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; user-select: none; }
+        .ended-section-body { padding: 8px 4px 4px 4px; display: none; flex-direction: column; gap: 6px; }
         .ended-section-container.expanded .ended-section-body { display: flex; }
         .ended-section-container.expanded .ended-toggle-icon { transform: rotate(180deg); }
 
-        .member-card { display: flex; flex-direction: column; padding: 12px 14px; margin-bottom: 9px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.15s; }
+        /* 🏃‍♂️ 대회 신청 탭 회원 카드 컴팩트 스타일 */
+        .member-card { display: flex; flex-direction: column; padding: 8px 10px; margin-bottom: 6px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 10px; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: all 0.15s; }
         .member-card:hover { border-color: #94a3b8; }
         
         .member-card.style-full { background: #faf5ff; border-color: #d8b4fe; }
@@ -99,12 +100,12 @@
         .member-card.style-5k { background: #f0fdf4; border-color: #bbf7d0; }
         .member-card.style-etc { background: #fdf2f8; border-color: #fbcfe8; }
         
-        .member-info { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .member-name-area { font-weight: 800; font-size: 0.98rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
-        .applied-badge { font-size: 0.75rem; padding: 3px 9px; border-radius: 6px; font-weight: 800; white-space: nowrap; }
+        .member-info { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .member-name-area { font-weight: 800; font-size: 0.92rem; color: var(--primary); display: flex; align-items: center; gap: 6px; overflow: hidden; }
+        .applied-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 5px; font-weight: 800; white-space: nowrap; }
         
-        .btn-group { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
-        .btn-group button { flex: 1; min-width: 95px; padding: 9px 4px; font-size: 0.8rem; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 800; text-align: center; transition: all 0.15s; }
+        .btn-group { display: flex; gap: 5px; width: 100%; flex-wrap: wrap; }
+        .btn-group button { flex: 1; min-width: 80px; padding: 6px 4px; font-size: 0.76rem; border: 1.5px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 800; text-align: center; transition: all 0.15s; }
         
         .style-full { color: #6b21a8 !important; }
         .style-half { color: #b45309 !important; }
@@ -115,8 +116,8 @@
         .course-btn-style { background: #ffffff; color: var(--text-main); border-color: #cbd5e1; }
         .course-btn-style:hover { background: #f8fafc; border-color: var(--accent); color: var(--accent); }
 
-        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; font-size: 0.82rem !important; background: rgba(255,255,255,0.95); }
-        button.btn-cancel { background: #fef2f2 !important; color: var(--danger) !important; border-color: #fecaca !important; font-weight: 800; flex: 0.7 !important; }
+        button.selected-course { font-weight: 800; flex: 1.5 !important; cursor: default; font-size: 0.78rem !important; background: rgba(255,255,255,0.95); padding: 6px 4px !important; }
+        button.btn-cancel { background: #fef2f2 !important; color: var(--danger) !important; border-color: #fecaca !important; font-weight: 800; flex: 0.6 !important; padding: 6px 4px !important; }
 
         .stat-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
         .stat-box { background: #ffffff; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
@@ -154,7 +155,7 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
-    <!-- 1. 대회 안내 카드 영역 (은은한 파란색 계통 배경 적용) -->
+    <!-- 1. 대회 안내 카드 영역 -->
     <div class="race-content-card-box" id="race-selector-wrapper">
         <div id="race-card-container"></div>
     </div>
@@ -178,7 +179,7 @@
                     </div>
                     <div id="status-detail-list" style="margin-top: 10px;"></div>
                 </div>
-                <!-- 2번 패널: 대회 신청 -->
+                <!-- 2번 패널: 대회 신청 (컴팩트 리스트 적용) -->
                 <div class="swipe-pane" id="pane-apply">
                     <div class="search-box">
                         <input type="text" id="apply-search-input" class="search-input" placeholder="🔍 회원 이름 검색 (예: 이실권)" oninput="renderMemberList()">
@@ -517,7 +518,7 @@
             const tempWrapper = document.createElement('div');
             tempWrapper.style.display = 'flex';
             tempWrapper.style.flexDirection = 'column';
-            tempWrapper.style.gap = '8px';
+            tempWrapper.style.gap = '6px';
 
             endedRaces.forEach(({ race, originalIdx }) => {
                 const card = createRaceCardElement(race, originalIdx, true);
@@ -553,7 +554,7 @@
         if (race.courses) {
             const courseList = parseCourses(race.courses);
             courseList.forEach(c => {
-                coursesHtml += `<div style="font-size: 0.84rem; font-weight: 700; color: #1e293b; margin-top: 3px;">• ${c}</div>`;
+                coursesHtml += `<div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin-top: 2px;">• ${c}</div>`;
             });
         }
 
@@ -572,16 +573,16 @@
                 <div class="race-toggle-icon">▼</div>
             </div>
             <div class="race-card-body">
-                <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.88rem; color: #1e293b; font-weight: 700;">
+                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: #1e293b; font-weight: 700;">
                     <div>• 대회일: ${race.date}</div>
                     <div>• 장소: ${race.location || '장소 미정'}</div>
-                    <div style="margin-top: 2px;">
+                    <div style="margin-top: 1px;">
                         <div>• 코스 및 참가비:</div>
-                        <div style="padding-left: 14px; margin-top: 2px;">
-                            ${coursesHtml || '<div style="font-size: 0.84rem; color: #1e293b;">• 5km(50,000원)</div><div style="font-size: 0.84rem; color: #1e293b;">• 10km(50,000원)</div>'}
+                        <div style="padding-left: 12px; margin-top: 1px;">
+                            ${coursesHtml || '<div style="font-size: 0.82rem; color: #1e293b;">• 5km(50,000원)</div><div style="font-size: 0.82rem; color: #1e293b;">• 10km(50,000원)</div>'}
                         </div>
                     </div>
-                    <div style="margin-top: 2px;">• 접수마감일: ${race.deadline}</div>
+                    <div style="margin-top: 1px;">• 접수마감일: ${race.deadline}</div>
                 </div>
             </div>
         `;
@@ -662,14 +663,14 @@
                 badgeHtml = `<span class="applied-badge ${cardStyleClass}">✅ ${appliedCourse} 신청완료</span>`;
             } else {
                 card.className = `member-card`;
-                badgeHtml = `<span style="font-size:0.75rem; background:#f1f5f9; color:#64748b; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap;">미신청</span>`;
+                badgeHtml = `<span style="font-size:0.72rem; background:#f1f5f9; color:#64748b; padding:2px 6px; border-radius:5px; font-weight:700; white-space:nowrap;">미신청</span>`;
             }
 
             card.innerHTML = `
                 <div class="member-info">
                     <div class="member-name-area">
-                        <span style="color:#64748b; font-weight:700; min-width:24px;">${index + 1}.</span> 
-                        <strong style="font-size:0.98rem; white-space:nowrap;">${member.name}</strong>
+                        <span style="color:#64748b; font-weight:700; min-width:20px;">${index + 1}.</span> 
+                        <strong style="font-size:0.92rem; white-space:nowrap;">${member.name}</strong>
                     </div>
                     <div>${badgeHtml}</div>
                 </div>
@@ -790,20 +791,20 @@
         let courseSummaryStr = `(${courseSummaryTextArr.join(' / ')})`;
 
         let summaryHtml = `
-            <div style="background: transparent; border: none; padding: 6px 14px; text-align: center; margin-bottom: 4px;">
-                <div style="font-weight: 800; font-size: 1.05rem; color: var(--primary); margin-bottom: 2px;">[${currentRace.name}]</div>
-                <div style="font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 2px;">
-                    총신청인원 <strong style="color: var(--accent); font-size: 1.2rem;">${totalCount}</strong>명
+            <div style="background: transparent; border: none; padding: 4px 10px; text-align: center; margin-bottom: 2px;">
+                <div style="font-weight: 800; font-size: 1.02rem; color: var(--primary); margin-bottom: 2px;">[${currentRace.name}]</div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 2px;">
+                    총신청인원 <strong style="color: var(--accent); font-size: 1.15rem;">${totalCount}</strong>명
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 700; color: #334155;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: #334155;">
                     ${courseSummaryStr}
                 </div>
             </div>
         `;
         summaryBox.innerHTML = summaryHtml;
 
-        let detailHtml = `<div style="font-weight:800; font-size:0.95rem; margin-top:8px; margin-bottom:8px; color:var(--primary);">코스별 신청 현황</div>`;
-        detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap:8px;">`;
+        let detailHtml = `<div style="font-weight:800; font-size:0.92rem; margin-top:6px; margin-bottom:6px; color:var(--primary);">코스별 신청 현황</div>`;
+        detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap:6px;">`;
 
         availableCourses.forEach(courseName => {
             const membersInCourse = courseGroups[courseName] || [];
@@ -811,12 +812,12 @@
 
             let membersTagsHtml = "";
             if (membersInCourse.length === 0) {
-                membersTagsHtml = `<div style="font-size:0.8rem; color:#64748b; font-weight:700; text-align:center; padding:12px 0;">신청자 없음</div>`;
+                membersTagsHtml = `<div style="font-size:0.78rem; color:#64748b; font-weight:700; text-align:center; padding:10px 0;">신청자 없음</div>`;
             } else {
                 membersInCourse.sort((a, b) => a.localeCompare(b, 'ko')).forEach((mName, idx) => {
                     membersTagsHtml += `
-                        <div style="display:flex; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:5px 6px; border-radius:6px; font-size:0.82rem; font-weight:800; color:var(--text-main); margin-bottom:4px;">
-                            <span style="color:#64748b; font-weight:700; min-width:20px;">${idx + 1}.</span> 
+                        <div style="display:flex; align-items:center; background:#ffffff; border:1px solid #cbd5e1; padding:4px 6px; border-radius:5px; font-size:0.79rem; font-weight:800; color:var(--text-main); margin-bottom:3px;">
+                            <span style="color:#64748b; font-weight:700; min-width:18px;">${idx + 1}.</span> 
                             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${mName}</span>
                         </div>
                     `;
@@ -824,10 +825,10 @@
             }
 
             detailHtml += `
-                <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:6px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:5px;">
-                        <span style="font-weight:800; font-size:0.85rem;" class="${badgeStyle}">• ${courseName}</span>
-                        <span style="font-size:0.72rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 5px; border-radius:4px;">${membersInCourse.length}명</span>
+                <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:8px; padding:6px; display:flex; flex-direction:column; gap:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:4px;">
+                        <span style="font-weight:800; font-size:0.82rem;" class="${badgeStyle}">• ${courseName}</span>
+                        <span style="font-size:0.7rem; font-weight:800; background:#e2e8f0; color:#334155; padding:2px 4px; border-radius:4px;">${membersInCourse.length}명</span>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:2px;">
                         ${membersTagsHtml}
@@ -886,9 +887,9 @@
             let count = ageGroupCounts[ag] || 0;
             let isDanger = (ag === "기타/미지정" && count > 0);
             ageGridHtml += `
-                <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:8px 6px; text-align:center; display:flex; flex-direction:column; gap:2px;">
-                    <div style="font-size:0.75rem; font-weight:700; color:var(--text-sub);">${ag}</div>
-                    <div style="font-size:0.95rem; font-weight:800; color:${isDanger ? 'var(--danger)' : 'var(--primary)'};">${count}명</div>
+                <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:7px; padding:6px 4px; text-align:center; display:flex; flex-direction:column; gap:2px;">
+                    <div style="font-size:0.73rem; font-weight:700; color:var(--text-sub);">${ag}</div>
+                    <div style="font-size:0.92rem; font-weight:800; color:${isDanger ? 'var(--danger)' : 'var(--primary)'};">${count}명</div>
                 </div>
             `;
         });
@@ -896,7 +897,7 @@
         let unassignedAlertHtml = "";
         if (unassignedMembers.length > 0) {
             unassignedAlertHtml = `
-                <div style="background:#fee2e2; border:1.5px solid #fca5a5; border-radius:10px; padding:10px 12px; margin-top:8px; font-size:0.83rem; color:#991b1b; font-weight:700; line-height:1.4; text-align:left;">
+                <div style="background:#fee2e2; border:1.5px solid #fca5a5; border-radius:8px; padding:8px 10px; margin-top:6px; font-size:0.8rem; color:#991b1b; font-weight:700; line-height:1.4; text-align:left;">
                     ⚠️ 생년월일 미지정 또는 형식 오류 회원 (${unassignedMembers.length}명): <br>
                     <span style="font-weight:800; color:#b91c1c;">${unassignedMembers.join(', ')}</span>
                 </div>
@@ -904,29 +905,29 @@
         }
 
         summaryBox.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:4px;">
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:4px;">
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
-                    <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
-                        <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">총 회원수</div>
-                        <div class="stat-box-val" style="font-size:1.4rem; color:var(--accent);">${totalCount}명</div>
+                    <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border); padding:10px;">
+                        <div class="stat-box-title" style="font-size:0.82rem; color:var(--text-sub);">총 회원수</div>
+                        <div class="stat-box-val" style="font-size:1.3rem; color:var(--accent);">${totalCount}명</div>
                     </div>
                 </div>
 
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
-                    <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
-                        <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">성별 분포</div>
-                        <div class="stat-box-val" style="font-size:1.15rem; color:var(--primary);">남 ${maleCount}명 / 여 ${femaleCount}명</div>
+                    <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border); padding:10px;">
+                        <div class="stat-box-title" style="font-size:0.82rem; color:var(--text-sub);">성별 분포</div>
+                        <div class="stat-box-val" style="font-size:1.1rem; color:var(--primary);">남 ${maleCount}명 / 여 ${femaleCount}명</div>
                     </div>
                 </div>
 
-                <div style="background:#ffffff; border:1.5px solid var(--border); border-radius:10px; padding:12px; text-align:center;">
-                    <div style="font-size:0.85rem; font-weight:800; color:var(--primary); margin-bottom:2px;">연대별 인원 분포</div>
-                    <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:8px;">(${baseDateString} 만 나이 기준)</div>
-                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:8px;">
+                <div style="background:#ffffff; border:1.5px solid var(--border); border-radius:10px; padding:10px; text-align:center;">
+                    <div style="font-size:0.82rem; font-weight:800; color:var(--primary); margin-bottom:2px;">연대별 인원 분포</div>
+                    <div style="font-size:0.72rem; font-weight:700; color:var(--accent); margin-bottom:6px;">(${baseDateString} 만 나이 기준)</div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:5px; margin-bottom:6px;">
                         ${ageGridHtml}
                     </div>
-                    <div style="border-top:1.5px solid #e2e8f0; padding-top:8px; margin-top:6px; font-size:0.88rem; font-weight:800; color:var(--text-main);">
-                        전체 회원 평균 나이: <span style="color:var(--accent); font-size:1.05rem;">만 ${averageAge}세</span>
+                    <div style="border-top:1.5px solid #e2e8f0; padding-top:6px; margin-top:4px; font-size:0.85rem; font-weight:800; color:var(--text-main);">
+                        전체 회원 평균 나이: <span style="color:var(--accent); font-size:1.0rem;">만 ${averageAge}세</span>
                     </div>
                     ${unassignedAlertHtml}
                 </div>
@@ -941,28 +942,28 @@
             return name.toLowerCase().includes(keyword);
         });
 
-        let listHtml = `<div style="font-weight:800; font-size:0.95rem; margin-bottom:8px; color:var(--primary);">회원 명부 검색 결과 (${filteredMembers.length}명)</div>`;
+        let listHtml = `<div style="font-weight:800; font-size:0.92rem; margin-bottom:6px; color:var(--primary);">회원 명부 검색 결과 (${filteredMembers.length}명)</div>`;
 
         if (filteredMembers.length === 0) {
             listHtml += `<div style='text-align:center; padding:20px; color:#64748b; font-weight:700;'>검색된 회원이 없습니다.</div>`;
         } else {
             filteredMembers.forEach((m, index) => {
                 let age = calculateAge(m);
-                let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
+                let ageDisplay = age !== null ? `<span style="font-size:0.72rem; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:1px 4px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
                 listHtml += `
-                    <div style="display:flex; flex-direction:column; background:#ffffff; padding:10px 12px; border-radius:10px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
+                    <div style="display:flex; flex-direction:column; background:#ffffff; padding:8px 10px; border-radius:8px; margin-bottom:5px; border:1.5px solid #cbd5e1; gap:2px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-                                <span style="color:#64748b; font-weight:700; min-width:22px;">${index + 1}.</span>
-                                <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
+                                <span style="color:#64748b; font-weight:700; min-width:20px;">${index + 1}.</span>
+                                <strong style="font-size:0.92rem; color:var(--primary);">${m.name}</strong>
                                 ${ageDisplay}
                             </div>
-                            <div style="font-weight:800; color:var(--accent); background:#eff6ff; padding:2px 8px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
+                            <div style="font-weight:800; color:var(--accent); background:#eff6ff; padding:2px 6px; border-radius:4px; font-size:0.72rem; white-space:nowrap;">
                                 👕 ${m.size}호
                             </div>
                         </div>
-                        <div style="font-size:0.76rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:10px; flex-wrap:wrap; line-height:1.2;">
+                        <div style="font-size:0.74rem; color:#475569; font-weight:700; padding-left:24px; display:flex; gap:8px; flex-wrap:wrap; line-height:1.2;">
                             <span>생일: ${m.birth}</span>
                             <span>성별: ${m.gender}</span>
                             <span>연락처: ${m.phone}</span>
