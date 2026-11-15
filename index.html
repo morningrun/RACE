@@ -682,8 +682,7 @@
 
         const availableCoursesWithPrice = parseCourses(currentRace.courses);
 
-        sortedMembers.forEach((member) => {
-            const realIndex = globalMembers.findIndex(m => m.name === member.name);
+        sortedMembers.forEach((member, index) => {
             const appliedCourse = raceApps[member.name] || null;
             const isApplied = (appliedCourse !== null);
 
@@ -703,7 +702,7 @@
             card.innerHTML = `
                 <div class="member-info">
                     <div class="member-name-area">
-                        <span style="color:#64748b; font-weight:700; min-width:24px;">${realIndex + 1}.</span> 
+                        <span style="color:#64748b; font-weight:700; min-width:24px;">${index + 1}.</span> 
                         <strong style="font-size:0.98rem; white-space:nowrap;">${member.name}</strong>
                     </div>
                     <div>${badgeHtml}</div>
@@ -981,8 +980,7 @@
         if (filteredMembers.length === 0) {
             listHtml += `<div style='text-align:center; padding:20px; color:#64748b; font-weight:700;'>검색된 회원이 없습니다.</div>`;
         } else {
-            filteredMembers.forEach((m) => {
-                const realIndex = globalMembers.findIndex(item => item.name === m.name);
+            filteredMembers.forEach((m, index) => {
                 let age = calculateAge(m);
                 let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
 
@@ -990,7 +988,7 @@
                     <div style="display:flex; flex-direction:column; background:#ffffff; padding:10px 12px; border-radius:10px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-                                <span style="color:#64748b; font-weight:700; min-width:22px;">${realIndex + 1}.</span>
+                                <span style="color:#64748b; font-weight:700; min-width:22px;">${index + 1}.</span>
                                 <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
                                 ${ageDisplay}
                             </div>
@@ -1022,7 +1020,6 @@
 
         const raceApps = globalApplications[selectedRaceId] || {};
         
-        // 💡 신청한 회원들만 추출 후 [코스별 순위 → 이름 가나다순]으로 정렬
         const appliedMembersList = globalMembers.filter(m => raceApps[m.name]);
 
         if (appliedMembersList.length === 0) {
@@ -1038,10 +1035,10 @@
             const rankB = getCourseRank(courseB);
             
             if (rankA !== rankB) {
-                return rankA - rankB; // 코스별 정렬 (풀코스 → 하프 → 10km → 5km 등)
+                return rankA - rankB;
             }
             
-            return a.name.localeCompare(b.name, 'ko'); // 동일 코스 내 이름 가나다순 정렬
+            return a.name.localeCompare(b.name, 'ko');
         });
 
         let csvContent = "\uFEFF번호,이름,성별,생년월일,핸드폰번호,옷사이즈,신청코스,대회명\n";
