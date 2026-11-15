@@ -55,8 +55,8 @@
         /* 📦 콘텐츠 전체를 하나로 감싸는 큰 박스 컨테이너 */
         .content-card-box { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
 
-        /* 📦 상단 대회 안내 영역을 하나로 감싸는 큰 박스 컨테이너 (스크롤 및 배경 통일) */
-        .race-content-card-box { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 14px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); max-height: 420px; overflow-y: auto; }
+        /* 📦 상단 대회 안내 영역 (은은한 파란색 계통 배경 적용 및 스크롤) */
+        .race-content-card-box { background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 14px; padding: 14px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(37,99,235,0.04); max-height: 420px; overflow-y: auto; }
 
         .swipe-wrapper { overflow: hidden; width: 100%; position: relative; transition: height 0.25s ease-out; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; }
@@ -64,7 +64,7 @@
         .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; height: 0; overflow: hidden; padding: 0; background: transparent; border: none; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
-        /* 🏁 대회 아코디언 카드 스타일 (배경색 흰색으로 통일) */
+        /* 🏁 대회 아코디언 카드 스타일 */
         .race-card-item { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .race-card-item:last-child { margin-bottom: 0; }
         .race-card-item.active { border-color: var(--accent) !important; box-shadow: 0 6px 16px rgba(37,99,235,0.08); }
@@ -154,7 +154,7 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
-    <!-- 1. 대회 안내 카드 영역 (배경색 통일 및 스크롤 박스) -->
+    <!-- 1. 대회 안내 카드 영역 (은은한 파란색 계통 배경 적용) -->
     <div class="race-content-card-box" id="race-selector-wrapper">
         <div id="race-card-container"></div>
     </div>
