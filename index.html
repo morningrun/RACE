@@ -58,19 +58,32 @@
         .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; height: 0; overflow: hidden; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
-        /* 🏁 대회 아코디언 카드 스타일 (기본은 회색 계통 다운) */
+        /* 🏁 대회 아코디언 카드 스타일 */
         .race-card-item { background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         
+        /* 종료된 대회 카드 스타일 (회색조 및 투명도) */
+        .race-card-item.ended-race { background: #e2e8f0 !important; border-color: #94a3b8 !important; opacity: 0.85; }
+        
         .race-card-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
-        .race-card-title-area { font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 1.3; color: #475569; }
+        .race-card-title-area { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 1.3; color: #475569; flex-wrap: wrap; }
         
-        .race-bullet-dot { display: inline-block; width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%; flex-shrink: 0; margin-top: 1px; }
-        
+        /* 상태 배지 아이콘 스타일 */
+        .status-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; font-weight: 800; white-space: nowrap; }
+        .status-badge.active { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .status-badge.ended { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
         .race-toggle-icon { font-size: 0.8rem; color: #64748b; transition: transform 0.2s ease; flex-shrink: 0; padding-left: 8px; }
         .race-card-item.expanded .race-toggle-icon { transform: rotate(180deg); }
 
         .race-card-body { padding: 0 16px 16px 16px; display: none; border-top: 1px solid #cbd5e1; margin-top: 2px; padding-top: 12px; }
         .race-card-item.expanded .race-card-body { display: flex; flex-direction: column; gap: 5px; }
+
+        /* 종료된 대회 모음 섹션 아코디언 스타일 */
+        .ended-section-container { margin-top: 16px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; overflow: hidden; }
+        .ended-section-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; font-size: 0.95rem; color: #64748b; background: #f1f5f9; user-select: none; }
+        .ended-section-body { padding: 12px; display: none; flex-direction: column; gap: 8px; }
+        .ended-section-container.expanded .ended-section-body { display: flex; }
+        .ended-section-container.expanded .ended-toggle-icon { transform: rotate(180deg); }
 
         .member-card { display: flex; flex-direction: column; padding: 12px 14px; margin-bottom: 9px; background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.15s; }
         .member-card:hover { border-color: #94a3b8; }
@@ -136,7 +149,7 @@
         <div id="sync-status" class="sync-loading" style="display:none;">동기화 중...</div>
     </div>
     
-    <!-- 1. 대회 안내 카드 (아코디언 형태) -->
+    <!-- 1. 대회 안내 카드 (진행 중 / 종료 자동 분리) -->
     <div id="race-selector-wrapper" style="margin-bottom: 16px;">
         <div id="race-card-container"></div>
     </div>
@@ -284,7 +297,7 @@
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
     let activePaneIndex = 0;
 
-    // 대회별 순환 테마 색상 팔레트 (1번째: 옅은 녹색, 2번째: 옅은 파란색, 3번째: 옅은 보라색 등)
+    // 대회별 순환 테마 색상 팔레트
     const raceColorThemes = [
         {
             bg: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
@@ -395,6 +408,12 @@
         return "70대 이상";
     }
 
+    // 대회 이름이나 상태에 [종료]가 포함되어 있는지 판별하는 함수
+    function isRaceEnded(race) {
+        const name = race.name || "";
+        return name.includes("[종료]") || name.includes("종료");
+    }
+
     async function fetchServerData(silent = false) {
         try {
             const response = await fetch(API_URL + "?action=getData");
@@ -409,7 +428,13 @@
             }
 
             if (globalRaces.length > 0 && !selectedRaceId) {
-                selectedRaceId = globalRaces[0].id;
+                // 기본 선택 시 진행 중인 대회를 우선 선택
+                const activeRaces = globalRaces.filter(r => !isRaceEnded(r));
+                if (activeRaces.length > 0) {
+                    selectedRaceId = activeRaces[0].id;
+                } else {
+                    selectedRaceId = globalRaces[0].id;
+                }
             }
 
             refreshUI();
@@ -489,73 +514,129 @@
             return;
         }
 
-        globalRaces.forEach((race, idx) => {
-            const card = document.createElement('div');
-            const isSelected = (race.id === selectedRaceId);
-            const isExpanded = isSelected || globalRaces.length === 1;
-            
-            const theme = getRaceTheme(idx);
-            
-            card.className = `race-card-item ${isSelected ? 'active' : ''} ${isExpanded ? 'expanded' : ''}`;
-            
-            // 💡 선택되거나 펼쳐졌을 때만 고유 테마 색상 적용, 평소에는 회색 계통 다운
-            if (isSelected) {
-                card.style.background = theme.bg;
-                card.style.borderColor = theme.activeBorder;
-                card.style.boxShadow = "0 6px 16px rgba(0,0,0,0.08)";
+        // 진행 중인 대회와 종료된 대회 분리
+        const activeRaces = [];
+        const endedRaces = [];
+
+        globalRaces.forEach((race, originalIdx) => {
+            if (isRaceEnded(race)) {
+                endedRaces.push({ race, originalIdx });
             } else {
-                card.style.background = "#f1f5f9";
-                card.style.borderColor = "#cbd5e1";
-                card.style.boxShadow = "0 2px 4px rgba(0,0,0,0.02)";
+                activeRaces.push({ race, originalIdx });
             }
-            
-            let coursesHtml = '';
-            if (race.courses) {
-                const courseList = parseCourses(race.courses);
-                courseList.forEach(c => {
-                    coursesHtml += `<div style="font-size: 0.84rem; font-weight: 700; color: #1e293b; margin-top: 3px;">• ${c}</div>`;
-                });
-            }
+        });
 
-            card.innerHTML = `
-                <div class="race-card-header">
-                    <div class="race-card-title-area" style="color: ${isSelected ? theme.titleColor : '#475569'};">
-                        <span class="race-bullet-dot" style="background-color: ${isSelected ? theme.activeBorder : '#94a3b8'};"></span>
-                        <span>${race.name}</span>
-                    </div>
-                    <div class="race-toggle-icon">▼</div>
-                </div>
-                <div class="race-card-body">
-                    <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.88rem; color: #1e293b; font-weight: 700;">
-                        <div>• 대회일: ${race.date}</div>
-                        <div>• 장소: ${race.location || '장소 미정'}</div>
-                        <div style="margin-top: 2px;">
-                            <div>• 코스 및 참가비:</div>
-                            <div style="padding-left: 14px; margin-top: 2px;">
-                                ${coursesHtml || '<div style="font-size: 0.84rem; color: #1e293b;">• 5km(50,000원)</div><div style="font-size: 0.84rem; color: #1e293b;">• 10km(50,000원)</div>'}
-                            </div>
-                        </div>
-                        <div style="margin-top: 2px;">• 접수마감일: ${race.deadline}</div>
-                    </div>
-                </div>
-            `;
-            
-            const header = card.querySelector('.race-card-header');
-            header.onclick = function(e) {
-                e.stopPropagation();
-                
-                if (selectedRaceId === race.id) {
-                    card.classList.toggle('expanded');
-                } else {
-                    selectedRaceId = race.id;
-                    localStorage.setItem('boksagol_selected_race_v24', selectedRaceId);
-                    refreshUI();
-                }
-                updateSwipeWrapperHeight();
-            };
-
+        // 1. 진행 중인 대회 렌더링
+        activeRaces.forEach(({ race, originalIdx }, activeIndex) => {
+            const card = createRaceCardElement(race, originalIdx, activeIndex, false);
             container.appendChild(card);
         });
+
+        // 2. 종료된 대회가 존재할 경우 맨 아래에 아코디언 박스로 묶어서 배치
+        if (endedRaces.length > 0) {
+            const endedSection = document.createElement('div');
+            // 로컬스토리지나 기본 상태에 따라 펼침 여부 결정 (기본 닫힘 상태 혹은 첫 로드 시 닫힘)
+            endedSection.className = 'ended-section-container';
+            
+            let endedCardsHtml = '';
+            // 임시 div 컨테이너 생성용
+            const tempWrapper = document.createElement('div');
+            tempWrapper.style.display = 'flex';
+            tempWrapper.style.flexDirection = 'column';
+            tempWrapper.style.gap = '8px';
+
+            endedRaces.forEach(({ race, originalIdx }, endedIndex) => {
+                const card = createRaceCardElement(race, originalIdx, endedIndex, true);
+                tempWrapper.appendChild(card);
+            });
+
+            endedSection.innerHTML = `
+                <div class="ended-section-header" onclick="this.parentElement.classList.toggle('expanded'); updateSwipeWrapperHeight();">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>🏁 종료된 대회 목록 (${endedRaces.length}개)</span>
+                    </div>
+                    <div class="ended-toggle-icon" style="transition: transform 0.2s;">▼</div>
+                </div>
+            `;
+
+            const bodyDiv = document.createElement('div');
+            bodyDiv.className = 'ended-section-body';
+            bodyDiv.appendChild(tempWrapper);
+            endedSection.appendChild(bodyDiv);
+
+            container.appendChild(endedSection);
+        }
+    }
+
+    function createRaceCardElement(race, originalIdx, themeIdx, isEnded) {
+        const card = document.createElement('div');
+        const isSelected = (race.id === selectedRaceId);
+        const isExpanded = isSelected;
+        
+        const theme = getRaceTheme(themeIdx);
+        
+        card.className = `race-card-item ${isSelected ? 'active' : ''} ${isExpanded ? 'expanded' : ''} ${isEnded ? 'ended-race' : ''}`;
+        
+        if (isSelected) {
+            card.style.background = isEnded ? "#e2e8f0" : theme.bg;
+            card.style.borderColor = isEnded ? "#64748b" : theme.activeBorder;
+            card.style.boxShadow = "0 6px 16px rgba(0,0,0,0.08)";
+        } else {
+            card.style.background = isEnded ? "#f8fafc" : "#f1f5f9";
+            card.style.borderColor = isEnded ? "#cbd5e1" : "#cbd5e1";
+            card.style.boxShadow = "0 2px 4px rgba(0,0,0,0.02)";
+        }
+        
+        let coursesHtml = '';
+        if (race.courses) {
+            const courseList = parseCourses(race.courses);
+            courseList.forEach(c => {
+                coursesHtml += `<div style="font-size: 0.84rem; font-weight: 700; color: #1e293b; margin-top: 3px;">• ${c}</div>`;
+            });
+        }
+
+        const badgeHtml = isEnded 
+            ? `<span class="status-badge ended">종료</span>`
+            : `<span class="status-badge active">진행중</span>`;
+
+        card.innerHTML = `
+            <div class="race-card-header">
+                <div class="race-card-title-area" style="color: ${isSelected ? (isEnded ? '#334155' : theme.titleColor) : '#475569'};">
+                    ${badgeHtml}
+                    <span>${race.name}</span>
+                </div>
+                <div class="race-toggle-icon">▼</div>
+            </div>
+            <div class="race-card-body">
+                <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.88rem; color: #1e293b; font-weight: 700;">
+                    <div>• 대회일: ${race.date}</div>
+                    <div>• 장소: ${race.location || '장소 미정'}</div>
+                    <div style="margin-top: 2px;">
+                        <div>• 코스 및 참가비:</div>
+                        <div style="padding-left: 14px; margin-top: 2px;">
+                            ${coursesHtml || '<div style="font-size: 0.84rem; color: #1e293b;">• 5km(50,000원)</div><div style="font-size: 0.84rem; color: #1e293b;">• 10km(50,000원)</div>'}
+                        </div>
+                    </div>
+                    <div style="margin-top: 2px;">• 접수마감일: ${race.deadline}</div>
+                </div>
+            </div>
+        `;
+        
+        const header = card.querySelector('.race-card-header');
+        header.onclick = function(e) {
+            e.stopPropagation();
+            
+            if (selectedRaceId === race.id) {
+                card.classList.toggle('expanded');
+            } else {
+                selectedRaceId = race.id;
+                localStorage.setItem('boksagol_selected_race_v24', selectedRaceId);
+                refreshUI();
+            }
+            updateSwipeWrapperHeight();
+        };
+
+        return card;
     }
 
     function renderMemberList() {
@@ -718,6 +799,7 @@
         if (!currentRace) return;
 
         const theme = getRaceTheme(selectedIndex >= 0 ? selectedIndex : 0);
+        const isEnded = isRaceEnded(currentRace);
 
         const raceApps = globalApplications[selectedRaceId] || {};
         const totalCount = Object.keys(raceApps).length;
@@ -746,17 +828,16 @@
             let cCount = (courseGroups[cName] || []).length;
             courseSummaryTextArr.push(`${cName} ${cCount}명`);
         });
-        let courseSummaryStr = courseSummaryTextArr.join(' / ');
+        let courseSummaryStr = `(${courseSummaryTextArr.join(' / ')})`;
 
-        // 💡 선택된 대회의 테마 색상이 총신청인원 박스에도 완벽히 연동되도록 적용
         let summaryHtml = `
-            <div style="background: ${theme.bg}; border: 2px solid ${theme.activeBorder}; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
-                <div style="font-weight: 800; font-size: 1.1rem; color: ${theme.titleColor}; margin-bottom: 4px;">[${currentRace.name}]</div>
-                <div style="font-size: 0.92rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">
-                    총신청인원: <strong style="color: ${theme.titleColor}; font-size: 1.2rem;">${totalCount}명</strong>
+            <div style="background: ${isEnded ? '#e2e8f0' : theme.bg}; border: 2px solid ${isEnded ? '#64748b' : theme.activeBorder}; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
+                <div style="font-weight: 800; font-size: 1.1rem; color: ${isEnded ? '#334155' : theme.titleColor}; margin-bottom: 4px;">[${currentRace.name}]</div>
+                <div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">
+                    총신청인원 <strong style="color: ${isEnded ? '#334155' : theme.titleColor}; font-size: 1.25rem;">${totalCount}</strong>명
                 </div>
-                <div style="font-size: 0.82rem; font-weight: 700; color: #475569; background: rgba(255,255,255,0.7); padding: 5px 8px; border-radius: 8px; display: inline-block;">
-                    구간별 신청인원: <span style="color: #0f172a; font-weight: 800;">${courseSummaryStr}</span>
+                <div style="font-size: 0.85rem; font-weight: 700; color: #475569; background: rgba(255,255,255,0.7); padding: 5px 10px; border-radius: 8px; display: inline-block;">
+                    ${courseSummaryStr}
                 </div>
             </div>
         `;
