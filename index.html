@@ -47,11 +47,14 @@
         .tab-btn { flex: 1; padding: 11px 4px; font-size: 0.85rem; border: none; background: transparent; color: var(--text-sub); font-weight: 700; border-radius: 9px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .tab-btn.active { background: var(--card-bg); color: var(--accent); box-shadow: 0 3px 10px rgba(0,0,0,0.08); font-weight: 800; }
 
-        /* 💡 하단 여백 원인 완전 차단을 위한 래퍼 및 패널 높이 제어 */
+        /* 🔍 검색창 스타일 추가 */
+        .search-box { margin-bottom: 12px; }
+        .search-input { width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; background: #f8fafc; outline: none; box-sizing: border-box; transition: border-color 0.2s; font-weight: 600; }
+        .search-input:focus { border-color: var(--accent); background: #ffffff; }
+
         .swipe-wrapper { overflow: hidden; width: 100%; position: relative; transition: height 0.25s ease-out; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; }
         
-        /* 💡 비활성 패널은 높이를 0으로 숨겨 하단 여백 생성 원천 차단 */
         .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; height: 0; overflow: hidden; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
@@ -140,15 +143,27 @@
             <!-- 1번 패널: 접수 현황 -->
             <div class="swipe-pane active-pane" id="pane-status">
                 <div id="status-summary-box" style="margin-bottom: 12px;"></div>
+                <!-- 🔍 접수현황 검색창 -->
+                <div class="search-box">
+                    <input type="text" id="status-search-input" class="search-input" placeholder="🔍 접수자 이름 검색 (예: 이실권)" oninput="renderStatusTab()">
+                </div>
                 <div id="status-detail-list" style="margin-top: 10px;"></div>
             </div>
             <!-- 2번 패널: 대회 신청 -->
             <div class="swipe-pane" id="pane-apply">
+                <!-- 🔍 대회신청 검색창 -->
+                <div class="search-box">
+                    <input type="text" id="apply-search-input" class="search-input" placeholder="🔍 회원 이름 검색 (예: 이실권)" oninput="renderMemberList()">
+                </div>
                 <div id="member-list-wrapper"></div>
             </div>
             <!-- 3번 패널: 전체 회원현황 -->
             <div class="swipe-pane" id="pane-members">
                 <div id="member-stats-summary"></div>
+                <!-- 🔍 전체회원현황 검색창 -->
+                <div class="search-box" style="margin-top: 12px;">
+                    <input type="text" id="members-search-input" class="search-input" placeholder="🔍 전체 회원 이름 검색 (예: 이실권)" oninput="renderAllMembersTab()">
+                </div>
                 <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
             </div>
         </div>
@@ -484,7 +499,16 @@
 
         const raceApps = globalApplications[selectedRaceId] || {};
 
-        const sortedMembers = [...globalMembers].sort((a, b) => {
+        // 🔍 대회신청 탭 검색어 필터링 적용
+        const searchInput = document.getElementById('apply-search-input');
+        const keyword = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+        const filteredMembers = globalMembers.filter(m => {
+            const name = String(m.name || "").trim();
+            return name.toLowerCase().includes(keyword);
+        });
+
+        const sortedMembers = [...filteredMembers].sort((a, b) => {
             const appA = raceApps[a.name] ? 0 : 1;
             const appB = raceApps[b.name] ? 0 : 1;
             if (appA !== appB) return appA - appB;
@@ -499,14 +523,16 @@
         });
 
         if (sortedMembers.length === 0) {
-            wrapper.innerHTML = "<div style='text-align:center; padding:25px; color:#94a3b8;'>등록된 회원이 없습니다.</div>";
+            wrapper.innerHTML = "<div style='text-align:center; padding:25px; color:#94a3b8;'>검색된 회원이 없습니다.</div>";
             updateSwipeWrapperHeight();
             return;
         }
 
         const availableCoursesWithPrice = parseCourses(currentRace.courses);
 
-        sortedMembers.forEach((member, index) => {
+        sortedMembers.forEach((member) => {
+            // 원본 명단에서의 순번 찾기
+            const realIndex = globalMembers.findIndex(m => m.name === member.name);
             const appliedCourse = raceApps[member.name] || null;
             const isApplied = (appliedCourse !== null);
 
@@ -526,7 +552,7 @@
             card.innerHTML = `
                 <div class="member-info">
                     <div class="member-name-area">
-                        <span style="color:#64748b; font-weight:700; min-width:24px;">${index + 1}.</span> 
+                        <span style="color:#64748b; font-weight:700; min-width:24px;">${realIndex + 1}.</span> 
                         <strong style="font-size:0.98rem; white-space:nowrap;">${member.name}</strong>
                     </div>
                     <div>${badgeHtml}</div>
@@ -622,10 +648,17 @@
 
         const availableCourses = parseCourses(currentRace.courses).map(c => c.replace(/\s*\(.*?\)/g, "").trim());
 
+        // 🔍 접수현황 검색어 필터링 적용
+        const searchInput = document.getElementById('status-search-input');
+        const keyword = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
         const courseGroups = {};
         availableCourses.forEach(c => courseGroups[c] = []);
 
         Object.keys(raceApps).forEach(memberName => {
+            if (keyword && !memberName.toLowerCase().includes(keyword)) {
+                return; // 검색어가 있을 때 매칭되지 않으면 제외
+            }
             const course = raceApps[memberName];
             if (!courseGroups[course]) {
                 courseGroups[course] = [];
@@ -643,7 +676,7 @@
         `;
         summaryBox.innerHTML = summaryHtml;
 
-        let detailHtml = `<div style="font-weight:800; font-size:0.95rem; margin-top:12px; margin-bottom:8px; color:var(--primary);">코스별 신청 현황</div>`;
+        let detailHtml = `<div style="font-weight:800; font-size:0.95rem; margin-top:4px; margin-bottom:8px; color:var(--primary);">코스별 신청 현황</div>`;
         detailHtml += `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">`;
 
         availableCourses.forEach(courseName => {
@@ -745,7 +778,7 @@
         }
 
         summaryBox.innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:4px;">
                 <div class="stat-card-grid" style="grid-template-columns: 1fr; margin-bottom:0;">
                     <div class="stat-box" style="background:#ffffff; border:1.5px solid var(--border);">
                         <div class="stat-box-title" style="font-size:0.85rem; color:var(--text-sub);">총 회원수</div>
@@ -774,33 +807,47 @@
             </div>
         `;
 
-        let listHtml = `<div style="font-weight:800; font-size:0.95rem; margin-bottom:8px; color:var(--primary);">전체 회원 명부 (${totalCount}명)</div>`;
+        // 🔍 전체회원현황 검색어 필터링 적용
+        const searchInput = document.getElementById('members-search-input');
+        const keyword = searchInput ? searchInput.value.trim().toLowerCase() : "";
 
-        globalMembers.forEach((m, idx) => {
-            let age = calculateAge(m);
-            let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
-
-            listHtml += `
-                <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:10px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-                            <span style="color:#64748b; font-weight:700; min-width:22px;">${idx + 1}.</span>
-                            <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
-                            ${ageDisplay}
-                        </div>
-                        <div style="font-weight:800; color:var(--accent); background:#eff6ff; padding:2px 8px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
-                            👕 ${m.size}호
-                        </div>
-                    </div>
-                    <div style="font-size:0.76rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:10px; flex-wrap:wrap; line-height:1.2;">
-                        <span>생일: ${m.birth}</span>
-                        <span>성별: ${m.gender}</span>
-                        <span>연락처: ${m.phone}</span>
-                        <span>가입: ${m.join}</span>
-                    </div>
-                </div>
-            `;
+        const filteredMembers = globalMembers.filter(m => {
+            const name = String(m.name || "").trim();
+            return name.toLowerCase().includes(keyword);
         });
+
+        let listHtml = `<div style="font-weight:800; font-size:0.95rem; margin-bottom:8px; color:var(--primary);">회원 명부 검색 결과 (${filteredMembers.length}명)</div>`;
+
+        if (filteredMembers.length === 0) {
+            listHtml += `<div style='text-align:center; padding:20px; color:#94a3b8; font-weight:700;'>검색된 회원이 없습니다.</div>`;
+        } else {
+            filteredMembers.forEach((m) => {
+                const realIndex = globalMembers.findIndex(item => item.name === m.name);
+                let age = calculateAge(m);
+                let ageDisplay = age !== null ? `<span style="font-size:0.75rem; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:1px 5px; border-radius:4px; margin-left:4px;">만 ${age}세</span>` : '';
+
+                listHtml += `
+                    <div style="display:flex; flex-direction:column; background:#f8fafc; padding:10px 12px; border-radius:10px; margin-bottom:6px; border:1.5px solid #cbd5e1; gap:3px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                                <span style="color:#64748b; font-weight:700; min-width:22px;">${realIndex + 1}.</span>
+                                <strong style="font-size:0.98rem; color:var(--primary);">${m.name}</strong>
+                                ${ageDisplay}
+                            </div>
+                            <div style="font-weight:800; color:var(--accent); background:#eff6ff; padding:2px 8px; border-radius:5px; font-size:0.75rem; white-space:nowrap;">
+                                👕 ${m.size}호
+                            </div>
+                        </div>
+                        <div style="font-size:0.76rem; color:#475569; font-weight:700; padding-left:28px; display:flex; gap:10px; flex-wrap:wrap; line-height:1.2;">
+                            <span>생일: ${m.birth}</span>
+                            <span>성별: ${m.gender}</span>
+                            <span>연락처: ${m.phone}</span>
+                            <span>가입: ${m.join}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         listWrapper.innerHTML = listHtml;
         updateSwipeWrapperHeight();
@@ -1243,7 +1290,6 @@
         document.getElementById('chk-custom-1').onchange = () => toggleCustomInput(1);
         document.getElementById('chk-custom-2').onchange = () => toggleCustomInput(2);
 
-        // 💡 터치 스와이프 제스처 핸들링
         const swipeContainer = document.getElementById('swipe-container');
         let startX = 0;
         let startY = 0;
@@ -1257,13 +1303,6 @@
 
         swipeContainer.addEventListener('touchmove', (e) => {
             if (!isSwiping) return;
-            let currentX = e.touches[0].clientX;
-            let currentY = e.touches[0].clientY;
-            let diffX = Math.abs(currentX - startX);
-            let diffY = Math.abs(currentY - startY);
-            if (diffX > diffY && diffX > 10) {
-                // 가로 스와이프 우선 감지
-            }
         }, { passive: true });
 
         swipeContainer.addEventListener('touchend', (e) => {
