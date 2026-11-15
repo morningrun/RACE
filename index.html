@@ -58,10 +58,10 @@
         .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; height: 0; overflow: hidden; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
-        /* 🏁 대회 아코디언 카드 스타일 */
+        /* 🏁 대회 아코디언 카드 스타일 (평소 회색 톤) */
         .race-card-item { background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         
-        /* 종료된 대회 카드 스타일 (회색조 및 투명도) */
+        /* 종료된 대회 카드 스타일 */
         .race-card-item.ended-race { background: #e2e8f0 !important; border-color: #94a3b8 !important; opacity: 0.85; }
         
         .race-card-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
@@ -209,6 +209,14 @@
             <input type="text" id="new-race-location" placeholder="대회 장소 (예: 삼척시민운동장)">
             <input type="text" id="new-race-date" placeholder="대회일자 및 요일 (예: 2025.04.13(일))">
             <input type="text" id="new-race-deadline" placeholder="접수마감일 (예: 2025.03.15까지)">
+            
+            <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                <label style="font-size:0.85rem; font-weight:700; color:#38bdf8;">대회 진행 상태:</label>
+                <select id="new-race-status" style="padding:6px 10px; border-radius:6px; background:#0f172a; color:white; font-weight:700;">
+                    <option value="진행중">진행중</option>
+                    <option value="종료">종료</option>
+                </select>
+            </div>
             
             <div style="font-size:0.82rem; font-weight:700; color:#38bdf8; margin-top:4px;">코스 및 참가비 설정 (체크 및 금액 입력)</div>
             <div class="course-setting-grid">
@@ -408,8 +416,10 @@
         return "70대 이상";
     }
 
-    // 대회 이름이나 상태에 [종료]가 포함되어 있는지 판별하는 함수
+    // 관리자 설정 필드 또는 이름에 기반하여 종료 여부 판별
     function isRaceEnded(race) {
+        if (race.status === "종료") return true;
+        if (race.status === "진행중") return false;
         const name = race.name || "";
         return name.includes("[종료]") || name.includes("종료");
     }
@@ -428,7 +438,6 @@
             }
 
             if (globalRaces.length > 0 && !selectedRaceId) {
-                // 기본 선택 시 진행 중인 대회를 우선 선택
                 const activeRaces = globalRaces.filter(r => !isRaceEnded(r));
                 if (activeRaces.length > 0) {
                     selectedRaceId = activeRaces[0].id;
@@ -514,7 +523,6 @@
             return;
         }
 
-        // 진행 중인 대회와 종료된 대회 분리
         const activeRaces = [];
         const endedRaces = [];
 
@@ -532,14 +540,11 @@
             container.appendChild(card);
         });
 
-        // 2. 종료된 대회가 존재할 경우 맨 아래에 아코디언 박스로 묶어서 배치
+        // 2. 종료된 대회 목록 아코디언 박스 (맨 아래 배치)
         if (endedRaces.length > 0) {
             const endedSection = document.createElement('div');
-            // 로컬스토리지나 기본 상태에 따라 펼침 여부 결정 (기본 닫힘 상태 혹은 첫 로드 시 닫힘)
             endedSection.className = 'ended-section-container';
             
-            let endedCardsHtml = '';
-            // 임시 div 컨테이너 생성용
             const tempWrapper = document.createElement('div');
             tempWrapper.style.display = 'flex';
             tempWrapper.style.flexDirection = 'column';
@@ -577,6 +582,7 @@
         
         card.className = `race-card-item ${isSelected ? 'active' : ''} ${isExpanded ? 'expanded' : ''} ${isEnded ? 'ended-race' : ''}`;
         
+        // 💡 오직 클릭되어 선택된(활성화된) 대회일 때만 지정 테마 색상 적용, 평소에는 회색 계통 다운
         if (isSelected) {
             card.style.background = isEnded ? "#e2e8f0" : theme.bg;
             card.style.borderColor = isEnded ? "#64748b" : theme.activeBorder;
@@ -798,9 +804,7 @@
         const currentRace = globalRaces[selectedIndex];
         if (!currentRace) return;
 
-        const theme = getRaceTheme(selectedIndex >= 0 ? selectedIndex : 0);
         const isEnded = isRaceEnded(currentRace);
-
         const raceApps = globalApplications[selectedRaceId] || {};
         const totalCount = Object.keys(raceApps).length;
 
@@ -830,13 +834,14 @@
         });
         let courseSummaryStr = `(${courseSummaryTextArr.join(' / ')})`;
 
+        // 💡 중간 인원산정 박스 배경색을 없애고 텍스트 중심의 깔끔한 구조로 변경
         let summaryHtml = `
-            <div style="background: ${isEnded ? '#e2e8f0' : theme.bg}; border: 2px solid ${isEnded ? '#64748b' : theme.activeBorder}; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
-                <div style="font-weight: 800; font-size: 1.1rem; color: ${isEnded ? '#334155' : theme.titleColor}; margin-bottom: 4px;">[${currentRace.name}]</div>
-                <div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">
-                    총신청인원 <strong style="color: ${isEnded ? '#334155' : theme.titleColor}; font-size: 1.25rem;">${totalCount}</strong>명
+            <div style="background: transparent; border: none; padding: 6px 14px; text-align: center; margin-bottom: 4px;">
+                <div style="font-weight: 800; font-size: 1.05rem; color: var(--primary); margin-bottom: 2px;">[${currentRace.name}]</div>
+                <div style="font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 2px;">
+                    총신청인원 <strong style="color: var(--accent); font-size: 1.2rem;">${totalCount}</strong>명
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 700; color: #475569; background: rgba(255,255,255,0.7); padding: 5px 10px; border-radius: 8px; display: inline-block;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #64748b;">
                     ${courseSummaryStr}
                 </div>
             </div>
@@ -1084,10 +1089,11 @@
         }
 
         globalRaces.forEach(race => {
+            const statusLabel = race.status === "종료" ? "종료" : "진행중";
             const row = document.createElement('div');
             row.className = 'race-admin-row';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong> (${race.location || '장소미정'})<br><span style="font-size:0.72rem; color:#38bdf8;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong> <span style="font-size:0.7rem; color:${statusLabel==='종료'?'#94a3b8':'#38bdf8'};">[${statusLabel}]</span><br><span style="font-size:0.72rem; color:#cbd5e1;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
                 <div style="display:flex; gap:4px;">
                     <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
                     <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
@@ -1113,6 +1119,7 @@
         document.getElementById('new-race-location').value = race.location || "";
         document.getElementById('new-race-date').value = race.date;
         document.getElementById('new-race-deadline').value = race.deadline;
+        document.getElementById('new-race-status').value = race.status || (isRaceEnded(race) ? "종료" : "진행중");
 
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach(chk => chk.checked = false);
@@ -1183,6 +1190,7 @@
         document.getElementById('new-race-location').value = "";
         document.getElementById('new-race-date').value = "";
         document.getElementById('new-race-deadline').value = "";
+        document.getElementById('new-race-status').value = "진행중";
         
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach((chk, idx) => {
@@ -1212,6 +1220,7 @@
         const location = document.getElementById('new-race-location').value.trim();
         const date = document.getElementById('new-race-date').value.trim();
         const deadline = document.getElementById('new-race-deadline').value.trim();
+        const status = document.getElementById('new-race-status').value;
 
         if (!name || !date) {
             alert("대회명과 대회일자는 필수 입력입니다.");
@@ -1261,7 +1270,7 @@
 
         if (!raceId) {
             const tempId = "race_" + Date.now();
-            globalRaces.push({ id: tempId, name: name, location: location, date: date, deadline: deadline || "마감일 미정", courses: coursesStr });
+            globalRaces.push({ id: tempId, name: name, location: location, date: date, deadline: deadline || "마감일 미정", courses: coursesStr, status: status });
             selectedRaceId = tempId;
         } else {
             const target = globalRaces.find(r => r.id === raceId);
@@ -1271,6 +1280,7 @@
                 target.date = date;
                 target.deadline = deadline;
                 target.courses = coursesStr;
+                target.status = status;
             }
         }
 
@@ -1279,7 +1289,7 @@
         alert(raceId ? "대회 정보가 수정되었습니다." : `[${name}] 대회가 성공적으로 등록되었습니다.`);
 
         try {
-            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&location=${encodeURIComponent(location)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}`;
+            const url = `${API_URL}?action=saveRace&raceId=${encodeURIComponent(raceId)}&raceName=${encodeURIComponent(name)}&location=${encodeURIComponent(location)}&date=${encodeURIComponent(date)}&deadline=${encodeURIComponent(deadline || "마감일 미정")}&courses=${encodeURIComponent(coursesStr)}&status=${encodeURIComponent(status)}`;
             fetch(url).then(() => fetchServerData(true));
         } catch(e) {
             console.error("서버 저장 오류:", e);
