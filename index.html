@@ -52,13 +52,16 @@
         .search-input { width: 100%; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border); border-radius: 8px; background: #ffffff; outline: none; box-sizing: border-box; transition: border-color 0.2s; font-weight: 600; }
         .search-input:focus { border-color: var(--accent); }
 
+        /* 📦 콘텐츠 전체를 하나로 감싸는 큰 박스 컨테이너 */
+        .content-card-box { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+
         .swipe-wrapper { overflow: hidden; width: 100%; position: relative; transition: height 0.25s ease-out; }
         .swipe-container { display: flex; width: 300%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; align-items: flex-start; }
         
         .swipe-pane { width: 33.3333%; flex-shrink: 0; box-sizing: border-box; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; height: 0; overflow: hidden; padding: 0; background: transparent; border: none; }
         .swipe-pane.active-pane { opacity: 1; pointer-events: auto; height: auto; overflow: visible; }
 
-        /* 🏁 대회 아코디언 카드 스타일 (배경 통일) */
+        /* 🏁 대회 아코디언 카드 스타일 */
         .race-card-item { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .race-card-item.active { background: #ffffff !important; border-color: var(--accent) !important; box-shadow: 0 6px 16px rgba(37,99,235,0.08); }
         .race-card-item.ended-race { background: #f8fafc !important; border-color: #94a3b8 !important; opacity: 0.85; }
@@ -159,31 +162,33 @@
         <button class="tab-btn" id="tab-members-btn">전체 회원현황</button>
     </div>
 
-    <!-- 3. 좌우 스와이프 및 패널 영역 -->
-    <div class="swipe-wrapper" id="swipe-wrapper">
-        <div id="swipe-container" class="swipe-container">
-            <!-- 1번 패널: 접수 현황 -->
-            <div class="swipe-pane active-pane" id="pane-status">
-                <div id="status-summary-box" style="margin-bottom: 12px;"></div>
-                <div class="search-box">
-                    <input type="text" id="status-search-input" class="search-input" placeholder="🔍 접수자 이름 검색 (예: 이실권)" oninput="renderStatusTab()">
+    <!-- 3. 좌우 스와이프 및 패널 영역을 감싸는 큰 카드 박스 -->
+    <div class="content-card-box">
+        <div class="swipe-wrapper" id="swipe-wrapper">
+            <div id="swipe-container" class="swipe-container">
+                <!-- 1번 패널: 접수 현황 -->
+                <div class="swipe-pane active-pane" id="pane-status">
+                    <div id="status-summary-box" style="margin-bottom: 12px;"></div>
+                    <div class="search-box">
+                        <input type="text" id="status-search-input" class="search-input" placeholder="🔍 접수자 이름 검색 (예: 이실권)" oninput="renderStatusTab()">
+                    </div>
+                    <div id="status-detail-list" style="margin-top: 10px;"></div>
                 </div>
-                <div id="status-detail-list" style="margin-top: 10px;"></div>
-            </div>
-            <!-- 2번 패널: 대회 신청 -->
-            <div class="swipe-pane" id="pane-apply">
-                <div class="search-box">
-                    <input type="text" id="apply-search-input" class="search-input" placeholder="🔍 회원 이름 검색 (예: 이실권)" oninput="renderMemberList()">
+                <!-- 2번 패널: 대회 신청 -->
+                <div class="swipe-pane" id="pane-apply">
+                    <div class="search-box">
+                        <input type="text" id="apply-search-input" class="search-input" placeholder="🔍 회원 이름 검색 (예: 이실권)" oninput="renderMemberList()">
+                    </div>
+                    <div id="member-list-wrapper"></div>
                 </div>
-                <div id="member-list-wrapper"></div>
-            </div>
-            <!-- 3번 패널: 전체 회원현황 -->
-            <div class="swipe-pane" id="pane-members">
-                <div id="member-stats-summary"></div>
-                <div class="search-box" style="margin-top: 12px;">
-                    <input type="text" id="members-search-input" class="search-input" placeholder="🔍 전체 회원 이름 검색 (예: 이실권)" oninput="renderAllMembersTab()">
+                <!-- 3번 패널: 전체 회원현황 -->
+                <div class="swipe-pane" id="pane-members">
+                    <div id="member-stats-summary"></div>
+                    <div class="search-box" style="margin-top: 12px;">
+                        <input type="text" id="members-search-input" class="search-input" placeholder="🔍 전체 회원 이름 검색 (예: 이실권)" oninput="renderAllMembersTab()">
+                    </div>
+                    <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
                 </div>
-                <div id="all-member-list-wrapper" style="margin-top: 12px;"></div>
             </div>
         </div>
     </div>
