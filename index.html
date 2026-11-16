@@ -67,14 +67,19 @@
         /* 🏁 대회 아코디언 카드 스타일 */
         .race-card-item { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .race-card-item:last-child { margin-bottom: 0; }
-        .race-card-item.active { border-color: var(--accent) !important; box-shadow: 0 6px 16px rgba(37,99,235,0.08); }
-        .race-card-item.ended-race { border-color: #94a3b8 !important; opacity: 0.9; }
+        
+        /* 💡 클릭 여부와 무관하게 진행 중인 대회는 기본적으로 테두리 강조 및 활성 스타일 적용 */
+        .race-card-item.active-race { border-color: #86efac !important; box-shadow: 0 4px 12px rgba(5,150,105,0.08); }
+        /* 사용자가 현재 선택(클릭)한 카드는 파란색 외곽선으로 추가 강조 */
+        .race-card-item.selected-target { border-color: var(--accent) !important; box-shadow: 0 6px 16px rgba(37,99,235,0.12); }
+        
+        .race-card-item.ended-race { border-color: #cbd5e1 !important; opacity: 0.85; }
         
         .race-card-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; background: #ffffff; }
         .race-card-title-area { font-size: 1.02rem; font-weight: 800; display: flex; align-items: center; gap: 6px; line-height: 1.3; color: #1e293b; flex-wrap: wrap; }
         
         .status-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; font-weight: 800; white-space: nowrap; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
-        .race-card-item.active:not(.ended-race) .status-badge.active-badge { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .status-badge.active-badge { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
         .status-badge.ended { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 
         .race-toggle-icon { font-size: 0.8rem; color: #64748b; transition: transform 0.2s ease; flex-shrink: 0; padding-left: 8px; }
@@ -311,7 +316,7 @@
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
     let activePaneIndex = 0;
 
-    const courseRank = { "풀코س": 1, "하프": 2, "10km": 3, "5km": 4 };
+    const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
 
     function getCourseRank(course) {
         if (!course) return 99;
@@ -390,7 +395,6 @@
         return "70대 이상";
     }
 
-    /* 📅 대회일자(예: 2025.04.13(일))를 분석하여 오늘 날짜와 비교해 종료 여부 자동 판단 */
     function isRaceEnded(race) {
         const status = race.status || "";
         if (status === "종료") return true;
@@ -410,7 +414,6 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // 대회일 다음날부터 종료로 판정
             raceDate.setDate(raceDate.getDate() + 1);
             if (today >= raceDate) {
                 return true;
@@ -571,7 +574,17 @@
         const isSelected = (race.id === selectedRaceId);
         const isExpanded = isSelected;
         
-        card.className = `race-card-item ${isSelected ? 'active' : ''} ${isExpanded ? 'expanded' : ''} ${isEnded ? 'ended-race' : ''}`;
+        // 💡 클릭 여부와 무관하게 진행 중인 대회는 기본적으로 'active-race' 적용, 선택되면 'selected-target' 추가
+        let cardClasses = ['race-card-item'];
+        if (isEnded) {
+            cardClasses.push('ended-race');
+        } else {
+            cardClasses.push('active-race'); // 진행 중인 대회는 기본 초록 계열 테두리/그림자 유지
+        }
+        if (isSelected) cardClasses.push('selected-target');
+        if (isExpanded) cardClasses.push('expanded');
+
+        card.className = cardClasses.join(' ');
         
         let coursesHtml = '';
         if (race.courses) {
@@ -581,11 +594,10 @@
             });
         }
 
+        // 💡 진행 중인 대회는 클릭하지 않아도 항상 '진행중' 초록색 활성 뱃지 표시
         const badgeHtml = isEnded 
             ? `<span class="status-badge ended">종료</span>`
-            : (isSelected 
-                ? `<span class="status-badge active-badge">진행중</span>` 
-                : `<span class="status-badge">진행중</span>`);
+            : `<span class="status-badge active-badge">진행중</span>`;
 
         card.innerHTML = `
             <div class="race-card-header">
