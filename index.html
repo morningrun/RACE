@@ -179,7 +179,7 @@
                     </div>
                     <div id="status-detail-list" style="margin-top: 10px;"></div>
                 </div>
-                <!-- 2번 패널: 대회 신청 (컴팩트 리스트 적용) -->
+                <!-- 2번 패널: 대회 신청 -->
                 <div class="swipe-pane" id="pane-apply">
                     <div class="search-box">
                         <input type="text" id="apply-search-input" class="search-input" placeholder="🔍 회원 이름 검색 (예: 이실권)" oninput="renderMemberList()">
@@ -218,8 +218,9 @@
             <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
                 <label style="font-size:0.85rem; font-weight:700; color:#38bdf8;">대회 진행 상태:</label>
                 <select id="new-race-status" style="padding:6px 10px; border-radius:6px; background:#0f172a; color:white; font-weight:700;">
-                    <option value="진행중">진행중</option>
-                    <option value="종료">종료</option>
+                    <option value="자동(날짜기준)">자동 (대회일 지나면 자동 종료)</option>
+                    <option value="진행중">항상 진행중 (수동)</option>
+                    <option value="종료">항상 종료 (수동)</option>
                 </select>
             </div>
             
@@ -310,7 +311,7 @@
     let selectedRaceId = localStorage.getItem('boksagol_selected_race_v24') || "";
     let activePaneIndex = 0;
 
-    const courseRank = { "풀코스": 1, "하프": 2, "10km": 3, "5km": 4 };
+    const courseRank = { "풀코س": 1, "하프": 2, "10km": 3, "5km": 4 };
 
     function getCourseRank(course) {
         if (!course) return 99;
@@ -389,11 +390,33 @@
         return "70대 이상";
     }
 
+    /* 📅 대회일자(예: 2025.04.13(일))를 분석하여 오늘 날짜와 비교해 종료 여부 자동 판단 */
     function isRaceEnded(race) {
-        if (race.status === "종료") return true;
-        if (race.status === "진행중") return false;
+        const status = race.status || "";
+        if (status === "종료") return true;
+        if (status === "진행중") return false;
+
         const name = race.name || "";
-        return name.includes("[종료]") || name.includes("종료");
+        if (name.includes("[종료]") || name.includes("종료")) return true;
+
+        const dateStr = race.date || "";
+        const match = dateStr.match(/(\d{4})[./-](\d{1,2})[./-](\d{1,2})/);
+        if (match) {
+            const year = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10) - 1;
+            const day = parseInt(match[3], 10);
+            const raceDate = new Date(year, month, day);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 대회일 다음날부터 종료로 판정
+            raceDate.setDate(raceDate.getDate() + 1);
+            if (today >= raceDate) {
+                return true;
+            }
+        }
+        return false;
     }
 
     async function fetchServerData(silent = false) {
@@ -1055,11 +1078,12 @@
         }
 
         globalRaces.forEach(race => {
-            const statusLabel = race.status === "종료" ? "종료" : "진행중";
+            const ended = isRaceEnded(race);
+            const statusLabel = race.status === "종료" ? "종료(수동)" : (race.status === "진행중" ? "진행중(수동)" : (ended ? "종료(자동)" : "진행중(자동)"));
             const row = document.createElement('div');
             row.className = 'race-admin-row';
             row.innerHTML = `
-                <div style="font-size:0.85rem;"><strong>${race.name}</strong> <span style="font-size:0.7rem; color:${statusLabel==='종료'?'#94a3b8':'#38bdf8'};">[${statusLabel}]</span><br><span style="font-size:0.72rem; color:#cbd5e1;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
+                <div style="font-size:0.85rem;"><strong>${race.name}</strong> <span style="font-size:0.7rem; color:${ended?'#94a3b8':'#38bdf8'};">[${statusLabel}]</span><br><span style="font-size:0.72rem; color:#cbd5e1;">종목/비용: ${race.courses}</span><br><span style="font-size:0.7rem; color:#94a3b8;">${race.date} / ${race.deadline}</span></div>
                 <div style="display:flex; gap:4px;">
                     <button class="race-edit-btn" data-id="${race.id}" style="background:#2563eb; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">수정</button>
                     <button class="race-del-btn" data-id="${race.id}" style="background:#dc2626; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size:0.75rem; font-weight:700;">삭제</button>
@@ -1085,7 +1109,7 @@
         document.getElementById('new-race-location').value = race.location || "";
         document.getElementById('new-race-date').value = race.date;
         document.getElementById('new-race-deadline').value = race.deadline;
-        document.getElementById('new-race-status').value = race.status || (isRaceEnded(race) ? "종료" : "진행중");
+        document.getElementById('new-race-status').value = race.status || "자동(날짜기준)";
 
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach(chk => chk.checked = false);
@@ -1156,7 +1180,7 @@
         document.getElementById('new-race-location').value = "";
         document.getElementById('new-race-date').value = "";
         document.getElementById('new-race-deadline').value = "";
-        document.getElementById('new-race-status').value = "진행중";
+        document.getElementById('new-race-status').value = "자동(날짜기준)";
         
         const chks = document.querySelectorAll('.race-course-chk');
         chks.forEach((chk, idx) => {
